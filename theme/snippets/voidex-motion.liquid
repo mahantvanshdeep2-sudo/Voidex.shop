@@ -1,0 +1,40 @@
+{% comment %}
+  Loads the VOIDEX motion layer.
+
+  The stylesheet is inlined rather than linked. Its hiding rules are what make
+  a scroll reveal possible, and a linked stylesheet can land after first paint
+  -- which would show a section, then hide it, then reveal it again. Inlining
+  removes both the flash and a render-blocking round trip. Savor takes the same
+  approach with `view-transitions.js` in `snippets/scripts.liquid`.
+
+  The inline script below is the only thing that turns the hiding rules on, and
+  it arms a failsafe that turns them back off. `assets/voidex-motion.js` clears
+  that timer when it boots. So if the module 404s, throws, or is blocked, the
+  timer fires and the page renders as plain, fully visible Savor.
+{% endcomment %}
+
+<style>
+  {{- 'voidex-motion.css' | inline_asset_content -}}
+</style>
+
+<script>
+  (function () {
+    /* Matched against the same checks in assets/voidex-motion.js. Testing here
+       too means a visitor who has asked for reduced motion, or is on a
+       low-power device, never has content hidden from them at all. */
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (Number(navigator.hardwareConcurrency) <= 2 || Number(navigator.deviceMemory) <= 2) return;
+
+    document.documentElement.setAttribute('data-vx-motion', 'on');
+
+    window.__vxMotionFailsafe = window.setTimeout(function () {
+      document.documentElement.removeAttribute('data-vx-motion');
+    }, 2500);
+  })();
+</script>
+
+<script
+  src="{{ 'voidex-motion.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>

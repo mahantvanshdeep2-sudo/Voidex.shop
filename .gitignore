@@ -1,0 +1,4 @@
+node_modules/
+tests/harness/index.html
+tests/harness/voidex-motion.js
+tests/shots/

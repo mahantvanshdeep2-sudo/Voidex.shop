@@ -1,0 +1,227 @@
+/* ==========================================================================
+   VOIDEX motion layer
+   --------------------------------------------------------------------------
+   A self-contained motion system layered on top of Savor (Horizon). It adds
+   scroll reveals, refined cross-document page transitions, and hover/press
+   micro-interactions without editing any theme-owned CSS.
+
+   Three rules this file keeps to:
+
+   1. Only `opacity` and `transform` are animated. Both are compositor-driven,
+      so a reveal never triggers layout or paint on the main thread.
+   2. No `transform` is ever set on a section-level element. A transform
+      creates a containing block, which silently breaks `position: sticky`
+      and `position: fixed` descendants -- the sticky add-to-cart bar and the
+      collection filter rail both rely on those. Sections fade; only their
+      inner children translate.
+   3. Nothing is hidden unless JS has confirmed it can un-hide it. Every
+      hiding rule is gated on `html[data-vx-motion='on']`, an attribute set by
+      the inline boot script in `snippets/voidex-motion.liquid` and cleared by
+      its failsafe timer. If the module never loads, the attribute goes away
+      and the page renders as plain, fully visible Savor.
+   ========================================================================== */
+
+:root {
+  /* Expo-out. The long tail is what reads as "smooth" rather than "fast". */
+  --vx-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --vx-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --vx-ease-press: cubic-bezier(0.34, 1.32, 0.64, 1);
+
+  --vx-dur-fast: 180ms;
+  --vx-dur-base: 420ms;
+  --vx-dur-slow: 720ms;
+
+  --vx-rise: 18px;
+  --vx-stagger: 70ms;
+}
+
+/* --------------------------------------------------------------------------
+   1. Scroll reveals
+   -------------------------------------------------------------------------- */
+
+/* Sections fade only -- see rule 2 in the header comment. */
+html[data-vx-motion='on'] #MainContent > .shopify-section {
+  transition: opacity var(--vx-dur-base) var(--vx-ease-out);
+}
+
+html[data-vx-motion='on'] #MainContent > .shopify-section:not(:first-child):not(.vx-in) {
+  opacity: 0;
+}
+
+/* The first section carries the LCP. It is never hidden waiting on JS; it
+   animates in with a pure-CSS keyframe that cannot fail to complete.
+
+   Opacity only, and for the same reason as every other section: on a product
+   page the first section is `product-information`, which holds the sticky
+   add-to-cart bar. A transform here -- even one that only runs for 720ms --
+   would make this element a containing block and unstick that bar. */
+html[data-vx-motion='on'] #MainContent > .shopify-section:first-child {
+  animation: vx-load-in var(--vx-dur-slow) var(--vx-ease-out) both;
+}
+
+/* Staggered children. `.vx-item` is only ever added by the engine, and only to
+   children of a section that CSS has already hidden -- so marking them cannot
+   cause a visible hide-then-show flicker. */
+html[data-vx-motion='on'] .vx-item {
+  opacity: 0;
+  transform: translate3d(0, var(--vx-rise), 0);
+  transition:
+    opacity var(--vx-dur-base) var(--vx-ease-out),
+    transform var(--vx-dur-slow) var(--vx-ease-out);
+  transition-delay: calc(var(--vx-i, 0) * var(--vx-stagger));
+}
+
+html[data-vx-motion='on'] .shopify-section.vx-in .vx-item,
+html[data-vx-motion='on'] .vx-item.vx-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Promoted only while a reveal is actually pending. A permanent `will-change`
+   pins a compositor layer per element and costs more memory than it saves. */
+html[data-vx-motion='on'] .vx-item:not(.vx-done) {
+  will-change: opacity, transform;
+}
+
+html[data-vx-motion='on'] .vx-item.vx-done {
+  will-change: auto;
+}
+
+@keyframes vx-load-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. Cross-document page transitions
+
+   Savor already opts into MPA view transitions in
+   `snippets/view-transition-opt-in.liquid` and tags each navigation with a
+   type in `assets/view-transitions.js` (`page-navigation`, or a custom type
+   for product-media morphs). This block only supplies the choreography for
+   the generic `page-navigation` case; the product morph is left alone.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Persistent chrome. Giving these their own snapshot lifts them out of the
+     root snapshot, so they hold still while the page content swaps instead of
+     cross-fading with it -- the single biggest smoothness win here. */
+  #header-component {
+    view-transition-name: vx-header;
+  }
+
+  .page-wrapper > footer {
+    view-transition-name: vx-footer;
+  }
+
+  html:active-view-transition-type(page-navigation)::view-transition-old(root) {
+    animation: vx-vt-out 240ms cubic-bezier(0.4, 0, 1, 1) both;
+  }
+
+  html:active-view-transition-type(page-navigation)::view-transition-new(root) {
+    animation: vx-vt-in var(--vx-dur-base) var(--vx-ease-out) both;
+  }
+
+  /* Chrome snapshots hold their position rather than animating. */
+  ::view-transition-group(vx-header),
+  ::view-transition-group(vx-footer) {
+    animation-duration: 0s;
+  }
+}
+
+@keyframes vx-vt-out {
+  to {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0) scale(0.995);
+  }
+}
+
+@keyframes vx-vt-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.995);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. Micro-interactions
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Press feedback. Scoped to pointer devices so a tap on mobile does not
+     fight the browser's own active state. */
+  @media (hover: hover) and (pointer: fine) {
+    html[data-vx-motion='on'] .button,
+    html[data-vx-motion='on'] button:not([disabled]),
+    html[data-vx-motion='on'] .shopify-payment-button__button {
+      transition:
+        transform var(--vx-dur-fast) var(--vx-ease-press),
+        background-color var(--vx-dur-fast) var(--vx-ease-out),
+        border-color var(--vx-dur-fast) var(--vx-ease-out),
+        color var(--vx-dur-fast) var(--vx-ease-out),
+        box-shadow var(--vx-dur-base) var(--vx-ease-out);
+    }
+
+    html[data-vx-motion='on'] .button:active,
+    html[data-vx-motion='on'] button:not([disabled]):active,
+    html[data-vx-motion='on'] .shopify-payment-button__button:active {
+      transform: scale(0.975);
+    }
+  }
+
+  /* Savor's own `card_hover_effect: subtle-zoom` handles the scale. This only
+     lengthens and re-eases it so it glides instead of snapping. */
+  html[data-vx-motion='on'] .card-gallery img,
+  html[data-vx-motion='on'] .product-card img,
+  html[data-vx-motion='on'] .resource-card img {
+    transition: transform var(--vx-dur-slow) var(--vx-ease-out) !important;
+  }
+
+  /* Lazy images otherwise pop in at full opacity the instant they decode.
+     `.vx-img` is added by the engine once a decode is confirmed. */
+  html[data-vx-motion='on'] img.vx-img {
+    animation: vx-img-in var(--vx-dur-base) var(--vx-ease-out) both;
+  }
+
+  /* Header gains depth once the page is scrolled off the top. */
+  html[data-vx-motion='on'] #header-component {
+    transition:
+      box-shadow var(--vx-dur-base) var(--vx-ease-out),
+      backdrop-filter var(--vx-dur-base) var(--vx-ease-out);
+  }
+
+  html[data-vx-motion='on'] #header-component.vx-scrolled {
+    box-shadow: 0 1px 24px rgb(0 0 0 / 8%);
+  }
+}
+
+@keyframes vx-img-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. Reduced motion
+
+   The engine also refuses to boot under `prefers-reduced-motion: reduce`, so
+   this is belt-and-braces for anything that slipped through -- and it covers
+   the case where the preference flips mid-session.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-vx-motion='on'] #MainContent > .shopify-section,
+  html[data-vx-motion='on'] .vx-item {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}
