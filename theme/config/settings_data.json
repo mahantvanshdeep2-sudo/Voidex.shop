@@ -66,11 +66,11 @@
     "variant_button_radius": 0,
     "variant_button_width": "equal-width-buttons",
     "color_palette": {
-      "background": "#ffffff",
-      "foreground": "#000000",
-      "color1": "#a42325",
-      "color2": "#e8d5c7",
-      "color3": "#E6E6E6"
+      "background": "#FFFFFF",
+      "foreground": "#0A0A0A",
+      "color1": "#0A0A0A",
+      "color2": "#F4F1EC",
+      "color3": "#E2E2E2"
     },
     "page_transition_enabled": true,
     "transition_to_main_product": true

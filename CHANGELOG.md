@@ -168,3 +168,65 @@ how the motion reads against actual store content. The preview link is the check
   VOIDED/VØIDEX split.
 - Margin target lowered over time: $25 → $20 → current $15 profit/unit.
 - AutoDS subscription cancelled — fulfillment, inventory and supplier price checks now manual.
+
+---
+
+## 2026-09-24 — Store cleanup, consistent delivery promise, professional palette
+
+### Delivery time: four different numbers, now one
+
+The store quoted four different delivery times. Order #1001 (placed 21 Sep, delivered on the
+third day) is the only real data point. Everything now reads the same, because a product page
+that disagrees with checkout is what produces chargebacks:
+
+| Where | Before | Now |
+|---|---|---|
+| Product description | "2–3 weeks … overseas fulfilment partner" | 3–5 business days (CA) |
+| Shoe Care FAQ | "2–3 weeks to anywhere in Canada" | 3–5 business days (CA) |
+| Checkout rate name | "Standard", no estimate | "Free Shipping (3–5 business days)" |
+| Shipping policy text | "7–14 business days" | Matches the table |
+
+Canada is quoted at 3–5 rather than 3, the US at 3–7, rest of world at 7–14 — one delivery is
+not a sample, and an unmet promise costs more than a cautious one.
+
+### Changed on the live store
+
+- **Product description** — rewrote the shipping section; removed the "2–3 weeks / overseas"
+  claim.
+- **Product SEO** — title and meta description were empty; both written.
+- **Product URL** — `/products/voided-sneaker-wash-bag-…` → `/products/voidex-sneaker-wash-bag`.
+  The old handle still carried the "VOIDED" spelling from the abandoned brand split.
+- **Shoe Care FAQ** — corrected the shipping answer, added a shipping-cost answer and a
+  "how do I reach a human" answer.
+- **Contact page** — was completely empty. Now has address, email, phone, hours, and a
+  shipping/returns summary.
+- **Main menu** — "Catalog" → "Shop"; added FAQ and Contact.
+- **Footer menu** — was Search + Your Privacy Choices. Now the product and All Products.
+- **New "Help" menu** — FAQ, Contact, Your Privacy Choices, Search.
+- **Checkout shipping rates** — renamed to carry the delivery estimate; the duplicate free
+  "Express" rate on Rest of World was deactivated. Two free rates with identical speed is not
+  a choice, it's a bug the customer has to resolve.
+
+### Changed on the dev theme (`167583219962`)
+
+- **Palette.** Savor ships a restaurant scheme — `#a42325` brick red and `#e8d5c7` cream. On a
+  shoe-care store it reads as a diner. Replaced with near-black `#0A0A0A` on white, warm
+  off-white `#F4F1EC` for alternating sections, `#E2E2E2` for borders. Unlike a colour, a
+  near-black primary never fights product photography.
+- **Footer background** `#2563eb` → `#0A0A0A`. The blue matched nothing else on the page.
+- **Footer columns.** "Ask" and "Connect" were headings with no menu attached, so they rendered
+  as bare words with nothing underneath. "Ask" now points at the new Help menu and is renamed
+  "Help"; "Connect" is removed, since the social icons already render in the utilities row.
+
+### Blocked — needs the owner
+
+- **Policies.** The connector lacks `write_legal_policies`, so `shopPolicyUpdate` is denied.
+  Finished text for Refund, Shipping, Terms of Service and Contact Information is in
+  `policies/`, ready to paste. Shipping, Terms and Contact are currently *empty* on the store,
+  and the existing Refund policy has Shipping and Terms crammed inside it.
+- **Theme publishing.** The connector blocks `themePublish` and blocks all writes to the live
+  theme. The dev theme has to be published from admin.
+- **Domain removal.** There is no `domainDelete` in the Admin API — domains are admin-UI only.
+  Three exist: `voidexshop.com` (purchased, already primary — correct),
+  `ceqr72-v1.myshopify.com` (Shopify's permanent internal domain, cannot be removed by anyone,
+  not shown to customers), and `voidex-6190.myshopify.com` (an extra, removable in admin).
