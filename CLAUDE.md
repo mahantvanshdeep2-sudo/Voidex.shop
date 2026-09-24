@@ -33,8 +33,11 @@ Preview link for the DEV theme:
 
 ## Working on the theme without Shopify CLI
 
-The remote container has no Shopify CLI and no browser access to `voidexshop.com` (the
-environment's network policy blocks it). Theme files are still fully readable and writable
+The remote container has no Shopify CLI and no browser access to the storefront: the
+environment's egress policy answers 403 to `voidexshop.com` and `ceqr72-v1.myshopify.com`
+(re-confirmed 2026-09-24). Don't retry or route around it. It lifts only when the owner adds
+those hosts (plus `cdn.shopify.com`) to the environment's allowed domains, after which a new
+session can take real Chromium screenshots. Theme files are still fully readable and writable
 through the Shopify Admin GraphQL API, which the Shopify connector exposes:
 
 - Read: `theme(id:) { files(filenames: [...]) { nodes { body { ... on OnlineStoreThemeFileBodyText { content } } } } }`
@@ -92,8 +95,8 @@ show evidence.
 
 | Tool | Status |
 |---|---|
-| Shopify | Connected, live. Theme read/write confirmed working. |
-| Gmail | Connected but **insufficient OAuth scope** — search/list/label all fail. Owner must reconnect with full Gmail access before any inbox work. |
+| Shopify | Connected, live. 63 scopes (check any time with `{ currentAppInstallation { accessScopes { handle } } }`). **No `write_legal_policies`, even after the owner reconnected on 2026-09-24** — the connector doesn't request it, so policies are always a manual paste from `policies/`; don't retry `shopPolicyUpdate`. The connector also refuses `themePublish` and writes to the live theme despite `write_themes`. |
+| Gmail | Working — search verified 2026-09-24 after the owner reconnected. |
 | Google Drive | Connected |
 | Instagram | Installed, needs reconnect |
 | Meta Ads connector | Not yet added. Owner chose **Option A**: official Meta Ads connector (`https://mcp.facebook.com/ads`) + Shopify's native Facebook & Instagram sales channel. Start read-only. |

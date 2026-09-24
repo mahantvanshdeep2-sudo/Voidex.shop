@@ -2,6 +2,95 @@
 
 Changes, fixes, findings, and decisions, most recent first.
 
+## 2026-09-24 (later) — Policy audit after the owner's paste, connector re-check
+
+### Verified via Admin API
+
+- **Refund** and **Shipping** policies: live text identical to `policies/01` and `02`
+  (text-level diff; 1,459 and 1,700 characters on both sides).
+- **Privacy policy**: Shopify-generated, no placeholders, address/phone/email all match.
+- **Shopify connector after the owner reconnected**: same 63 scopes as before, still no
+  `write_legal_policies`. Reconnecting does not add it — the connector doesn't request it.
+- **Gmail**: `search_threads` now works (it failed on OAuth scope before the reconnect).
+- **DEV theme**: every `templates/*.json` and both section groups scanned for restaurant demo
+  copy — none left.
+
+### Found broken
+
+- **Terms of service**: Shopify's Terms template was generated and the draft pasted after it.
+  The whole ~24,000-character template sits inside a single `<h2>`, so it renders as one giant
+  heading; 10 placeholders show to customers (`[LINK]` ×4, `[INSERT …]` ×5,
+  `[NOTE TO MERCHANT …]`); and two governing-law clauses contradict each other ("state or
+  territorial courts" vs Ontario). `policies/03-terms-of-service.html` is rewritten as one clean
+  document to replace the whole box.
+- **Contact information**: holds only the email line; `policies/04` still needs pasting.
+
+### Correction
+
+A chat reply earlier today said theme publishing was not API-blocked because `write_themes` is
+granted. The test recorded in the entry below stands: the connector refuses `themePublish` and
+live-theme writes regardless of scope.
+
+## 2026-09-24 — Store cleanup, consistent delivery promise, professional palette
+
+### Delivery time: four different numbers, now one
+
+The store quoted four different delivery times. Order #1001 (placed 21 Sep, delivered on the
+third day) is the only real data point. Everything now reads the same, because a product page
+that disagrees with checkout is what produces chargebacks:
+
+| Where | Before | Now |
+|---|---|---|
+| Product description | "2–3 weeks … overseas fulfilment partner" | 3–5 business days (CA) |
+| Shoe Care FAQ | "2–3 weeks to anywhere in Canada" | 3–5 business days (CA) |
+| Checkout rate name | "Standard", no estimate | "Free Shipping (3–5 business days)" |
+| Shipping policy text | "7–14 business days" | Matches the table |
+
+Canada is quoted at 3–5 rather than 3, the US at 3–7, rest of world at 7–14 — one delivery is
+not a sample, and an unmet promise costs more than a cautious one.
+
+### Changed on the live store
+
+- **Product description** — rewrote the shipping section; removed the "2–3 weeks / overseas"
+  claim.
+- **Product SEO** — title and meta description were empty; both written.
+- **Product URL** — `/products/voided-sneaker-wash-bag-…` → `/products/voidex-sneaker-wash-bag`.
+  The old handle still carried the "VOIDED" spelling from the abandoned brand split.
+- **Shoe Care FAQ** — corrected the shipping answer, added a shipping-cost answer and a
+  "how do I reach a human" answer.
+- **Contact page** — was completely empty. Now has address, email, phone, hours, and a
+  shipping/returns summary.
+- **Main menu** — "Catalog" → "Shop"; added FAQ and Contact.
+- **Footer menu** — was Search + Your Privacy Choices. Now the product and All Products.
+- **New "Help" menu** — FAQ, Contact, Your Privacy Choices, Search.
+- **Checkout shipping rates** — renamed to carry the delivery estimate; the duplicate free
+  "Express" rate on Rest of World was deactivated. Two free rates with identical speed is not
+  a choice, it's a bug the customer has to resolve.
+
+### Changed on the dev theme (`167583219962`)
+
+- **Palette.** Savor ships a restaurant scheme — `#a42325` brick red and `#e8d5c7` cream. On a
+  shoe-care store it reads as a diner. Replaced with near-black `#0A0A0A` on white, warm
+  off-white `#F4F1EC` for alternating sections, `#E2E2E2` for borders. Unlike a colour, a
+  near-black primary never fights product photography.
+- **Footer background** `#2563eb` → `#0A0A0A`. The blue matched nothing else on the page.
+- **Footer columns.** "Ask" and "Connect" were headings with no menu attached, so they rendered
+  as bare words with nothing underneath. "Ask" now points at the new Help menu and is renamed
+  "Help"; "Connect" is removed, since the social icons already render in the utilities row.
+
+### Blocked — needs the owner
+
+- **Policies.** The connector lacks `write_legal_policies`, so `shopPolicyUpdate` is denied.
+  Finished text for Refund, Shipping, Terms of Service and Contact Information is in
+  `policies/`, ready to paste. Shipping, Terms and Contact are currently *empty* on the store,
+  and the existing Refund policy has Shipping and Terms crammed inside it.
+- **Theme publishing.** The connector blocks `themePublish` and blocks all writes to the live
+  theme. The dev theme has to be published from admin.
+- **Domain removal.** There is no `domainDelete` in the Admin API — domains are admin-UI only.
+  Three exist: `voidexshop.com` (purchased, already primary — correct),
+  `ceqr72-v1.myshopify.com` (Shopify's permanent internal domain, cannot be removed by anyone,
+  not shown to customers), and `voidex-6190.myshopify.com` (an extra, removable in admin).
+
 ## 2026-09-22 — Motion layer on a dev theme
 
 Built a motion/transition system for the storefront and put it on an **unpublished** dev theme.
@@ -170,63 +259,3 @@ how the motion reads against actual store content. The preview link is the check
 - AutoDS subscription cancelled — fulfillment, inventory and supplier price checks now manual.
 
 ---
-
-## 2026-09-24 — Store cleanup, consistent delivery promise, professional palette
-
-### Delivery time: four different numbers, now one
-
-The store quoted four different delivery times. Order #1001 (placed 21 Sep, delivered on the
-third day) is the only real data point. Everything now reads the same, because a product page
-that disagrees with checkout is what produces chargebacks:
-
-| Where | Before | Now |
-|---|---|---|
-| Product description | "2–3 weeks … overseas fulfilment partner" | 3–5 business days (CA) |
-| Shoe Care FAQ | "2–3 weeks to anywhere in Canada" | 3–5 business days (CA) |
-| Checkout rate name | "Standard", no estimate | "Free Shipping (3–5 business days)" |
-| Shipping policy text | "7–14 business days" | Matches the table |
-
-Canada is quoted at 3–5 rather than 3, the US at 3–7, rest of world at 7–14 — one delivery is
-not a sample, and an unmet promise costs more than a cautious one.
-
-### Changed on the live store
-
-- **Product description** — rewrote the shipping section; removed the "2–3 weeks / overseas"
-  claim.
-- **Product SEO** — title and meta description were empty; both written.
-- **Product URL** — `/products/voided-sneaker-wash-bag-…` → `/products/voidex-sneaker-wash-bag`.
-  The old handle still carried the "VOIDED" spelling from the abandoned brand split.
-- **Shoe Care FAQ** — corrected the shipping answer, added a shipping-cost answer and a
-  "how do I reach a human" answer.
-- **Contact page** — was completely empty. Now has address, email, phone, hours, and a
-  shipping/returns summary.
-- **Main menu** — "Catalog" → "Shop"; added FAQ and Contact.
-- **Footer menu** — was Search + Your Privacy Choices. Now the product and All Products.
-- **New "Help" menu** — FAQ, Contact, Your Privacy Choices, Search.
-- **Checkout shipping rates** — renamed to carry the delivery estimate; the duplicate free
-  "Express" rate on Rest of World was deactivated. Two free rates with identical speed is not
-  a choice, it's a bug the customer has to resolve.
-
-### Changed on the dev theme (`167583219962`)
-
-- **Palette.** Savor ships a restaurant scheme — `#a42325` brick red and `#e8d5c7` cream. On a
-  shoe-care store it reads as a diner. Replaced with near-black `#0A0A0A` on white, warm
-  off-white `#F4F1EC` for alternating sections, `#E2E2E2` for borders. Unlike a colour, a
-  near-black primary never fights product photography.
-- **Footer background** `#2563eb` → `#0A0A0A`. The blue matched nothing else on the page.
-- **Footer columns.** "Ask" and "Connect" were headings with no menu attached, so they rendered
-  as bare words with nothing underneath. "Ask" now points at the new Help menu and is renamed
-  "Help"; "Connect" is removed, since the social icons already render in the utilities row.
-
-### Blocked — needs the owner
-
-- **Policies.** The connector lacks `write_legal_policies`, so `shopPolicyUpdate` is denied.
-  Finished text for Refund, Shipping, Terms of Service and Contact Information is in
-  `policies/`, ready to paste. Shipping, Terms and Contact are currently *empty* on the store,
-  and the existing Refund policy has Shipping and Terms crammed inside it.
-- **Theme publishing.** The connector blocks `themePublish` and blocks all writes to the live
-  theme. The dev theme has to be published from admin.
-- **Domain removal.** There is no `domainDelete` in the Admin API — domains are admin-UI only.
-  Three exist: `voidexshop.com` (purchased, already primary — correct),
-  `ceqr72-v1.myshopify.com` (Shopify's permanent internal domain, cannot be removed by anyone,
-  not shown to customers), and `voidex-6190.myshopify.com` (an extra, removable in admin).

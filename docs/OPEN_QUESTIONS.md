@@ -17,20 +17,29 @@ at all — it would be guesswork dressed up as a match.
 Until this lands, the motion layer is built on its own timing system (see
 `docs/MOTION_LAYER.md`) and no colour, font or layout decision has been made.
 
-## 2. Footer background is `#2563eb`
+## 2. Footer background is `#2563eb` — RESOLVED 2026-09-24
+
+DEV theme footer is now `#0A0A0A`, matching the new palette. See `CHANGELOG.md`.
+
 
 A bright blue, against Savor's palette of white / black / `#a42325` red / `#e8d5c7` cream.
 It looks like a leftover from earlier experimentation rather than a choice, but picking a
 footer colour is a brand decision and the reference store will probably dictate it. Left
 exactly as-is on both themes, deliberately.
 
-## 3. Footer menus "Ask" and "Connect" have no menu assigned
+## 3. Footer menus "Ask" and "Connect" have no menu assigned — RESOLVED 2026-09-24
+
+DEV theme: "Ask" → "Help" (new Help menu), "Connect" removed. See `CHANGELOG.md`.
+
 
 Both render as bare headings with no links under them. "Shop" correctly points at the `footer`
 menu. Fixing this needs a decision about what belongs under each heading (policies? contact?
 FAQ?), which is content, not code.
 
-## 4. Delivery-time mismatch
+## 4. Delivery-time mismatch — RESOLVED 2026-09-24
+
+Product page, FAQ, checkout rates and Shipping policy all read 3–5 / 3–7 / 7–14 business days.
+
 
 The product page promises "2–3 weeks to reach you in Canada". Checkout shows
 "Standard — free — 3–5 days". This is a real chargeback and complaint risk.

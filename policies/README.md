@@ -11,15 +11,24 @@ Go to **Settings → Policies**: https://admin.shopify.com/store/ceqr72-v1/setti
 For each file below, open the matching box, click the `<>` (Show HTML) button in the editor
 toolbar, paste the file's contents, and save.
 
-| File | Paste into |
-|---|---|
-| `01-refund-policy.html` | Refund policy *(replaces what's there — the current one has Shipping and Terms crammed inside it)* |
-| `02-shipping-policy.html` | Shipping policy *(currently empty)* |
-| `03-terms-of-service.html` | Terms of service *(currently empty)* |
-| `04-contact-information.html` | Contact information *(currently empty)* |
+In HTML mode, select everything already in the box and delete it **before** pasting — pasting
+next to existing text is what broke Terms of Service on 2026-09-24.
+
+| File | Paste into | Live status (checked 2026-09-24 via API) |
+|---|---|---|
+| `01-refund-policy.html` | Refund policy | Done — live text matches the file exactly |
+| `02-shipping-policy.html` | Shipping policy | Done — live text matches the file exactly |
+| `03-terms-of-service.html` | Terms of service | **Redo** — replace everything in the box (see below) |
+| `04-contact-information.html` | Contact information | **Redo** — box holds only the email line |
+
+`03-terms-of-service.html` is now Shopify's own Terms template, cleaned up: its 10 placeholders
+(`[LINK]` ×4, `[INSERT …]` ×5, a `[NOTE TO MERCHANT …]`) filled or removed, governing law set to
+Ontario, CAD pricing and the Shipping Policy's 30-day guarantee referenced. It replaces the
+shorter draft, because Shopify's version carries the disclaimer, indemnity and
+Shopify-relationship clauses the short one lacked.
 
 Leave **Privacy policy** alone — Shopify generates and maintains it, and the existing one is
-current and correct.
+current and correct (no placeholders; address, phone and email all match).
 
 ## Why the delivery numbers say what they say
 
