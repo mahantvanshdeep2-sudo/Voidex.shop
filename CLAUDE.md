@@ -35,7 +35,8 @@ Preview link for the DEV theme:
 
 The remote container has no Shopify CLI and no browser access to the storefront: the
 environment's egress policy answers 403 to `voidexshop.com` and `ceqr72-v1.myshopify.com`
-(re-confirmed 2026-09-24). Don't retry or route around it. It lifts only when the owner adds
+(re-confirmed 2026-09-24 and 2026-09-28). WebFetch is blocked the same way (trend sites,
+AliExpress, CJ), so product research runs on WebSearch only. Don't retry or route around it. It lifts only when the owner adds
 those hosts (plus `cdn.shopify.com`) to the environment's allowed domains, after which a new
 session can take real Chromium screenshots. Theme files are still fully readable and writable
 through the Shopify Admin GraphQL API, which the Shopify connector exposes:
@@ -61,7 +62,10 @@ file, or just read the content back.
   2. Not something available everywhere (if it's at Walmart down the street, skip it).
   3. Demand is already proven.
   - Product choice outranks store polish: a great store cannot save a weak product.
-- **Rejected direction:** pet products / pet-store niche — researched, then explicitly dropped.
+- **Pet products — reopened by the owner 2026-09-28** (dropped 2026-09-14, then asked for again).
+  His new pricing rule for it: retail = **3× landed cost**, and prefer products selling at
+  **$30–50+**, because cheap items sell more but earn too little. Research and two draft
+  listings from 2026-09-28 are in `CHANGELOG.md`.
 - **Fulfillment:** AutoDS cancelled. Inventory, fulfillment, and supplier price checks are
   manual. No dropshipping-supplier connector exists (AliExpress, CJ, Zendrop, Spocket all
   checked, none found), so supplier work is manual-assisted: Claude drafts, owner executes/pays.
@@ -74,6 +78,10 @@ file, or just read the content back.
   White / Grey / Value Set. The only product purchasable end-to-end.
 - **3 DRAFT (deliberate, not oversights):** Shoe Protector Spray ($16.99–$27.99),
   Complete Sneaker Care Kit ($31.99–$34.99), Infrared Recovery Sauna Blanket ($219.99–$249.99).
+- **2 DRAFT pet options (created 2026-09-28, awaiting the owner's pick, no images or
+  supplier yet):** Fireworks Calm Kit (`gid://shopify/Product/15396756029690`, $49.99) and
+  Glow-Walk LED Dog Boots (`gid://shopify/Product/15396756521210`, $44.99). Delete the one he
+  doesn't choose.
 - **4 ARCHIVED:** VØIDEX Steam Press, Crunchy Sound Butter Stick, Carbon Fiber Card Holder,
   Foaming Soap Dispenser.
 
@@ -96,7 +104,7 @@ show evidence.
 | Tool | Status |
 |---|---|
 | Shopify | Connected, live. 63 scopes (check any time with `{ currentAppInstallation { accessScopes { handle } } }`). **No `write_legal_policies`, even after the owner reconnected on 2026-09-24** — the connector doesn't request it, so policies are always a manual paste from `policies/`; don't retry `shopPolicyUpdate`. The connector also refuses `themePublish` and writes to the live theme despite `write_themes`. |
-| Gmail | Working — search verified 2026-09-24 after the owner reconnected. |
+| Gmail | Working — search verified 2026-09-24 after the owner reconnected. The 3 contact-form messages (21–24 Sep: "is this the store owner?") are solicitation spam — owner policy is ignore, no reply. |
 | Google Drive | Connected |
 | Instagram | Installed, needs reconnect |
 | Meta Ads connector | Not yet added. Owner chose **Option A**: official Meta Ads connector (`https://mcp.facebook.com/ads`) + Shopify's native Facebook & Instagram sales channel. Start read-only. |

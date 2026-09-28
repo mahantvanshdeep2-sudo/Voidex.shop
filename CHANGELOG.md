@@ -2,6 +2,54 @@
 
 Changes, fixes, findings, and decisions, most recent first.
 
+## 2026-09-28 — Pet product research, two draft options
+
+The owner reopened pet products (dropped 2026-09-14) with a new rule: retail = 3× landed cost,
+$30–50+ preferred. Research ran on WebSearch only — WebFetch is egress-blocked for trend sites,
+AliExpress and CJ — so supplier costs are **targets, not quotes**.
+
+### Store state checked first (Admin API)
+
+- Orders: still only #1001. Wash Bag stock 47 (White 11 / Grey 16 / Value Set 20); **no unit
+  cost recorded on it**, so Shopify can't report its margin.
+- Terms of Service and Contact Information policies: **not yet re-pasted** (same `updatedAt`
+  as 2026-09-24; Terms still has 10 placeholders).
+- DEV theme still unpublished. Storefront still egress-blocked (403).
+- Gmail: 3 contact-form messages (21, 23, 24 Sep) read in full — all "is this the store owner?"
+  solicitation spam. Not answered, per the owner's standing ignore decision.
+
+### Options that pass every rule (both created as DRAFT, unpublished, 0 stock, no images)
+
+| | Fireworks Calm Kit | Glow-Walk LED Dog Boots (4) |
+|---|---|---|
+| Price / max landed cost at 3× | $49.99 / $16.66 | $44.99 / $15.00 |
+| Demand evidence | 41% of dog owners say their dog fears fireworks (PDSA); Brampton logged 3,389 bylaw requests 17–22 Oct 2025, 44% fireworks/noise; Mississauga 432 complaints; several new 2026 Amazon listings | Top performer on Sell The Trend's pet list for 20 Sep 2026 ("LightPaws Shoes"); multiple "2026 New" TikTok Shop listings |
+| Timing | Halloween 31 Oct, Diwali 8 Nov 2026 (6–10 Nov), New Year's Eve | Dark by 5 pm Nov–Feb, road salt |
+| Main catch | Seasonal; efficacy claims must stay modest; compression wraps (Thundershirt) sold at PetSmart | Competition rising fast (new Amazon ASINs B0GK…/B0GL…/B0HH…); sizing returns |
+
+### Rejected, and why
+
+- Electric paw washer — Walmart lists it around US$21.98; can't hold $30+.
+- Pet grooming vacuum — crowded (Oneisall, Geoorood, BXYY), heavy; 3× landed cost overshoots market.
+- Heated cat bed — K&H at PetSmart; fails "not available everywhere".
+- Self-rolling cat ball — Cheerble plus many clones, ~$27.
+- Automatic ball launcher — $11.99–$175 across many TikTok Shop sellers; heavy; 3× overshoots clones.
+- Consumables (collagen chews, dental powder) — Health Canada rules for veterinary products; skip.
+- Shopify Collective: no suppliers for LED boots or dog ear muffs.
+
+### Constraint for any China-shipped product
+
+Canada's tax-free threshold for goods from China is CA$20, so a $45–50 order owes GST/HST plus
+a courier or Canada Post handling fee (CA$9.95) **at the customer's door** unless the supplier
+ships DDP. Require DDP (or a North American warehouse) and count it in landed cost. The
+store-wide promise (dispatch in 1 business day, 3–5 days in Canada) will not hold for China
+shipping — the chosen product needs its own delivery profile and shipping-policy wording.
+
+### Also
+
+- Added the owner's `THEME_BUILD_SPEC.md` as `docs/THEME_BUILD_SPEC.md`, with a status table.
+  The uploaded `CLAUDE.md` / `CHANGELOG.md` were older copies of files already in the repo.
+
 ## 2026-09-24 (later) — Policy audit after the owner's paste, connector re-check
 
 ### Verified via Admin API
