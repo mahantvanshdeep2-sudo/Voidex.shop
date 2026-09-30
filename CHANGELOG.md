@@ -2,6 +2,40 @@
 
 Changes, fixes, findings, and decisions, most recent first.
 
+## 2026-09-30 — Supplier, ad-tool and Meta audit; theme options
+
+### Found (raw API data)
+
+- **Meta:** the Meta Ads connector is now attached to Claude, but its login sees **0 ad
+  accounts and 0 catalogs**, and `ads_get_datasets` for `1095760916509693` returns "Ad account
+  not found or you do not have access". The Shopify "Facebook & Instagram" channel is installed
+  (publication `223184879866`), but no catalog is visible to this Meta login. Store-to-Meta is
+  **not verified connected**; pixel/Conversions API still unverified.
+- **Kling AI** (connected): free NORMAL plan, 0 credits. **Higgsfield** (connected): free plan,
+  10 credits.
+- **Suppliers:** no supplier app installed. Fulfillment services left over from uninstalled apps:
+  Zendrop, Sell The Trend, Dropshipping App (9UsAY), Dropshipping App (RX31S); locations also
+  include "AutoDS prod-tkjbvwcr (app uninstalled)" and an empty "UNITED STATES" (California).
+- **Order #1001:** its only fulfillment was created 2 seconds after the order, at the Manual
+  location, with **no tracking number**. So Shopify holds no evidence of the "delivered on day
+  3" data point the delivery promise was based on; confirm with the owner how it was delivered.
+- **Logo:** none in Shopify files, either theme's settings, Drive or Gmail.
+
+### Recommended to the owner (awaiting his decisions)
+
+- Supplier: **CJdropshipping** — free app, Canada warehouse (3–7 days), US (5–10), China
+  (10–20), DDP available. Compared against Spocket ($39.99/mo+, Canadian, pricier goods),
+  Zendrop (free / $49 Pro, US+CA warehouses) and DSers + AliExpress (free/$19.90, 15–45 days,
+  tax at the door in Canada).
+- Ad content: **Kling Standard for one month** ($6.99 first month, then $8.80; 660 credits ≈ 6–7
+  eight-second 1080p clips with audio). Kling is a video model (realistic product and animal
+  motion), not a talking-actor UGC tool; Higgsfield runs Kling 3.0 plus talking-head UGC presets
+  (Marketing Studio) — add it only if tests show talking-head ads are needed. Third-party
+  Higgsfield prices conflict ($9–15 entry up to $129).
+- Theme: options page https://claude.ai/artifact/Vwe5ybH7srbcq1Ce5UzpjZ — 1 Monolith (current
+  DEV), 2 Night Walk (recommended), 3 Wash Cycle, 4 buy "Motion" by Archetype (US$400–420).
+  Nothing applied.
+
 ## 2026-09-28 — Pet product research, two draft options
 
 The owner reopened pet products (dropped 2026-09-14) with a new rule: retail = 3× landed cost,

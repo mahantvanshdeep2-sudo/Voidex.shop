@@ -22,6 +22,10 @@ Owner: Vanshdeep Mahant (mahantvanshdeep2@gmail.com). Timezone: America/Toronto.
 | Flora | `166903808250` | unpublished | Older theme, not in use |
 | Flora — Fixed + Yellow-Blue | `167336542458` | unpublished | Older theme, not in use |
 
+**No logo exists** in Shopify files, theme settings, Drive or Gmail (checked 2026-09-30) — the header
+shows the store name as text. Theme options page for the owner:
+https://claude.ai/artifact/Vwe5ybH7srbcq1Ce5UzpjZ (awaiting his pick and logo file).
+
 Savor is a **restaurant/food** theme. That is where the leftover food copy comes from — it
 is demo content, not something anyone wrote for this store.
 
@@ -66,6 +70,10 @@ file, or just read the content back.
   His new pricing rule for it: retail = **3× landed cost**, and prefer products selling at
   **$30–50+**, because cheap items sell more but earn too little. Research and two draft
   listings from 2026-09-28 are in `CHANGELOG.md`.
+- **Suppliers on the store (checked 2026-09-30):** no supplier app is installed. The only live
+  fulfillment is "Manual" at "VOIDEX Fulfillment (Supplier Dropship)", Mississauga. Zendrop, Sell
+  The Trend, AutoDS and two "Dropshipping App" entries are leftovers of uninstalled apps.
+  Recommended to the owner: CJdropshipping (free, CA/US warehouses, DDP) — awaiting his OK.
 - **Fulfillment:** AutoDS cancelled. Inventory, fulfillment, and supplier price checks are
   manual. No dropshipping-supplier connector exists (AliExpress, CJ, Zendrop, Spocket all
   checked, none found), so supplier work is manual-assisted: Claude drafts, owner executes/pays.
@@ -107,7 +115,9 @@ show evidence.
 | Gmail | Working — search verified 2026-09-24 after the owner reconnected. The 3 contact-form messages (21–24 Sep: "is this the store owner?") are solicitation spam — owner policy is ignore, no reply. |
 | Google Drive | Connected |
 | Instagram | Installed, needs reconnect |
-| Meta Ads connector | Not yet added. Owner chose **Option A**: official Meta Ads connector (`https://mcp.facebook.com/ads`) + Shopify's native Facebook & Instagram sales channel. Start read-only. |
+| Meta Ads connector | **Connected to Claude (2026-09-30) but sees 0 ad accounts and 0 catalogs**; `voidex.shop` (`1095760916509693`) returns "not found or no access". Owner must reconnect it with the Facebook profile that owns that ad account and tick the ad account, business, Page, Instagram and pixel. Start read-only. |
+| Kling AI | Connected 2026-09-30. Free (NORMAL) plan, 0 credits. Every job is charged — never submit a generation without the owner's OK. |
+| Higgsfield | Connected 2026-09-30. Free plan, 10 credits. Same rule: no generations without the owner's OK. |
 | Windsor.ai | Installed, sign-in incomplete |
 | trend tracker | Installed, sign-in incomplete |
 | AutoDS | Ignore — cancelled |
