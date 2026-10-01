@@ -1,0 +1,16 @@
+<section class="vx-section">
+  <h1 class="vx-title">Collections</h1>
+  <div class="vx-grid">
+    {%- for collection in collections -%}
+      {%- if collection.products_count > 0 -%}
+      <a class="vx-card vx-tile" href="{{ collection.url }}">
+        <div class="vx-card__media">{%- if collection.featured_image -%}{{ collection.featured_image | image_url: width: 700 | image_tag: loading: 'lazy', class: 'vx-card__img', alt: collection.title }}{%- endif -%}</div>
+        <div class="vx-card__body"><h2 class="vx-card__name">{{ collection.title | escape }}</h2><p class="vx-card__meta">{{ collection.products_count }} products</p></div>
+      </a>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</section>
+{% schema %}
+{ "name": "Collections list", "tag": "div", "settings": [] }
+{% endschema %}

@@ -1,0 +1,92 @@
+<footer class="vx-footer">
+  <div class="vx-footer__inner">
+    <div class="vx-footer__brand">
+      <a href="{{ routes.root_url }}" class="vx-logo">{{ section.settings.logo_text | default: 'VØIDEX' | escape }}</a>
+      {%- if section.settings.blurb != blank %}
+        <p>{{ section.settings.blurb | escape }}</p>
+      {%- endif %}
+    </div>
+
+    <div class="vx-footer__col">
+      <h2 class="vx-footer__title">Shop</h2>
+      <ul>
+        <li><a href="{{ routes.root_url }}#shop" data-vx-filter-link="all">Best Sellers</a></li>
+        <li><a href="{{ routes.root_url }}#shop" data-vx-filter-link="women">Women's</a></li>
+        <li><a href="{{ routes.root_url }}#shop" data-vx-filter-link="men">Men's</a></li>
+        <li><a href="{{ routes.root_url }}#shop" data-vx-filter-link="unisex">Unisex</a></li>
+        <li><a href="{{ routes.root_url }}#bundle">Build a Bundle</a></li>
+        <li><a href="{{ routes.all_products_collection_url }}">All Products</a></li>
+      </ul>
+    </div>
+
+    <div class="vx-footer__col">
+      <h2 class="vx-footer__title">Help</h2>
+      <ul>
+        <li><a href="{{ routes.root_url }}#size-guide">Size Guide</a></li>
+        <li><a href="{{ routes.root_url }}#faq">FAQ</a></li>
+        {%- if shop.shipping_policy %}
+          <li><a href="{{ shop.shipping_policy.url }}">Shipping Info</a></li>
+        {%- endif %}
+        {%- if shop.refund_policy %}
+          <li><a href="{{ shop.refund_policy.url }}">Returns &amp; Refunds</a></li>
+        {%- endif %}
+        <li><a href="{{ routes.account_url }}">Track Order</a></li>
+        <li><a href="{{ section.settings.contact_url | default: '/pages/contact' | escape }}">Contact Us</a></li>
+      </ul>
+    </div>
+
+    <div class="vx-footer__col">
+      <h2 class="vx-footer__title">Company</h2>
+      <ul>
+        <li><a href="{{ section.settings.contact_url | default: '/pages/contact' | escape }}">About &amp; Contact</a></li>
+        {%- if section.settings.instagram_url != blank %}
+          <li><a href="{{ section.settings.instagram_url | escape }}" target="_blank" rel="noopener">Instagram</a></li>
+        {%- endif %}
+        <li><a href="{{ routes.search_url }}">Search</a></li>
+        <li><a href="/pages/data-sharing-opt-out">Your Privacy Choices</a></li>
+      </ul>
+    </div>
+
+    <div class="vx-footer__col">
+      <h2 class="vx-footer__title">Legal</h2>
+      <ul>
+        {%- if shop.privacy_policy %}
+          <li><a href="{{ shop.privacy_policy.url }}">Privacy Policy</a></li>
+        {%- endif %}
+        {%- if shop.terms_of_service %}
+          <li><a href="{{ shop.terms_of_service.url }}">Terms of Service</a></li>
+        {%- endif %}
+        {%- if shop.refund_policy %}
+          <li><a href="{{ shop.refund_policy.url }}">Refund Policy</a></li>
+        {%- endif %}
+        {%- if shop.shipping_policy %}
+          <li><a href="{{ shop.shipping_policy.url }}">Shipping Policy</a></li>
+        {%- endif %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="vx-footer__bottom">
+    <span>&copy; {{ 'now' | date: '%Y' }} {{ shop.name | escape }}. All rights reserved.</span>
+    {%- if shop.enabled_payment_types.size > 0 %}
+      <ul class="vx-footer__pay" aria-label="Payment methods">
+        {%- for type in shop.enabled_payment_types -%}
+          <li>{{ type | payment_type_svg_tag: class: 'vx-pay-icon' }}</li>
+        {%- endfor -%}
+      </ul>
+    {%- endif %}
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "VOIDEX footer",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "logo_text", "label": "Logo text", "default": "VØIDEX" },
+    { "type": "text", "id": "blurb", "label": "Brand blurb", "default": "Premium fragrance samples and travel sprays. Try before you buy — find your signature scent without the full-bottle commitment." },
+    { "type": "text", "id": "contact_url", "label": "Contact page path", "default": "/pages/contact" },
+    { "type": "text", "id": "instagram_url", "label": "Instagram URL", "default": "https://www.instagram.com/voidex.shop.co/" }
+  ]
+}
+{% endschema %}
