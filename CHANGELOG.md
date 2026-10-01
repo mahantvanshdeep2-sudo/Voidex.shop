@@ -2,6 +2,16 @@
 
 Changes, fixes, findings, and decisions, most recent first.
 
+## 2026-10-01 (evening) — Supplier outreach and risk clean-up
+
+- Quote-request emails sent from the owner's Gmail (ids 1a0f86c0252ebd10, 1a0f86c07dcbae7c,
+  1a0f86c09b8a2f2a) to DailyFulfill, Brandsamor and Jubilee. All ask for original scents only (no
+  "inspired by"/dupes), UN1266 ground/DDP shipping to Canada, SDS + allergen list, samples first.
+- "Oud Wood" → "Midnight Oud" (title, description, handle with `redirectNewHandle`); new product
+  image re-rendered with the new label name.
+- `policies/01-refund-policy.html`: new "Fragrance samples and travel sprays" section — needs a
+  manual paste (connector has no `write_legal_policies`).
+
 ## 2026-10-01 (later) — Perfume prices doubled
 
 Owner chose "double every price". All 12 variants updated via `productVariantsBulkUpdate`, zero errors:

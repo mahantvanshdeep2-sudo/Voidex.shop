@@ -102,7 +102,7 @@ file, or just read the content back.
   - Amber Noir `15402596040954` — $9.94 / $15.94 / $25.94 (VX-AN-*)
   - Citrus Royale `15402596008186` — $7.94 / $11.94 / $19.94 (VX-CR-*)
   - Rose Velvet `15402595942650` — $5.94 / $9.94 / $17.94 (VX-RV-*)
-  - Oud Wood `15402595975418` — $11.94 / $17.94 / $29.94 (VX-OW-*)
+  - Midnight Oud `15402595975418` (renamed from "Oud Wood", a Tom Ford mark, 2026-10-01; old URL redirects) — $11.94 / $17.94 / $29.94 (VX-OW-*)
 - **Discount codes (2026-10-01):** `VOIDEX10` (10% off order, once per customer) and `BUNDLE30`
   (30% off perfume-collection items, min 3 items). Neither combines with other product/order discounts.
 - **Landing page:** page `voidex-perfume-samples` (`gid://shopify/Page/160920862970`), template
@@ -123,6 +123,14 @@ file, or just read the content back.
 
 Drafts and archived products must never be surfaced as buyable. Any related-products,
 bundle, or "you might also like" section has to filter to active/published only.
+
+## Supplier outreach (2026-10-01, from the owner's Gmail, on his instruction)
+
+Quote requests for 4 original EDPs (amber/oud, citrus, rose, woody oud) in 2/5/10 mL, VOIDEX label,
+Canada shipping (UN1266, DDP), samples first — sent to sales@dailyfulfill.com, info@brandsamor.com,
+support@jubilee.beauty. Check Gmail for replies and compare landed cost against the doubled prices.
+Not contacted: CJ (in-app sourcing request only), Wicked Good (conflicting emails — use its contact
+form), Clamar (no public email, mostly cosmetics/skincare — phone 905-421-0165).
 
 ## Store health as of 2026-09-22
 
