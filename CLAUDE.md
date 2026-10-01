@@ -98,11 +98,11 @@ file, or just read the content back.
   overrides "one active product" for this line). Collection `voidex-perfume-samples`
   (`gid://shopify/Collection/511795429626`), published to Online Store only. Each has 2mL / 5mL /
   10mL variants, inventory untracked + `CONTINUE`, stocked at VOIDEX Fulfillment, General profile,
-  one Kling-generated 2048² image, **no unit cost recorded**:
-  - Amber Noir `15402596040954` — $4.97 / $7.97 / $12.97 (VX-AN-*)
-  - Citrus Royale `15402596008186` — $3.97 / $5.97 / $9.97 (VX-CR-*)
-  - Rose Velvet `15402595942650` — $2.97 / $4.97 / $8.97 (VX-RV-*)
-  - Oud Wood `15402595975418` — $5.97 / $8.97 / $14.97 (VX-OW-*)
+  one Kling-generated 2048² image, **no unit cost recorded**. Prices doubled 2026-10-01 on the owner's instruction:
+  - Amber Noir `15402596040954` — $9.94 / $15.94 / $25.94 (VX-AN-*)
+  - Citrus Royale `15402596008186` — $7.94 / $11.94 / $19.94 (VX-CR-*)
+  - Rose Velvet `15402595942650` — $5.94 / $9.94 / $17.94 (VX-RV-*)
+  - Oud Wood `15402595975418` — $11.94 / $17.94 / $29.94 (VX-OW-*)
 - **Discount codes (2026-10-01):** `VOIDEX10` (10% off order, once per customer) and `BUNDLE30`
   (30% off perfume-collection items, min 3 items). Neither combines with other product/order discounts.
 - **Landing page:** page `voidex-perfume-samples` (`gid://shopify/Page/160920862970`), template

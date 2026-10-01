@@ -2,6 +2,13 @@
 
 Changes, fixes, findings, and decisions, most recent first.
 
+## 2026-10-01 (later) — Perfume prices doubled
+
+Owner chose "double every price". All 12 variants updated via `productVariantsBulkUpdate`, zero errors:
+Amber Noir 9.94/15.94/25.94, Citrus Royale 7.94/11.94/19.94, Rose Velvet 5.94/9.94/17.94,
+Oud Wood 11.94/17.94/29.94 (2mL/5mL/10mL, CAD). Both themes read prices from Shopify, so the
+storefront updates with no theme change. Video ad 2's baked-in "From $4.97" text is now out of date.
+
 ## 2026-10-01 — Perfume samples launch: Royal Black Gold theme, images, video ads, go-live
 
 Owner's request: build a black-and-gold perfume landing theme (draft), generate product images and
