@@ -2,6 +2,93 @@
 
 Changes, fixes, findings, and decisions, most recent first.
 
+## 2026-10-01 — Perfume samples launch: Royal Black Gold theme, images, video ads, go-live
+
+Owner's request: build a black-and-gold perfume landing theme (draft), generate product images and
+4 Kling 3.0 ads, then activate the 4 perfume samples with discount codes and navigation.
+
+### Found first (Admin API)
+
+- **Live theme changed:** MAIN is now "Updated copy of Savor" (`186287948026`, published
+  2026-09-28), not Savor `167336870138`.
+- At 12:01 UTC another tool (the installed **Shopify Perplexity MCP App**) had uploaded a perfume
+  section + template to the DEV theme. Not usable as-is: wrong palette (`#c9a96e`), size buttons
+  don't change the price, bundle builder is static, fake fallback cards with dead buttons, and it
+  renders inside Savor's own header/footer. Left in place on DEV; superseded below.
+- CJdropshipping app **is** installed (contradicts the 2026-09-30 note). Judge.me Reviews too.
+
+### Task 1 — theme `VOIDEX Royal Black Gold — DRAFT` (`186421772538`, unpublished)
+
+Not built as a standalone 7-file theme: published alone, product, cart, collection and policy
+pages would have no templates. Instead `themeDuplicate` of the live theme + a dedicated layout, so
+the landing page is fully black & gold and every other page keeps working.
+
+Files (`voidex-theme/`): `layout/voidex-perfume.liquid`, `templates/page.voidex-perfume.json`
+(`"layout": "voidex-perfume"`), `sections/voidex-perfume-{landing,header,footer,announcement}.liquid`,
+`assets/voidex-perfume.{css,js}`. `config/settings_schema.json` / `settings_data.json` and
+`layout/theme.liquid` are Savor's and were deliberately not replaced.
+
+Built: #050505 / #d4af37, gold-gradient text, Playfair Display / Inter / Cormorant Garamond,
+VØIDEX logo (nowrap), animated hero, canvas gold particles, scroll progress bar, How It Works with
+hover lift, live bundle builder (3 scents × size, 30% off, adds all 3 variants then applies
+`BUNDLE30` via `/discount/BUNDLE30?redirect=/cart`), product grid from the collection with CSS 3D
+bottles (float, 360° spin on hover, mouse-follow glow), size buttons that update price + variant id,
+AJAX add-to-cart with plain-form fallback, Women's/Men's/Unisex filters (from tags), trust badges,
+size guide, FAQ accordion (6), email capture on Shopify's customer form showing `VOIDEX10`, footer
+with real policy links, hamburger menu, scroll reveals and stat counters. All copy is editable in the
+theme editor (section settings + blocks).
+
+**Copy changed from the owner's mock-up, and why** (all editable back in the theme editor):
+- "500+ fragrances" → the real collection count (4); "$4.97 starting price" → computed ($2.97).
+- "4.9/5 from 2,800+ verified reviews", "Join 15,000+", the press logos and "same scent profiles as
+  designer fragrances" removed — none are true for this store.
+- Reviews section built (3 cards, stars, verified badge) but **off by default** and the verified
+  badge unticked: the store has no perfume orders, and invented "Verified Buyer" reviews breach the
+  Competition Act and the FTC fake-review rule. Judge.me is installed for real ones.
+- Shipping/refund wording matches `policies/01` and `02` (1 business day dispatch, 3–5 days CA,
+  30-day refund) instead of the mock-up's "5–10 days" / "no return needed".
+
+### Verification
+
+- **Chromium, 59/59 checks** (`tests/perfume/`, `npm test`): the real theme files rendered by
+  LiquidJS with the real product data (variant IDs, prices, tags) and mocked cart endpoints. Covers
+  every feature above, 320/375/414px with no horizontal scroll, reduced motion, JS-blocked failsafe,
+  empty collection, sign-up success state, no console errors. Bugs it caught and that were fixed
+  before upload: FAQ answers stuck closed if the JS fails to load; stat counter briefly showing
+  "-5" (rAF timestamp before start); CSS reset out-ranking components (titles off-centre, light text
+  on gold buttons — caught from the screenshots, now a test).
+- **Theme Check** (`@shopify/theme-check-node`): 0 errors; 3 warnings = Google Fonts not on
+  Shopify's CDN (expected).
+- **Upload:** staged upload + `themeFilesUpsert` type `URL`. Shopify's `size` **and `checksumMd5`
+  match the local file for all 8 files** (e.g. landing section 30,730 B `5e6f4033…`, CSS 42,286 B
+  `9520bd97…`, template 8,313 B `bce59fd3…`). Theme role still `UNPUBLISHED`; MAIN unchanged.
+- **Not verified:** rendering on the real storefront (egress-blocked). The preview link is that check.
+
+### Task 2 — product images
+
+Kling connector, model Nano Banana Pro (`gemini-3-pro-image`), 2K square, 20 credits each. Amber
+Noir generated first; the other three made from it (image-to-image) so the line matches. Attached
+with alt text via `productUpdate(media:)`; all four `READY`, 2048×2048 on cdn.shopify.com.
+**Not visually checked by Claude** — `*.klingai.com` and `cdn.shopify.com` are egress-blocked.
+
+### Task 3 — Kling 3.0 ads
+
+`kling-video-v3_0`, 9:16, 1080p, audio on, owner's prompts verbatim except "20 seconds" → 15 (Kling
+3.0's maximum single clip; inside the 15–30s spec). 180 credits each. Kling credits 3,000 → 2,280.
+Ad 4 saved to Shopify Files (15.0 MB, video/mp4). Ads 1–3 exceeded Shopify's generic-file size limit
+(native video import needs a staged upload, which needs bytes this container can't download); they
+remain in the owner's Kling library. Text overlays are rendered by Kling, so spelling is unverified.
+
+### Task 4 — go-live (live store)
+
+- 4 products `DRAFT → ACTIVE`, published to **Online Store only**; all 12 variants `CONTINUE`
+  (inventory untracked). `availableForSale: true` on all 12.
+- `VOIDEX10` and `BUNDLE30` created (see CLAUDE.md for rules).
+- Page `voidex-perfume-samples` already used template suffix `voidex-perfume` — confirmed.
+  Body gained a "Shop all four scents →" link, because on the live theme (no such template) the
+  page falls back to Savor's plain page template.
+- Main menu: "Perfume Samples" inserted after "Shop"; existing 4 items kept their IDs.
+
 ## 2026-09-30 — Supplier, ad-tool and Meta audit; theme options
 
 ### Found (raw API data)
