@@ -1,0 +1,565 @@
+{%- comment -%}
+  VOIDEX Perfume Landing — rendered by templates/page.voidex-perfume.json inside
+  layout/voidex-perfume.liquid. Product data comes from the collection picked in the
+  section settings (falls back to the `voidex-perfume-samples` handle). Only products
+  published to the Online Store appear here, so drafts are never shown as buyable.
+{%- endcomment -%}
+
+{%- liquid
+  assign vx_collection = section.settings.collection
+  if vx_collection == blank
+    assign vx_collection = collections['voidex-perfume-samples']
+  endif
+
+  assign vx_count = 0
+  assign vx_min_price = 0
+  assign vx_bundle_json = ''
+  if vx_collection != blank
+    assign vx_count = vx_collection.products.size
+    assign vx_prices = vx_collection.products | map: 'price_min' | sort
+    assign vx_min_price = vx_prices | first
+  endif
+
+  assign vx_discount = section.settings.bundle_discount
+  assign vx_highlight = section.settings.heading_highlight | escape
+  assign vx_heading = section.settings.heading | escape
+  if vx_highlight != blank and vx_heading contains vx_highlight
+    assign vx_highlight_html = '<span class="vx-gold-word">' | append: vx_highlight | append: '</span>'
+    assign vx_heading = vx_heading | replace_first: vx_highlight, vx_highlight_html
+  endif
+-%}
+
+<div class="vx-landing" data-vx-landing>
+  {%- comment -%} ============ HERO ============ {%- endcomment -%}
+  <section class="vx-hero" aria-labelledby="vx-hero-title">
+    <div class="vx-hero__bg" aria-hidden="true"></div>
+    <div class="vx-hero__content">
+      {%- if section.settings.badge != blank -%}
+        <p class="vx-hero__badge">{{ section.settings.badge | escape }}</p>
+      {%- endif -%}
+      <h1 class="vx-hero__title" id="vx-hero-title">{{ vx_heading }}</h1>
+      {%- if section.settings.subheading != blank -%}
+        <p class="vx-hero__sub">{{ section.settings.subheading | escape }}</p>
+      {%- endif -%}
+      <div class="vx-hero__cta">
+        <a href="#shop" class="vx-btn vx-btn--gold">{{ section.settings.primary_cta | escape }} <span aria-hidden="true">→</span></a>
+        <a href="#bundle" class="vx-btn vx-btn--ghost">{{ section.settings.secondary_cta | escape }}</a>
+      </div>
+
+      {%- assign vx_stats = section.blocks | where: 'type', 'stat' -%}
+      {%- if vx_stats.size > 0 -%}
+        <dl class="vx-stats">
+          {%- for block in vx_stats -%}
+            {%- if block.settings.source != 'custom' and vx_count == 0 -%}{%- continue -%}{%- endif -%}
+            {%- liquid
+              assign stat_value = block.settings.value
+              assign stat_prefix = block.settings.prefix
+              assign stat_suffix = block.settings.suffix
+              assign stat_static = ''
+              case block.settings.source
+                when 'product_count'
+                  assign stat_value = vx_count
+                when 'min_price'
+                  assign stat_static = vx_min_price | money
+              endcase
+            -%}
+            <div class="vx-stat vx-reveal" data-vx-delay="{{ forloop.index }}" {{ block.shopify_attributes }}>
+              <dt class="vx-stat__label">{{ block.settings.label | escape }}</dt>
+              <dd class="vx-stat__num">
+                {%- if stat_static != blank -%}
+                  {{ stat_static }}
+                {%- else -%}
+                  {{ stat_prefix | escape }}<span data-vx-count="{{ stat_value }}">{{ stat_value }}</span>{{ stat_suffix | escape }}
+                {%- endif -%}
+              </dd>
+            </div>
+          {%- endfor -%}
+        </dl>
+      {%- endif -%}
+    </div>
+    <a class="vx-hero__scroll" href="#how" aria-label="Scroll to How It Works"></a>
+  </section>
+
+  {%- comment -%} ============ HOW IT WORKS ============ {%- endcomment -%}
+  {%- assign vx_steps = section.blocks | where: 'type', 'step' -%}
+  {%- if vx_steps.size > 0 -%}
+    <section class="vx-section" id="how" aria-labelledby="vx-how-title">
+      <h2 class="vx-title vx-reveal" id="vx-how-title">{{ section.settings.steps_heading | escape }}</h2>
+      <p class="vx-sub vx-reveal" data-vx-delay="1">{{ section.settings.steps_subheading | escape }}</p>
+      <ol class="vx-steps">
+        {%- for block in vx_steps -%}
+          <li class="vx-step vx-reveal" data-vx-delay="{{ forloop.index }}" {{ block.shopify_attributes }}>
+            <span class="vx-step__num" aria-hidden="true">{{ forloop.index }}</span>
+            <h3>{{ block.settings.title | escape }}</h3>
+            <p>{{ block.settings.text | escape }}</p>
+          </li>
+        {%- endfor -%}
+      </ol>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%}
+    ============ PRODUCT CARDS (built first so the bundle builder can reuse the data) ============
+  {%- endcomment -%}
+  {%- capture vx_cards -%}
+    {%- if vx_collection != blank -%}
+      {%- for product in vx_collection.products -%}
+        {%- liquid
+          assign p_name = product.title | split: ' — ' | first | remove_first: 'VOIDEX ' | strip
+          assign p_label = p_name | split: ' ' | first | upcase
+          assign p_lower = product.title | downcase
+          assign p_tint = '#8fd3ff'
+          if p_lower contains 'amber'
+            assign p_tint = '#c9822b'
+          elsif p_lower contains 'citrus'
+            assign p_tint = '#d8cf55'
+          elsif p_lower contains 'rose'
+            assign p_tint = '#c4507a'
+          elsif p_lower contains 'oud'
+            assign p_tint = '#6b3f22'
+          endif
+          assign p_cat = 'unisex'
+          if product.tags contains 'women'
+            assign p_cat = 'women'
+          elsif product.tags contains 'men'
+            assign p_cat = 'men'
+          endif
+          assign p_notes = product.description | strip_html | split: '—' | last | split: '.' | first | strip
+          assign p_current = product.selected_or_first_available_variant
+        -%}
+        <article class="vx-card vx-reveal" data-vx-card data-category="{{ p_cat }}" data-vx-delay="{{ forloop.index0 | modulo: 4 | plus: 1 }}" style="--vx-tint: {{ p_tint }};">
+          <div class="vx-card__media" data-vx-glow>
+            {%- if product.tags contains 'bestseller' -%}
+              <span class="vx-badge">Best Seller</span>
+            {%- elsif product.tags contains 'new' -%}
+              <span class="vx-badge vx-badge--new">New</span>
+            {%- endif -%}
+            {%- if section.settings.card_media == 'image' and product.featured_image != blank -%}
+              {%- assign p_alt = product.featured_image.alt | default: p_name -%}
+              {{ product.featured_image | image_url: width: 900 | image_tag: loading: 'lazy', class: 'vx-card__img', sizes: '(min-width: 990px) 25vw, (min-width: 600px) 50vw, 100vw', alt: p_alt }}
+            {%- else -%}
+              <div class="vx-bottle-float" aria-hidden="true">
+                <div class="vx-bottle">
+                  <span class="vx-bottle__cap"></span>
+                  <span class="vx-bottle__neck"></span>
+                  <span class="vx-bottle__body">
+                    <span class="vx-bottle__liquid"></span>
+                    <span class="vx-bottle__shine"></span>
+                    <span class="vx-bottle__label">{{ p_label }}</span>
+                  </span>
+                </div>
+                <span class="vx-bottle__glow"></span>
+              </div>
+            {%- endif -%}
+          </div>
+
+          <div class="vx-card__body">
+            <p class="vx-card__brand">{{ product.vendor | escape }}</p>
+            <h3 class="vx-card__name"><a href="{{ product.url }}">{{ p_name | escape }}</a></h3>
+            {%- if p_notes != blank -%}
+              <p class="vx-card__meta">{{ p_notes | escape }}</p>
+            {%- endif -%}
+            <p class="vx-card__price">
+              <span class="vx-card__from" data-vx-from>From</span>
+              <span class="vx-card__amount" data-vx-price>{{ p_current.price | money }}</span>
+            </p>
+
+            <form method="post" action="{{ routes.cart_add_url }}" class="vx-card__form" data-vx-atc>
+              {%- unless product.has_only_default_variant -%}
+                <fieldset class="vx-sizes">
+                  <legend class="vx-visually-hidden">Size for {{ p_name | escape }}</legend>
+                  {%- for variant in product.variants -%}
+                    {%- liquid
+                      assign v_size = variant.title | split: ' ' | first
+                      assign v_ml = v_size | downcase | remove: 'ml' | plus: 0
+                    -%}
+                    <button
+                      type="button"
+                      class="vx-size{% if variant.id == p_current.id %} is-active{% endif %}"
+                      data-vx-size
+                      data-variant-id="{{ variant.id }}"
+                      data-size="{{ v_size | escape }}"
+                      data-price="{{ variant.price | money | strip_html | escape }}"
+                      aria-pressed="{% if variant.id == p_current.id %}true{% else %}false{% endif %}"
+                      {% unless variant.available %}disabled{% endunless %}
+                    >
+                      {{ v_size | escape }}
+                      <small>{% if v_ml > 0 %}~{{ v_ml | times: 10 }} sprays{% else %}{{ variant.title | escape }}{% endif %}</small>
+                    </button>
+                  {%- endfor -%}
+                </fieldset>
+              {%- endunless -%}
+              <input type="hidden" name="id" value="{{ p_current.id }}" data-vx-variant>
+              <input type="hidden" name="quantity" value="1">
+              <button type="submit" class="vx-card__cta" data-vx-atc-btn{% unless p_current.available %} disabled{% endunless %}>
+                {%- if p_current.available -%}Add to Cart{%- else -%}Sold Out{%- endif -%}
+              </button>
+            </form>
+          </div>
+        </article>
+
+        {%- capture vx_json_item -%}
+          {"id":{{ product.id }},"name":{{ p_name | json }},"label":{{ p_label | json }},"tint":{{ p_tint | json }},"notes":{{ p_notes | json }},"variants":[
+            {%- for variant in product.variants -%}
+              {"id":{{ variant.id }},"size":{{ variant.title | split: ' ' | first | json }},"title":{{ variant.title | json }},"price":{{ variant.price }},"available":{{ variant.available }}}{% unless forloop.last %},{% endunless %}
+            {%- endfor -%}
+          ]}
+        {%- endcapture -%}
+        {%- if vx_bundle_json != blank -%}
+          {%- assign vx_bundle_json = vx_bundle_json | append: ',' -%}
+        {%- endif -%}
+        {%- assign vx_bundle_json = vx_bundle_json | append: vx_json_item -%}
+      {%- endfor -%}
+    {%- endif -%}
+  {%- endcapture -%}
+
+  {%- comment -%} ============ BUNDLE BUILDER ============ {%- endcomment -%}
+  <section class="vx-band vx-bundle" id="bundle" aria-labelledby="vx-bundle-title">
+    <h2 class="vx-title vx-reveal" id="vx-bundle-title">{{ section.settings.bundle_heading | escape }}</h2>
+    <p class="vx-sub vx-reveal" data-vx-delay="1">{{ section.settings.bundle_subheading | escape }}</p>
+
+    <div class="vx-bundle__card vx-reveal" data-vx-delay="2" data-vx-bundle data-discount="{{ vx_discount }}" data-code="{{ section.settings.bundle_code | escape }}">
+      <div class="vx-bundle__head">
+        <h3>3-Scent Discovery Set</h3>
+        <p>Choose any 3 fragrances — mix and match sizes</p>
+      </div>
+      <div class="vx-bundle__body">
+        {%- if vx_bundle_json == blank -%}
+          <p class="vx-empty">New scents are on their way — check back soon.</p>
+        {%- else -%}
+          <div class="vx-bundle__slots">
+            {%- for i in (1..3) -%}
+              <div class="vx-slot" data-vx-slot="{{ forloop.index0 }}">
+                <button type="button" class="vx-slot__pick" data-vx-slot-pick>
+                  <span class="vx-slot__empty">+ Pick Scent {{ i }}</span>
+                </button>
+                <button type="button" class="vx-slot__remove" data-vx-slot-remove aria-label="Remove scent {{ i }}" hidden>&times;</button>
+              </div>
+            {%- endfor -%}
+          </div>
+
+          <div class="vx-picker" data-vx-picker hidden>
+            <p class="vx-picker__title" data-vx-picker-title>Choose scent 1</p>
+            <div class="vx-picker__list" data-vx-picker-list></div>
+            <div class="vx-picker__sizes" data-vx-picker-sizes hidden></div>
+            <button type="button" class="vx-btn vx-btn--ghost vx-btn--sm" data-vx-picker-close>Cancel</button>
+          </div>
+
+          <div class="vx-bundle__summary">
+            <div class="vx-bundle__prices">
+              <s class="vx-bundle__old" data-vx-bundle-old hidden></s>
+              <strong class="vx-bundle__new" data-vx-bundle-new hidden></strong>
+              <span class="vx-bundle__save" data-vx-bundle-save hidden>Save {{ vx_discount }}%</span>
+              <span class="vx-bundle__hint" data-vx-bundle-hint>Pick 3 scents to unlock {{ vx_discount }}% off</span>
+            </div>
+            <button type="button" class="vx-btn vx-btn--gold" data-vx-bundle-add disabled>Add Bundle <span aria-hidden="true">→</span></button>
+          </div>
+          <p class="vx-bundle__note">
+            {{ vx_discount }}% off is applied at checkout with code {{ section.settings.bundle_code | escape }} — added for you automatically.
+          </p>
+          <p class="vx-bundle__status" data-vx-bundle-status role="status" aria-live="polite"></p>
+          <script type="application/json" data-vx-bundle-data>[{{ vx_bundle_json }}]</script>
+        {%- endif -%}
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%} ============ PRODUCT GRID ============ {%- endcomment -%}
+  <section class="vx-section" id="shop" aria-labelledby="vx-shop-title">
+    <h2 class="vx-title vx-reveal" id="vx-shop-title">{{ section.settings.shop_heading | escape }}</h2>
+    <p class="vx-sub vx-reveal" data-vx-delay="1">{{ section.settings.shop_subheading | escape }}</p>
+    <div class="vx-filters" role="group" aria-label="Filter scents">
+      <button type="button" class="vx-filter is-active" data-vx-filter="all" aria-pressed="true">All</button>
+      <button type="button" class="vx-filter" data-vx-filter="women" aria-pressed="false">Women's</button>
+      <button type="button" class="vx-filter" data-vx-filter="men" aria-pressed="false">Men's</button>
+      <button type="button" class="vx-filter" data-vx-filter="unisex" aria-pressed="false">Unisex</button>
+    </div>
+    {%- if vx_bundle_json == blank -%}
+      <p class="vx-empty">New scents are on their way — check back soon.</p>
+    {%- else -%}
+      <div class="vx-grid" data-vx-grid>{{ vx_cards }}</div>
+      <p class="vx-empty" data-vx-grid-empty hidden>No scents in this category yet.</p>
+    {%- endif -%}
+  </section>
+
+  {%- comment -%} ============ TRUST ============ {%- endcomment -%}
+  {%- assign vx_trust = section.blocks | where: 'type', 'trust' -%}
+  {%- if vx_trust.size > 0 -%}
+    <section class="vx-band vx-trust" aria-label="Why VOIDEX">
+      <ul class="vx-trust__grid">
+        {%- for block in vx_trust -%}
+          <li class="vx-trust__item vx-reveal" data-vx-delay="{{ forloop.index }}" {{ block.shopify_attributes }}>
+            <span class="vx-trust__icon" aria-hidden="true">
+              {%- case block.settings.icon -%}
+                {%- when 'shipping' -%}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>
+                {%- when 'support' -%}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg>
+                {%- when 'guarantee' -%}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/><path d="M9 12.5l2 2 4-4.5"/></svg>
+                {%- else -%}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4.5"/></svg>
+              {%- endcase -%}
+            </span>
+            <h3>{{ block.settings.title | escape }}</h3>
+            <p>{{ block.settings.text | escape }}</p>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%}
+    ============ REVIEWS ============
+    Off by default: the store has no perfume orders yet, and reviews shown as
+    "Verified Buyer" must come from real customers (Competition Act / FTC fake-review rule).
+  {%- endcomment -%}
+  {%- assign vx_reviews = section.blocks | where: 'type', 'review' -%}
+  {%- if section.settings.show_reviews and vx_reviews.size > 0 -%}
+    <section class="vx-section" id="reviews" aria-labelledby="vx-reviews-title">
+      <h2 class="vx-title vx-reveal" id="vx-reviews-title">{{ section.settings.reviews_heading | escape }}</h2>
+      {%- if section.settings.reviews_subheading != blank -%}
+        <p class="vx-sub vx-reveal" data-vx-delay="1">{{ section.settings.reviews_subheading | escape }}</p>
+      {%- endif -%}
+      <div class="vx-reviews">
+        {%- for block in vx_reviews -%}
+          {%- assign r_from = 'up' -%}
+          {%- assign r_mod = forloop.index0 | modulo: 3 -%}
+          {%- if r_mod == 0 -%}{%- assign r_from = 'left' -%}{%- elsif r_mod == 2 -%}{%- assign r_from = 'right' -%}{%- endif -%}
+          <figure class="vx-review vx-reveal vx-reveal--{{ r_from }}" data-vx-delay="{{ forloop.index }}" {{ block.shopify_attributes }}>
+            <p class="vx-review__stars" aria-label="{{ block.settings.rating }} out of 5 stars">
+              {%- for i in (1..5) -%}<span{% if i > block.settings.rating %} class="is-off"{% endif %}>★</span>{%- endfor -%}
+            </p>
+            <blockquote class="vx-review__text">{{ block.settings.text | escape }}</blockquote>
+            <figcaption class="vx-review__author">
+              <span class="vx-review__avatar" aria-hidden="true">{{ block.settings.name | slice: 0 | upcase }}</span>
+              <span>
+                <span class="vx-review__name">{{ block.settings.name | escape }}</span>
+                {%- if block.settings.verified -%}
+                  <span class="vx-review__verified">✓ Verified Buyer</span>
+                {%- endif -%}
+              </span>
+            </figcaption>
+          </figure>
+        {%- endfor -%}
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} ============ SIZE GUIDE ============ {%- endcomment -%}
+  <section class="vx-section" id="size-guide" aria-labelledby="vx-size-title">
+    <h2 class="vx-title vx-reveal" id="vx-size-title">{{ section.settings.size_heading | escape }}</h2>
+    <p class="vx-sub vx-reveal" data-vx-delay="1">{{ section.settings.size_subheading | escape }}</p>
+    <div class="vx-table-wrap vx-reveal" data-vx-delay="2">
+      <table class="vx-table">
+        <thead>
+          <tr><th scope="col">Size</th><th scope="col">Approx. Sprays</th><th scope="col">Lasts About</th><th scope="col">Best For</th></tr>
+        </thead>
+        <tbody>
+          <tr class="vx-reveal vx-reveal--left" data-vx-delay="1"><th scope="row">2mL Sample Vial</th><td>~20 sprays</td><td>1–2 weeks</td><td>Testing a new scent</td></tr>
+          <tr class="vx-reveal vx-reveal--left" data-vx-delay="2"><th scope="row">5mL Travel Spray</th><td>~50 sprays</td><td>About 1 month</td><td>Daily wear &amp; travel</td></tr>
+          <tr class="vx-reveal vx-reveal--left" data-vx-delay="3"><th scope="row">10mL Travel Spray</th><td>~100 sprays</td><td>About 2 months</td><td>Your go-to signature</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {%- comment -%} ============ FAQ ============ {%- endcomment -%}
+  {%- assign vx_faqs = section.blocks | where: 'type', 'faq' -%}
+  {%- if vx_faqs.size > 0 -%}
+    <section class="vx-section" id="faq" aria-labelledby="vx-faq-title">
+      <h2 class="vx-title vx-reveal" id="vx-faq-title">{{ section.settings.faq_heading | escape }}</h2>
+      <p class="vx-sub vx-reveal" data-vx-delay="1">{{ section.settings.faq_subheading | escape }}</p>
+      <div class="vx-faq">
+        {%- for block in vx_faqs -%}
+          <div class="vx-faq__item vx-reveal" data-vx-delay="{{ forloop.index | modulo: 4 }}" data-vx-faq {{ block.shopify_attributes }}>
+            <h3 class="vx-faq__h">
+              <button type="button" class="vx-faq__q" id="vx-faq-q-{{ block.id }}" aria-expanded="false" aria-controls="vx-faq-a-{{ block.id }}">
+                <span>{{ block.settings.question | escape }}</span>
+                <span class="vx-faq__icon" aria-hidden="true"></span>
+              </button>
+            </h3>
+            <div class="vx-faq__a" id="vx-faq-a-{{ block.id }}" role="region" aria-labelledby="vx-faq-q-{{ block.id }}">
+              <div class="vx-faq__inner">{{ block.settings.answer }}</div>
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} ============ EMAIL CAPTURE ============ {%- endcomment -%}
+  <section class="vx-band vx-email" id="vx-newsletter-section" aria-labelledby="vx-email-title">
+    <h2 class="vx-email__title vx-reveal" id="vx-email-title">{{ section.settings.email_heading | escape }}</h2>
+    <p class="vx-email__text vx-reveal" data-vx-delay="1">{{ section.settings.email_text | escape }}</p>
+    {%- form 'customer', id: 'vx-newsletter', class: 'vx-email__form vx-reveal' -%}
+      {%- if form.posted_successfully? -%}
+        <p class="vx-email__success" role="status">
+          You're on the list. Your code: <strong>{{ section.settings.email_code | escape }}</strong> — use it at checkout for 10% off your first order.
+        </p>
+      {%- else -%}
+        <input type="hidden" name="contact[tags]" value="newsletter,voidex-perfume">
+        <label for="vx-email-input" class="vx-visually-hidden">Email address</label>
+        <input
+          id="vx-email-input"
+          type="email"
+          name="contact[email]"
+          autocomplete="email"
+          placeholder="Enter your email address"
+          required
+          {% if form.errors %}aria-invalid="true" aria-describedby="vx-email-error"{% endif %}
+        >
+        <button type="submit" class="vx-btn vx-btn--gold">Get My Code <span aria-hidden="true">→</span></button>
+        {%- if form.errors -%}
+          <div class="vx-email__error" id="vx-email-error" role="alert">{{ form.errors | default_errors }}</div>
+        {%- endif -%}
+      {%- endif -%}
+    {%- endform -%}
+    <p class="vx-email__disclaimer">{{ section.settings.email_disclaimer | escape }}</p>
+  </section>
+</div>
+
+{% schema %}
+{
+  "name": "VOIDEX Perfume Landing",
+  "tag": "div",
+  "class": "vx-landing-section",
+  "settings": [
+    { "type": "header", "content": "Hero" },
+    { "type": "text", "id": "heading", "label": "Hero Heading", "default": "Try Luxury Scents Before You Commit" },
+    { "type": "text", "id": "heading_highlight", "label": "Gold word in heading", "info": "Must appear in the heading exactly as typed.", "default": "Luxury" },
+    { "type": "text", "id": "subheading", "label": "Hero Subheading", "default": "Discover our signature Eau de Parfums in 2mL, 5mL and 10mL sizes. Pick your scent, choose your size, build your bundle — and find your signature without the full-bottle price." },
+    { "type": "text", "id": "badge", "label": "Hero badge", "default": "✦ The VOIDEX Signature Collection" },
+    { "type": "text", "id": "primary_cta", "label": "Primary button", "default": "Shop Best Sellers" },
+    { "type": "text", "id": "secondary_cta", "label": "Secondary button", "default": "Build Your Bundle" },
+    { "type": "collection", "id": "collection", "label": "Product Collection", "info": "Leave empty to use the 'voidex-perfume-samples' collection." },
+
+    { "type": "header", "content": "How it works" },
+    { "type": "text", "id": "steps_heading", "label": "Heading", "default": "How It Works" },
+    { "type": "text", "id": "steps_subheading", "label": "Subheading", "default": "Three simple steps to your next signature scent" },
+
+    { "type": "header", "content": "Bundle builder" },
+    { "type": "text", "id": "bundle_heading", "label": "Heading", "default": "Build Your Discovery Bundle" },
+    { "type": "text", "id": "bundle_subheading", "label": "Subheading", "default": "Pick 3 scents, choose your sizes, save 30%" },
+    { "type": "range", "id": "bundle_discount", "label": "Bundle discount", "min": 5, "max": 50, "step": 5, "unit": "%", "default": 30, "info": "Must match the discount code below." },
+    { "type": "text", "id": "bundle_code", "label": "Bundle discount code", "default": "BUNDLE30" },
+
+    { "type": "header", "content": "Product grid" },
+    { "type": "text", "id": "shop_heading", "label": "Heading", "default": "Best Sellers" },
+    { "type": "text", "id": "shop_subheading", "label": "Subheading", "default": "Our most-loved fragrances — pick your size and add to cart" },
+    {
+      "type": "select",
+      "id": "card_media",
+      "label": "Card visual",
+      "options": [
+        { "value": "bottle", "label": "Animated 3D bottle" },
+        { "value": "image", "label": "Product photo" }
+      ],
+      "default": "bottle"
+    },
+
+    { "type": "header", "content": "Reviews" },
+    { "type": "checkbox", "id": "show_reviews", "label": "Show reviews", "default": false, "info": "Only turn on with real customer reviews. Invented reviews or 'Verified Buyer' badges on reviews that are not from real buyers are illegal under Canada's Competition Act and the US FTC fake-review rule." },
+    { "type": "text", "id": "reviews_heading", "label": "Heading", "default": "What Our Customers Are Saying" },
+    { "type": "text", "id": "reviews_subheading", "label": "Subheading" },
+
+    { "type": "header", "content": "Size guide" },
+    { "type": "text", "id": "size_heading", "label": "Heading", "default": "Size Guide" },
+    { "type": "text", "id": "size_subheading", "label": "Subheading", "default": "Not sure which size to get? Here's what to expect" },
+
+    { "type": "header", "content": "FAQ" },
+    { "type": "text", "id": "faq_heading", "label": "Heading", "default": "Frequently Asked Questions" },
+    { "type": "text", "id": "faq_subheading", "label": "Subheading", "default": "Everything you need to know before you buy" },
+
+    { "type": "header", "content": "Email capture" },
+    { "type": "text", "id": "email_heading", "label": "Heading", "default": "Get 10% Off Your First Order" },
+    { "type": "text", "id": "email_text", "label": "Text", "default": "Join the VOIDEX list for new scent drops, restocks and members-only offers — plus 10% off your first order." },
+    { "type": "text", "id": "email_code", "label": "Code shown after sign-up", "default": "VOIDEX10" },
+    { "type": "text", "id": "email_disclaimer", "label": "Disclaimer", "default": "By subscribing you agree to receive marketing emails from VOIDEX. Unsubscribe anytime." }
+  ],
+  "blocks": [
+    {
+      "type": "stat",
+      "name": "Hero stat",
+      "settings": [
+        {
+          "type": "select",
+          "id": "source",
+          "label": "Number source",
+          "options": [
+            { "value": "custom", "label": "Custom number" },
+            { "value": "product_count", "label": "Number of scents in the collection" },
+            { "value": "min_price", "label": "Lowest price in the collection" }
+          ],
+          "default": "custom"
+        },
+        { "type": "number", "id": "value", "label": "Custom number", "default": 100 },
+        { "type": "text", "id": "prefix", "label": "Prefix" },
+        { "type": "text", "id": "suffix", "label": "Suffix" },
+        { "type": "text", "id": "label", "label": "Label", "default": "Label" }
+      ]
+    },
+    {
+      "type": "step",
+      "name": "How-it-works step",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "Step" },
+        { "type": "textarea", "id": "text", "label": "Text" }
+      ]
+    },
+    {
+      "type": "trust",
+      "name": "Trust badge",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "authentic", "label": "Shield" },
+            { "value": "shipping", "label": "Truck" },
+            { "value": "support", "label": "Chat" },
+            { "value": "guarantee", "label": "Money back" }
+          ],
+          "default": "authentic"
+        },
+        { "type": "text", "id": "title", "label": "Title", "default": "Trust badge" },
+        { "type": "textarea", "id": "text", "label": "Text" }
+      ]
+    },
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        { "type": "range", "id": "rating", "label": "Stars", "min": 1, "max": 5, "step": 1, "default": 5 },
+        { "type": "textarea", "id": "text", "label": "Review text" },
+        { "type": "text", "id": "name", "label": "Customer name", "default": "Customer" },
+        { "type": "checkbox", "id": "verified", "label": "Verified buyer", "default": false, "info": "Tick only if this customer really bought from the store." }
+      ]
+    },
+    {
+      "type": "faq",
+      "name": "FAQ",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question", "default": "Question" },
+        { "type": "richtext", "id": "answer", "label": "Answer", "default": "<p>Answer</p>" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "VOIDEX Perfume Landing",
+      "category": "Landing Pages",
+      "blocks": [
+        { "type": "stat", "settings": { "source": "product_count", "label": "Signature Scents" } },
+        { "type": "stat", "settings": { "source": "min_price", "label": "Starting Price" } },
+        { "type": "stat", "settings": { "source": "custom", "value": 24, "suffix": "hr", "label": "Dispatch" } },
+        { "type": "stat", "settings": { "source": "custom", "value": 100, "suffix": "%", "label": "Authentic" } },
+        { "type": "step", "settings": { "title": "Pick Your Scent", "text": "Browse the VOIDEX collection — warm, fresh, floral and woody." } },
+        { "type": "step", "settings": { "title": "Choose Your Size", "text": "Test with a 2mL sample vial, or go straight to a 5mL or 10mL travel spray." } },
+        { "type": "step", "settings": { "title": "Fast Shipping", "text": "Dispatched within 1 business day. Free shipping on every order." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

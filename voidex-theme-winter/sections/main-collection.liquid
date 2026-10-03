@@ -1,0 +1,19 @@
+<section class="vx-section">
+  <h1 class="vx-title">{{ collection.title | escape }}</h1>
+  {%- if collection.description != blank -%}<div class="vx-sub vx-rte">{{ collection.description }}</div>{%- endif -%}
+  {%- paginate collection.products by 24 -%}
+    {%- if collection.products.size == 0 -%}
+      <p class="vx-empty">No products here yet.</p>
+    {%- else -%}
+      <div class="vx-grid">
+        {%- for product in collection.products -%}
+          {% render 'vx-product-tile', product: product %}
+        {%- endfor -%}
+      </div>
+      {%- if paginate.pages > 1 -%}<nav class="vx-pagination" aria-label="Pages">{{ paginate | default_pagination }}</nav>{%- endif -%}
+    {%- endif -%}
+  {%- endpaginate -%}
+</section>
+{% schema %}
+{ "name": "Collection", "tag": "div", "settings": [] }
+{% endschema %}

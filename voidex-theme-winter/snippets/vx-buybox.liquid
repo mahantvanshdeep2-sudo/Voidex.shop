@@ -1,0 +1,209 @@
+{%- comment -%}
+  Heated-jacket style buy box for products with one or two options (e.g. Color + Size).
+  Params: product (required), title (optional display name), kicker (optional), note (optional),
+  photos (optional: an object with photo_1 ... photo_6 image settings, e.g. section.settings),
+  heading (optional: the title's tag, default h2; product pages pass h1).
+  When photos are given they lead the gallery and stand in for the product's generic photos; the photos
+  attached to variants stay, so picking a colour still shows that colour.
+  Without JS the form posts the preselected variant to /cart/add.
+{%- endcomment -%}
+{%- liquid
+  assign bb_current = product.selected_or_first_available_variant
+  assign bb_title = title | default: product.title
+  assign bb_label = 'Add to Cart'
+
+  assign bb_first_photo = false
+  assign bb_photo_count = 0
+  if photos
+    for i in (1..6)
+      assign bb_key = 'photo_' | append: i
+      if photos[bb_key] != blank
+        assign bb_photo_count = bb_photo_count | plus: 1
+        unless bb_first_photo
+          assign bb_first_photo = photos[bb_key]
+        endunless
+      endif
+    endfor
+  endif
+
+  # Ids of photos attached to variants, wrapped in pipes for exact matching.
+  assign bb_variant_imgs = '|'
+  for v in product.variants
+    if v.featured_image
+      assign bb_needle = '|' | append: v.featured_image.id | append: '|'
+      unless bb_variant_imgs contains bb_needle
+        assign bb_variant_imgs = bb_variant_imgs | append: v.featured_image.id | append: '|'
+      endunless
+    endif
+  endfor
+
+  # First photo: the variant in the URL (?variant=), else the lead photo, else the product's featured photo.
+  assign bb_img = product.featured_image
+  if product.selected_variant.featured_image
+    assign bb_img = product.selected_variant.featured_image
+  elsif bb_first_photo
+    assign bb_img = bb_first_photo
+  endif
+  assign bb_widths = '600, 900, 1200, 1600'
+  assign bb_sizes = '(min-width: 990px) 55vw, 100vw'
+-%}
+<div class="vx-buy" data-vx-buy data-vx-card>
+  <div class="vx-gallery">
+    <div class="vx-gallery__main" data-vx-gallery-main>
+      {%- if bb_img -%}
+        {{ bb_img | image_url: width: 1600 | image_tag: data-vx-main-img: '', data-vx-image-id: bb_img.id, loading: 'eager', fetchpriority: 'high', widths: bb_widths, sizes: bb_sizes, alt: bb_title }}
+      {%- endif -%}
+    </div>
+    {%- capture bb_thumbs -%}
+      {%- assign bb_n = 0 -%}
+      {%- comment -%} Room for the lead photos plus every colour photo, so each colour keeps its thumbnail. {%- endcomment -%}
+      {%- assign bb_cap = bb_photo_count | plus: 14 -%}
+      {%- if bb_photo_count > 0 -%}
+        {%- for i in (1..6) -%}
+          {%- assign bb_key = 'photo_' | append: i -%}
+          {%- assign image = photos[bb_key] -%}
+          {%- if image != blank -%}
+            {%- assign bb_n = bb_n | plus: 1 -%}
+            <button type="button" class="vx-thumb{% if image.id == bb_img.id %} is-active{% endif %}" data-vx-thumb data-image-id="{{ image.id }}" aria-label="Show photo {{ bb_n }}">
+              {{ image | image_url: width: 200 | image_tag: loading: 'lazy', alt: '' }}
+            </button>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+      {%- for image in product.images -%}
+        {%- assign bb_needle = '|' | append: image.id | append: '|' -%}
+        {%- if bb_photo_count > 0 -%}
+          {%- unless bb_variant_imgs contains bb_needle -%}{%- continue -%}{%- endunless -%}
+        {%- endif -%}
+        {%- if bb_n >= bb_cap -%}{%- break -%}{%- endif -%}
+        {%- assign bb_n = bb_n | plus: 1 -%}
+        <button type="button" class="vx-thumb{% if image.id == bb_img.id %} is-active{% endif %}" data-vx-thumb data-image-id="{{ image.id }}" aria-label="Show photo {{ bb_n }}">
+          {{ image | image_url: width: 200 | image_tag: loading: 'lazy', alt: '' }}
+        </button>
+      {%- endfor -%}
+    {%- endcapture -%}
+    {%- if bb_n > 1 -%}
+      <div class="vx-thumbs" role="group" aria-label="Product photos">{{ bb_thumbs }}</div>
+    {%- endif -%}
+    {%- comment -%}
+      One inert template per photo. The picker swaps photos by cloning these (matched by image id), so
+      nothing read from the page is ever written into an img src. Template images don't download until used.
+    {%- endcomment -%}
+    {%- if bb_photo_count > 0 -%}
+      {%- for i in (1..6) -%}
+        {%- assign bb_key = 'photo_' | append: i -%}
+        {%- assign image = photos[bb_key] -%}
+        {%- if image != blank -%}
+          <template data-vx-img="{{ image.id }}">{{ image | image_url: width: 1600 | image_tag: data-vx-main-img: '', data-vx-image-id: image.id, widths: bb_widths, sizes: bb_sizes, alt: bb_title }}</template>
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endif -%}
+    {%- for image in product.images -%}
+      {%- assign bb_needle = '|' | append: image.id | append: '|' -%}
+      {%- if bb_photo_count > 0 -%}
+        {%- unless bb_variant_imgs contains bb_needle -%}{%- continue -%}{%- endunless -%}
+      {%- endif -%}
+      <template data-vx-img="{{ image.id }}">{{ image | image_url: width: 1600 | image_tag: data-vx-main-img: '', data-vx-image-id: image.id, widths: bb_widths, sizes: bb_sizes, alt: bb_title }}</template>
+    {%- endfor -%}
+  </div>
+
+  <div class="vx-buy__info">
+    {%- if kicker != blank -%}<p class="vx-buy__kicker">{{ kicker | escape }}</p>{%- endif -%}
+    {%- assign bb_tag = heading | default: 'h2' -%}
+    <{{ bb_tag }} class="vx-buy__title vx-card__name">{{ bb_title | escape }}</{{ bb_tag }}>
+    <p class="vx-buy__price">
+      <span data-vx-price>{{ bb_current.price | money }}</span>
+      <s data-vx-compare{% unless bb_current.compare_at_price > bb_current.price %} hidden{% endunless %}>{{ bb_current.compare_at_price | money }}</s>
+    </p>
+
+    {%- form 'product', product, class: 'vx-buy__form', data-vx-atc: '' -%}
+      {%- unless product.has_only_default_variant -%}
+        {%- for option in product.options_with_values -%}
+          {%- assign opt_index = forloop.index0 -%}
+          {%- liquid
+            # Work with plain value names (captured as text, so this holds whether option.values gives strings or
+            # option-value objects), and list sizes smallest to largest: suppliers send them in any order (S, M, 2XL ... L, XL).
+            assign names = ''
+            for value in option.values
+              capture v_name
+                echo value
+              endcapture
+              assign names = names | append: '~|~' | append: v_name
+            endfor
+            assign names_wrapped = names | append: '~|~'
+            assign opt_name = option.name | downcase
+            if opt_name contains 'size'
+              assign size_order = 'XXS,XS,S,M,L,XL,XXL,2XL,XXXL,3XL,4XL,5XL,6XL,7XL,8XL' | split: ','
+              assign sorted = ''
+              for s in size_order
+                assign needle = '~|~' | append: s | append: '~|~'
+                if names_wrapped contains needle
+                  assign sorted = sorted | append: '~|~' | append: s
+                endif
+              endfor
+              assign rest = names | remove_first: '~|~' | split: '~|~'
+              for n in rest
+                assign needle = '~|~' | append: n | append: '~|~'
+                assign sorted_wrapped = sorted | append: '~|~'
+                unless sorted_wrapped contains needle
+                  assign sorted = sorted | append: '~|~' | append: n
+                endunless
+              endfor
+              assign names = sorted
+            endif
+            assign opt_values = names | remove_first: '~|~' | split: '~|~'
+            unless opt_name contains 'size'
+              # Group colour/zone values together (Black ..., Blue ..., Red ...).
+              assign opt_values = opt_values | sort_natural
+            endunless
+            capture opt_selected
+              echo option.selected_value
+            endcapture
+          -%}
+          <fieldset class="vx-opt" data-vx-opt>
+            <legend>{{ option.name | escape }}: <b data-vx-opt-label>{{ opt_selected | escape }}</b></legend>
+            <div class="vx-opt__list">
+              {%- for value in opt_values -%}
+                {%- liquid
+                  assign v_down = value | downcase
+                  assign dot = ''
+                  if option.name contains 'olor' or option.name contains 'olour'
+                    if v_down contains 'black'
+                      assign dot = '#121417'
+                    elsif v_down contains 'blue'
+                      assign dot = '#2c5fb8'
+                    elsif v_down contains 'red'
+                      assign dot = '#b8262f'
+                    elsif v_down contains 'grey' or v_down contains 'gray'
+                      assign dot = '#8a9099'
+                    elsif v_down contains 'white'
+                      assign dot = '#f2f4f7'
+                    endif
+                  endif
+                -%}
+                <button type="button" class="vx-chip{% if value == opt_selected %} is-active{% endif %}" data-value="{{ value | escape }}" aria-pressed="{% if value == opt_selected %}true{% else %}false{% endif %}">
+                  {%- if dot != '' -%}<span class="vx-chip__dot" style="--dot: {{ dot }}" aria-hidden="true"></span>{%- endif -%}
+                  {{- value | escape -}}
+                </button>
+              {%- endfor -%}
+            </div>
+          </fieldset>
+        {%- endfor -%}
+      {%- endunless -%}
+      <input type="hidden" name="id" value="{{ bb_current.id }}" data-vx-variant>
+      <input type="hidden" name="quantity" value="1">
+      <button type="submit" class="vx-btn vx-btn--gold vx-buy__cta" data-vx-atc-btn data-label="{{ bb_label }}"{% unless bb_current.available %} disabled{% endunless %}>
+        {%- if bb_current.available -%}{{ bb_label }}{%- else -%}Sold Out{%- endif -%}
+      </button>
+    {%- endform -%}
+
+    {%- if note != blank -%}<p class="vx-buy__note">{{ note }}</p>{%- endif -%}
+
+    <script type="application/json" data-vx-variants>
+      [{%- for v in product.variants -%}
+        {%- assign v_img = v.featured_image | default: product.featured_image -%}
+        {"id":{{ v.id }},"title":{{ v.title | json }},"price":{{ v.price }},"price_formatted":{{ v.price | money | json }},"compare_at_price":{{ v.compare_at_price | default: 0 }},"compare_formatted":{{ v.compare_at_price | money | json }},"available":{{ v.available }},"options":{{ v.options | json }},"image_id":{% if v_img %}"{{ v_img.id }}"{% else %}null{% endif %}}{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}]
+    </script>
+  </div>
+</div>

@@ -1,0 +1,134 @@
+[
+ {
+  "id": 15402596040954,
+  "title": "VOIDEX Amber Noir EDP — Sample",
+  "handle": "voidex-amber-noir-edp-sample",
+  "vendor": "VOIDEX",
+  "tags": [
+   "bestseller",
+   "perfume-sample",
+   "unisex",
+   "voidex-perfume"
+  ],
+  "description": "<p>Amber Noir EDP — A warm, spicy unisex fragrance with notes of amber, saffron, and oud. Try it in sample size before committing to a full bottle.</p>",
+  "variants": [
+   {
+    "id": 67616805716218,
+    "title": "2mL Sample Vial",
+    "price": 497,
+    "available": true
+   },
+   {
+    "id": 67616805748986,
+    "title": "5mL Travel Spray",
+    "price": 797,
+    "available": true
+   },
+   {
+    "id": 67616805781754,
+    "title": "10mL Travel Spray",
+    "price": 1297,
+    "available": true
+   }
+  ]
+ },
+ {
+  "id": 15402596008186,
+  "title": "VOIDEX Citrus Royale EDP — Sample",
+  "handle": "voidex-citrus-royale-edp-sample",
+  "vendor": "VOIDEX",
+  "tags": [
+   "bestseller",
+   "men",
+   "perfume-sample",
+   "voidex-perfume"
+  ],
+  "description": "<p>Citrus Royale EDP — A fresh, citrus-forward men's fragrance with notes of bergamot, lemon, and cedarwood. Sample size available.</p>",
+  "variants": [
+   {
+    "id": 67616805617914,
+    "title": "2mL Sample Vial",
+    "price": 397,
+    "available": true
+   },
+   {
+    "id": 67616805650682,
+    "title": "5mL Travel Spray",
+    "price": 597,
+    "available": true
+   },
+   {
+    "id": 67616805683450,
+    "title": "10mL Travel Spray",
+    "price": 997,
+    "available": true
+   }
+  ]
+ },
+ {
+  "id": 15402595975418,
+  "title": "VOIDEX Oud Wood EDP — Sample",
+  "handle": "voidex-oud-wood-edp-sample",
+  "vendor": "VOIDEX",
+  "tags": [
+   "bestseller",
+   "perfume-sample",
+   "unisex",
+   "voidex-perfume"
+  ],
+  "description": "<p>Oud Wood EDP — A woody, oriental unisex fragrance with notes of oud, sandalwood, and leather. Sample size available.</p>",
+  "variants": [
+   {
+    "id": 67616805519610,
+    "title": "2mL Sample Vial",
+    "price": 597,
+    "available": true
+   },
+   {
+    "id": 67616805552378,
+    "title": "5mL Travel Spray",
+    "price": 897,
+    "available": true
+   },
+   {
+    "id": 67616805585146,
+    "title": "10mL Travel Spray",
+    "price": 1497,
+    "available": true
+   }
+  ]
+ },
+ {
+  "id": 15402595942650,
+  "title": "VOIDEX Rose Velvet EDP — Sample",
+  "handle": "voidex-rose-velvet-edp-sample",
+  "vendor": "VOIDEX",
+  "tags": [
+   "bestseller",
+   "perfume-sample",
+   "voidex-perfume",
+   "women"
+  ],
+  "description": "<p>Rose Velvet EDP — A floral, powdery women's fragrance with notes of rose, peony, and musk. Sample size available.</p>",
+  "variants": [
+   {
+    "id": 67616805421306,
+    "title": "2mL Sample Vial",
+    "price": 297,
+    "available": true
+   },
+   {
+    "id": 67616805454074,
+    "title": "5mL Travel Spray",
+    "price": 497,
+    "available": true
+   },
+   {
+    "id": 67616805486842,
+    "title": "10mL Travel Spray",
+    "price": 897,
+    "available": true
+   }
+  ]
+ }
+]

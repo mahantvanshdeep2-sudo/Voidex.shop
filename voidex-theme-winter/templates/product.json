@@ -1,0 +1,19 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "settings": {
+        "heat_product": "winter-heated-jacket-usb-electric-cotton-coat-zip-up-heater-thermal-clothing-heating-vest-for-men",
+        "photo_1": "shopify://shop_images/EMXN1y8qTwoGdXBsb2FkEg55bGFiLXN0dW50LXNncBo1c3RhcmdhdGUvMTEyLzI4NTZkNjY5LWFmNmMtNDhkMy1hZDIyLTkzYjA4ZDMwNjEwZS5wbmc.png",
+        "photo_2": "shopify://shop_images/EMXN1y8qTwoGdXBsb2FkEg55bGFiLXN0dW50LXNncBo1c3RhcmdhdGUvMTEyL2MwZGU4MWUyLWQ5YzItNGVmZi1hZTlhLTViZGJjMmY4NjY3Yi5wbmc.png",
+        "photo_3": "shopify://shop_images/EMXN1y8qTwoGdXBsb2FkEg55bGFiLXN0dW50LXNncBo1c3RhcmdhdGUvMTEyLzU0ZTM5NDc5LTM5ZDUtNDgyYy1iMGQ3LTM0OTE1YjE3MGQzMS5wbmc.png",
+        "photo_4": "shopify://shop_images/EMXN1y8qTwoGdXBsb2FkEg55bGFiLXN0dW50LXNncBo1c3RhcmdhdGUvMTEyL2ZlYzAwYjI5LWY5OWQtNDQ2MC1iNDFhLTQ2MGNiNzFjZTY2Ny5wbmc.png",
+        "photo_5": "shopify://shop_images/EMXN1y8qTwoGdXBsb2FkEg55bGFiLXN0dW50LXNncBo1c3RhcmdhdGUvMTEyLzY3MTVlY2NhLTU2ZjEtNGU0Ny04ZWEwLWEzMmI4MDkxYjQ4Yy5wbmc.png",
+        "photo_6": "shopify://shop_images/EMXN1y8qTwoGdXBsb2FkEg55bGFiLXN0dW50LXNncBo1c3RhcmdhdGUvMTEyLzZkNTQ1OWI1LWRmMDAtNDU1MC04MmQ2LWVlZGRhY2Q5MmViZC5wbmc.png"
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}
