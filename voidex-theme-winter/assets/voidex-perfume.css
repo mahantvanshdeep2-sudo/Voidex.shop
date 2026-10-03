@@ -25,7 +25,7 @@
   --heat-deep: #fdba74;
   --border: #2f6894;
   --border-gold: #4a87b8;
-  --field-border: #6fa4cf; /* 3.23:1 on --bg, 3.82:1 on --bg-elevated: form fields need 3:1 (WCAG 1.4.11) */
+  --field-border: #8db8db; /* form fields need 3:1 (WCAG 1.4.11): 4.10:1 on --bg, still 3.10:1 under the brightest sky glow */
   --radius: 16px;
   --radius-sm: 10px;
   --shadow-gold: 0 10px 36px rgba(4, 18, 32, 0.38);
@@ -328,7 +328,7 @@ body.vx-body {
   position: absolute; top: 6px; right: 8px; width: 28px; height: 28px; border-radius: 50%;
   border: none; background: transparent; color: var(--text-muted); font-size: 18px; line-height: 1; cursor: pointer;
 }
-.vx-slot__remove:hover { color: #ffc2ba; }
+.vx-slot__remove:hover { color: #ffd4ce; }
 .vx-slot__remove[hidden] { display: none; }
 .vx-picker { margin-bottom: 22px; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: rgba(143, 211, 255, 0.03); }
 .vx-picker:not([hidden]) { animation: vx-drop 0.35s var(--ease); }
@@ -377,7 +377,7 @@ body.vx-body {
 .vx-bundle__hint { flex-basis: 100%; font-size: 12px; color: var(--text-muted); letter-spacing: 0.5px; }
 .vx-bundle__note { margin-top: 16px; text-align: center; font-size: 12px; letter-spacing: 0.6px; color: var(--text-muted); }
 .vx-bundle__status { margin-top: 8px; min-height: 1em; text-align: center; font-size: 13px; color: var(--gold-light); }
-.vx-bundle__status.is-error { color: #ffc2ba; }
+.vx-bundle__status.is-error { color: #ffd4ce; }
 
 /* ---------- Filters + product grid ---------- */
 .vx-filters { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin: -24px 0 48px; }
@@ -432,12 +432,12 @@ body.vx-body {
 .vx-card:hover .vx-bottle { transform: rotateY(360deg); }
 .vx-bottle__cap {
   position: absolute; top: 0; left: 50%; width: 30px; height: 22px; margin-left: -15px; border-radius: 5px 5px 2px 2px;
-  background: linear-gradient(90deg, #8a6a12 0%, #f4d03f 35%, #fff2b0 48%, #d4af37 62%, #8a6a12 100%);
+  background: linear-gradient(90deg, #4f6f8a 0%, #b9d9f2 35%, #ffffff 48%, #8fbfe0 62%, #4f6f8a 100%);
   box-shadow: 0 3px 10px rgba(143, 211, 255, 0.35);
 }
 .vx-bottle__neck {
   position: absolute; top: 22px; left: 50%; width: 18px; height: 9px; margin-left: -9px;
-  background: linear-gradient(90deg, #6d5410, #e8c87c 45%, #6d5410);
+  background: linear-gradient(90deg, #3f5f7a, #c4e9ff 45%, #3f5f7a);
 }
 .vx-bottle__body {
   position: absolute; top: 31px; left: 50%; width: 70px; height: 112px; margin-left: -35px; overflow: hidden;
@@ -447,8 +447,8 @@ body.vx-body {
 }
 .vx-bottle__liquid {
   position: absolute; left: 0; right: 0; bottom: 0; height: 72%;
-  background: var(--vx-tint, #d4af37);
-  background: linear-gradient(180deg, var(--vx-tint, #d4af37) 0%, color-mix(in srgb, var(--vx-tint, #d4af37) 55%, black) 100%);
+  background: var(--vx-tint, #8fd3ff);
+  background: linear-gradient(180deg, var(--vx-tint, #8fd3ff) 0%, color-mix(in srgb, var(--vx-tint, #8fd3ff) 55%, black) 100%);
   opacity: 0.78;
 }
 .vx-bottle__liquid::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: rgba(255, 255, 255, 0.35); }
@@ -462,7 +462,7 @@ body.vx-body {
 .vx-bottle__glow {
   position: absolute; left: 50%; bottom: -14px; width: 76px; height: 22px; margin-left: -38px; border-radius: 50%;
   background: radial-gradient(ellipse, rgba(143, 211, 255, 0.9) 0%, transparent 70%);
-  background: radial-gradient(ellipse, color-mix(in srgb, var(--vx-tint, #d4af37) 55%, #d4af37) 0%, transparent 70%);
+  background: radial-gradient(ellipse, color-mix(in srgb, var(--vx-tint, #8fd3ff) 55%, #8fd3ff) 0%, transparent 70%);
   filter: blur(7px); opacity: 0.55; animation: vx-glow 4.2s ease-in-out infinite;
 }
 @keyframes vx-glow { 0%, 100% { transform: scale(1); opacity: 0.55; } 50% { transform: scale(0.78); opacity: 0.32; } }
@@ -583,9 +583,11 @@ body.vx-body {
   flex: 1 1 240px; min-width: 0; padding: 17px 24px; border-radius: 100px;
   background: var(--bg-card); color: var(--text); border: 1px solid var(--field-border); font: 15px var(--font-body);
 }
-.vx-email__form input:not([type='hidden']):focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 0 20px rgba(143, 211, 255, 0.18); }
-.vx-email__error { flex-basis: 100%; font-size: 13px; color: #ffc2ba; }
-.vx-email__error ul { list-style: none; }
+.vx-email__form input:not([type='hidden']):focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-bright), 0 0 20px rgba(143, 211, 255, 0.18); }
+.vx-email__error { flex-basis: 100%; font-size: 13px; color: #ffd4ce; }
+.vx-email__error ul, .vx-email__form .errors ul { list-style: none; }
+/* Shopify's default_errors markup (div.errors) on the password page: its own row, in the error colour. */
+.vx-email__form .errors { flex-basis: 100%; font-size: 13px; color: #ffd4ce; }
 .vx-email__success { flex-basis: 100%; padding: 18px 22px; border: 1px solid var(--border-gold); border-radius: var(--radius-sm); background: rgba(143, 211, 255, 0.1); font-size: 15px; color: var(--gold-light); }
 .vx-email__success strong { letter-spacing: 2px; color: var(--gold-bright); }
 .vx-email__disclaimer { margin-top: 20px; font-size: 12px; color: var(--text-muted); }
@@ -618,7 +620,7 @@ body.vx-body {
 .vx-toast.is-in { animation: vx-toast-in 0.45s var(--ease); }
 @keyframes vx-toast-in { from { opacity: 0; transform: translate(-50%, 16px); } to { opacity: 1; transform: translate(-50%, 0); } }
 .vx-toast__msg { font-size: 14px; color: var(--text); }
-.vx-toast.is-error .vx-toast__msg { color: #ffc2ba; }
+.vx-toast.is-error .vx-toast__msg { color: #ffd4ce; }
 .vx-toast__actions { display: flex; gap: 8px; }
 .vx-toast.is-error .vx-toast__actions { display: none; }
 .vx-toast__link { padding: 8px 14px; border-radius: 100px; border: 1px solid var(--border-gold); font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; color: var(--gold-light); }
@@ -742,5 +744,5 @@ body.vx-body {
 .vx-field label { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold-light); }
 .vx-field input, .vx-field textarea { width: 100%; min-width: 0; padding: 15px 18px; border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text); border: 1px solid var(--field-border); font: 15px var(--font-body); }
 .vx-field textarea { resize: vertical; min-height: 140px; }
-.vx-field input:focus, .vx-field textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 0 20px rgba(143, 211, 255, 0.18); }
+.vx-field input:focus, .vx-field textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-bright), 0 0 20px rgba(143, 211, 255, 0.18); }
 .vx-contact .vx-btn { justify-self: start; }

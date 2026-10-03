@@ -56,6 +56,8 @@
     </div>
     {%- capture bb_thumbs -%}
       {%- assign bb_n = 0 -%}
+      {%- comment -%} Room for the lead photos plus every colour photo, so each colour keeps its thumbnail. {%- endcomment -%}
+      {%- assign bb_cap = bb_photo_count | plus: 14 -%}
       {%- if bb_photo_count > 0 -%}
         {%- for i in (1..6) -%}
           {%- assign bb_key = 'photo_' | append: i -%}
@@ -73,7 +75,7 @@
         {%- if bb_photo_count > 0 -%}
           {%- unless bb_variant_imgs contains bb_needle -%}{%- continue -%}{%- endunless -%}
         {%- endif -%}
-        {%- if bb_n >= 14 -%}{%- break -%}{%- endif -%}
+        {%- if bb_n >= bb_cap -%}{%- break -%}{%- endif -%}
         {%- assign bb_n = bb_n | plus: 1 -%}
         <button type="button" class="vx-thumb{% if image.id == bb_img.id %} is-active{% endif %}" data-vx-thumb data-image-id="{{ image.id }}" aria-label="Show photo {{ bb_n }}">
           {{ image | image_url: width: 200 | image_tag: loading: 'lazy', alt: '' }}

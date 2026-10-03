@@ -67,15 +67,16 @@
     const resize = () => {
       heroH = hero ? Math.max(1, hero.offsetHeight) : 1;
       if (!ctx) return;
-      const ow = w;
+      const ow = w, oh = h;
       w = window.innerWidth; h = window.innerHeight;
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const target = Math.round(Math.min(140, Math.max(45, (w * h) / 12000)));
       if (!flakes.length) { for (let i = 0; i < target; i++) flakes.push(make(true)); return; }
-      // Keep the snowfield where it is: a phone toolbar showing or hiding changes only the height, so no
-      // flake moves. x is rescaled when the width changes; y never is, because the canvas is fixed at the top.
+      // Keep the snowfield where it is: a phone toolbar showing or hiding changes only the height a little,
+      // so no flake moves. A rotation or a big window resize spreads the flakes over the new screen instead.
       if (ow && w !== ow) flakes.forEach((f) => { f.x *= w / ow; });
+      if (oh && (w !== ow || Math.abs(h - oh) > 0.15 * oh)) flakes.forEach((f) => { f.y *= h / oh; });
       if (flakes.length > target) flakes.length = target;
       while (flakes.length < target) flakes.push(make(true));
     };
@@ -103,17 +104,14 @@
     const follow = (y) => {
       if (reduceMotion || !root.classList.contains('vx-motion')) {
         // Motion switched off (the layout's failsafe): put the layers back at rest once.
-        if (aur || vis) { if (aurora) aurora.style.transform = ''; if (visual) visual.style.transform = ''; aur = vis = ''; }
+        if (aurora && aurora.style.transform) aurora.style.transform = '';
+        if (visual && visual.style.transform) visual.style.transform = '';
+        aur = vis = '';
         return;
       }
       if (aurora) {
         const t = 'translate3d(' + (Math.sin(y / 900) * 4).toFixed(2) + '%,' + (-Math.min(y, 3000) * 0.03).toFixed(1) + 'px,0) scale(' + (1.04 + Math.sin(y / 1300) * 0.04).toFixed(3) + ')';
         if (t !== aur) { aurora.style.transform = t; aur = t; }
-      }
-      if (y > heroH * 1.5 && heroP === 1) return; // hero is far off-screen and already at rest
-      if (hero) {
-        const p = Math.min(1, Math.max(0, y / heroH));
-        if (p !== heroP) { hero.style.setProperty('--vx-hero-p', p.toFixed(3)); heroP = p; }
       }
       if (visual) {
         const t = 'translate3d(0,' + (Math.min(y, 800) * -0.08).toFixed(1) + 'px,0)';
@@ -121,9 +119,15 @@
         const sp = (Math.min(y, 1600) * 0.12).toFixed(1);
         if (sp !== spin) { visual.style.setProperty('--vx-spin', sp); spin = sp; }
       }
+      if (y > heroH * 1.5 && heroP === 1) return; // hero is far off-screen and already at rest
+      if (hero) {
+        const p = Math.min(1, Math.max(0, y / heroH));
+        if (p !== heroP) { hero.style.setProperty('--vx-hero-p', p.toFixed(3)); heroP = p; }
+      }
     };
     const loop = (now) => {
-      const dt = Math.min(50, now - (last || now)); last = now;
+      const raw = now - (last || now); last = now;
+      const dt = Math.min(50, raw);
       const k = dt / (1000 / 60);
       const y = window.scrollY; const dy = y - lastY; lastY = y;
       // Snow energy chases the scroll speed: quick to pick up, gentle to settle.
@@ -132,10 +136,11 @@
       if (ctx) drawSnow(k, dy);
       follow(y);
       // Adaptive load: if frames run long for a sustained second, thin the snow by a fifth. "Long" is measured
-      // against this device's own steady frame time (median of the first frames), so a 30 Hz cap such as a
-      // phone's low-power mode isn't mistaken for lag.
-      if (dt > 0 && cadence.length < 9) { cadence.push(dt); if (cadence.length === 9) base = cadence.slice().sort((a, b) => a - b)[4]; }
-      sampleTime += dt; if (base && dt > base * 1.5) slowTime += dt;
+      // against this device's own steady frame time (median of the first frames, capped at a 30 Hz frame), so a
+      // 30 Hz cap such as a phone's low-power mode isn't mistaken for lag, but a phone that is slow from the
+      // first frame still is.
+      if (raw > 0 && cadence.length < 9) { cadence.push(raw); if (cadence.length === 9) base = Math.min(34, cadence.slice().sort((a, b) => a - b)[4]); }
+      sampleTime += dt; if (base && raw > Math.max(22, base * 1.4)) slowTime += dt;
       if (sampleTime > 1000) {
         if (slowTime > 400 && flakes.length > 30) flakes.length = Math.round(flakes.length * 0.8);
         sampleTime = slowTime = 0;
@@ -153,7 +158,9 @@
     follow(window.scrollY);
     window.addEventListener('scroll', wake, { passive: true });
     let t;
-    window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { resize(); if (ctx) drawSnow(0, 0); heroP = -1; aur = vis = spin = ''; follow(window.scrollY); }, 150); });
+    window.addEventListener('resize', () => {
+      if (ctx && window.innerWidth === w && window.innerHeight !== h) { resize(); drawSnow(0, 0); }
+      clearTimeout(t); t = setTimeout(() => { resize(); if (ctx) drawSnow(0, 0); heroP = -1; aur = vis = spin = ''; follow(window.scrollY); }, 150); });
     document.addEventListener('visibilitychange', () => { if (document.hidden && running) { running = false; cancelAnimationFrame(frame); energy = 0; } });
   }
 
@@ -268,6 +275,14 @@
       });
 
       thumbs.forEach((t) => t.addEventListener('click', () => swapImage(t.getAttribute('data-image-id'))));
+      // Tabbing to a partly hidden thumbnail scrolls the strip (never the page) so it and its focus ring show.
+      const strip = $('.vx-thumbs', box);
+      if (strip) strip.addEventListener('focusin', (e) => {
+        const t = e.target.closest('.vx-thumb'); if (!t) return;
+        const P = 6, sr = strip.getBoundingClientRect(), tr = t.getBoundingClientRect();
+        if (tr.left - P < sr.left) strip.scrollLeft -= sr.left - (tr.left - P);
+        else if (tr.right + P > sr.left + strip.clientWidth) strip.scrollLeft += tr.right + P - (sr.left + strip.clientWidth);
+      });
       refresh(true);
     });
   }
@@ -295,7 +310,26 @@
     $$('[data-vx-locale-select]').forEach((sel) => sel.addEventListener('change', () => sel.form && sel.form.submit()));
   }
 
+  /* ---------- Same-page links: the only smooth scrolling on the site ----------
+     The page itself never scrolls smoothly (voidex-winter.css), so loads, #links and Back/Forward land
+     instantly. A visitor's click on a link to a section of the same page turns smooth scrolling on for that
+     one jump, then it goes back off. */
+  function initSmoothLinks() {
+    if (reduceMotion) return;
+    let off;
+    const reset = () => { clearTimeout(off); root.style.scrollBehavior = ''; };
+    document.addEventListener('click', (e) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = e.target.closest && e.target.closest('a[href*="#"]');
+      if (!a || !a.hash || a.origin !== location.origin || a.pathname !== location.pathname) return;
+      root.style.scrollBehavior = 'smooth';
+      clearTimeout(off); off = setTimeout(reset, 2000);
+      if ('onscrollend' in window) window.addEventListener('scrollend', reset, { once: true });
+    });
+  }
+
   initMotion();
+  initSmoothLinks();
   initBuy();
   initUnits();
   initLocale();

@@ -181,10 +181,12 @@
     }
     // Motion only reacts to scrolling: whatever is already on screen when the page opens is shown as it is,
     // with no fade-in or count-up. Only sections the visitor scrolls to animate in.
+    // The instant class goes on each element (not the whole page, which would restyle everything), and the
+    // style flush applies it before the next frame, so no transition can start.
     const settle = (els) => {
-      root.classList.add('vx-instant');
-      els.forEach((el) => el.classList.add('is-visible', 'is-settled'));
-      requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('vx-instant')));
+      els.forEach((el) => el.classList.add('vx-instant-self', 'is-visible', 'is-settled'));
+      void root.offsetWidth;
+      requestAnimationFrame(() => requestAnimationFrame(() => els.forEach((el) => el.classList.remove('vx-instant-self'))));
     };
     // Hidden elements (display:none) report top 0; leave them to the observer.
     const onScreen = items.filter((el) => { const r = el.getBoundingClientRect(); return r.height > 0 && r.top < window.innerHeight; });

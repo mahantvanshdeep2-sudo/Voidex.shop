@@ -1,11 +1,16 @@
 {%- if product.options.size > 1 -%}
-{%- comment -%} Heated products get the same short display name and photos as the homepage, not the long supplier title. {%- endcomment -%}
+{%- comment -%}
+  Heated products get the power-bank note. The jacket picked in the section settings also gets the same short
+  display name and photos as the homepage instead of the long supplier title; no other product is touched.
+{%- endcomment -%}
 {%- liquid
   assign pdp_note = ''
   assign pdp_title = product.title
   assign pdp_photos = false
   if product.title contains 'Heat'
     assign pdp_note = section.settings.multi_note
+  endif
+  if section.settings.heat_product != blank and product.id == section.settings.heat_product.id
     assign pdp_title = section.settings.heat_title | default: product.title
     assign pdp_photos = section.settings
   endif
@@ -74,7 +79,8 @@
 {% schema %}
 { "name": "Product", "tag": "div", "settings": [
   { "type": "richtext", "id": "multi_note", "label": "Note under the button (heated products only)", "default": "<p><strong>Power bank not included.</strong> Works with standard USB power banks.</p>" },
-  { "type": "header", "content": "Heated products" },
+  { "type": "header", "content": "Heated jacket page" },
+  { "type": "product", "id": "heat_product", "label": "Product", "info": "Only this product's page uses the display name and photos below." },
   { "type": "text", "id": "heat_title", "label": "Display name", "default": "VOIDEX Heated Jacket" },
   { "type": "image_picker", "id": "photo_1", "label": "Photo 1" },
   { "type": "image_picker", "id": "photo_2", "label": "Photo 2" },

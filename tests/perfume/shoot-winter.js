@@ -123,9 +123,20 @@ let fail = 0; const check = (n, ok, d = '') => { console.log(`${ok ? 'PASS' : 'F
     check(`[${tag}] FAQ: focus ring drawn inside the question, closed answers out of Tab order`, faq[0] && faq[1] && faq[2] && ring[0] && ring[1] === 'solid' && ring[2] === '-4px', JSON.stringify([faq, ring]));
     // Opening the page at a #link lands there directly: no glide, nothing animates in on its own
     await pg.goto('about:blank'); await pg.goto(`${B}/index.html#faq`); await pg.waitForTimeout(150); const y1 = await pg.evaluate(() => scrollY);
-    const run = await pg.evaluate(() => document.getAnimations().filter((an) => an.playState === 'running').length);
+    // Movement only: the header's border/shadow colour fade when the page opens scrolled is not motion.
+    const run = await pg.evaluate(() => document.getAnimations().filter((an) => an.playState === 'running' && !/color|shadow/.test(an.transitionProperty || '')).map((an) => (an.transitionProperty || an.animationName) + '@' + (an.effect.target.id || an.effect.target.className)));
     await pg.waitForTimeout(900); const y2 = await pg.evaluate(() => scrollY);
-    check(`[${tag}] opening at #faq jumps there with no self-running scroll or reveal`, y1 > 0 && y1 === y2 && run === 0, JSON.stringify([y1, y2, run]));
+    check(`[${tag}] opening at #faq jumps there with no self-running scroll or reveal`, y1 > 0 && y1 === y2 && run.length === 0, JSON.stringify([y1, y2, run]));
+    // A visitor's click on a same-page link still glides there; Back then lands instantly (no self-running glide)
+    await pg.goto(`${B}/`); await pg.waitForTimeout(300);
+    const glide = await pg.evaluate(() => new Promise((done) => {
+      let n = 0; const on = () => n++; addEventListener('scroll', on);
+      document.querySelector('a[href="#how"]').click();
+      setTimeout(() => { removeEventListener('scroll', on); done([n, Math.round(scrollY), getComputedStyle(document.documentElement).scrollBehavior]); }, 2500);
+    }));
+    await pg.goBack(); await pg.waitForTimeout(100);
+    const backNav = await pg.evaluate(() => new Promise((done) => { let n = 0; const on = () => n++; addEventListener('scroll', on); setTimeout(() => done([n, Math.round(scrollY)]), 900); }));
+    check(`[${tag}] same-page link click scrolls smoothly; Back lands instantly`, glide[0] > 3 && glide[1] > 0 && glide[2] === 'auto' && backNav[0] <= 1 && backNav[1] === 0, JSON.stringify([glide, backNav]));
     if (tag === 'desktop') {
       await pg.evaluate(() => scrollTo({ top: 0, behavior: 'instant' })); await pg.hover('.vx-nav a'); await pg.waitForTimeout(400);
       const ul = await pg.evaluate(() => { const cs = getComputedStyle(document.querySelector('.vx-nav a'), '::after'); return [cs.transform, cs.opacity]; });

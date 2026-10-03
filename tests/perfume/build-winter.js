@@ -93,7 +93,7 @@ async function page(file, tplName, extra) {
   for (const key of tpl.order) {
     const sec = tpl.sections[key]; const src = read(`sections/${sec.type}.liquid`); const sch = schemaOf(src);
     const settings = {}; (sch.settings || []).forEach((s) => { if (s.id) settings[s.id] = s.default; });
-    Object.assign(settings, sec.settings || {}); if (settings.product) settings.product = jacket;
+    Object.assign(settings, sec.settings || {}); if (settings.product) settings.product = jacket; if (settings.heat_product) settings.heat_product = jacket;
     for (const [k, v] of Object.entries(settings)) if (typeof v === 'string' && v.startsWith('shopify://shop_images/')) settings[k] = photoFor(v);
     const blocks = (sec.block_order || []).map((id) => {
       const b = sec.blocks[id]; const bs = {}; ((sch.blocks || []).find((x) => x.type === b.type).settings || []).forEach((s) => { if (s.id) bs[s.id] = s.default; });

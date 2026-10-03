@@ -108,7 +108,7 @@
           assign p_name = product.title | split: ' — ' | first | remove_first: 'VOIDEX ' | strip
           assign p_label = p_name | split: ' ' | first | upcase
           assign p_lower = product.title | downcase
-          assign p_tint = '#d4af37'
+          assign p_tint = '#8fd3ff'
           if p_lower contains 'amber'
             assign p_tint = '#c9822b'
           elsif p_lower contains 'citrus'
@@ -411,7 +411,7 @@
         >
         <button type="submit" class="vx-btn vx-btn--gold">Get My Code <span aria-hidden="true">→</span></button>
         {%- if form.errors -%}
-          <p class="vx-email__error" id="vx-email-error">{{ form.errors | default_errors }}</p>
+          <div class="vx-email__error" id="vx-email-error" role="alert">{{ form.errors | default_errors }}</div>
         {%- endif -%}
       {%- endif -%}
     {%- endform -%}

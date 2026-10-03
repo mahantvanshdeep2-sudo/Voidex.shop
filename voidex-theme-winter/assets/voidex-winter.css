@@ -98,6 +98,11 @@
 .vx-temp b { display: block; font-family: var(--font-display); font-size: 22px; color: var(--heat-deep); }
 .vx-temp--cold { left: 0; right: auto; top: 10%; bottom: auto; }
 .vx-temp--cold b { color: var(--gold-light); }
+/* Below desktop the badges sit in the visual's corners, clear of the photo in the round frame. */
+@media (max-width: 1100px) {
+  .vx-temp { right: 0; bottom: 0; }
+  .vx-temp--cold { top: 0; left: 0; right: auto; bottom: auto; }
+}
 
 /* ---------- Buy box ---------- */
 .vx-buy { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; align-items: start; }
@@ -252,8 +257,17 @@
 .vx-nav a::after { transform: none; opacity: 0; transition: opacity 0.3s; }
 .vx-nav a:hover::after { transform: none; opacity: 1; }
 .vx-faq__icon, .vx-faq__a, .vx-burger span { transition: none; }
-/* Sections already on screen when the page opens appear as they are (voidex-perfume.js adds this for two frames). */
-.vx-instant *, .vx-instant *::before, .vx-instant *::after { transition: none !important; }
+/* Sections already on screen when the page opens appear as they are (voidex-perfume.js adds vx-instant-self to
+   each one for two frames; the layout's failsafe uses vx-instant on the whole page). */
+.vx-instant *, .vx-instant *::before, .vx-instant *::after,
+.vx-instant-self, .vx-instant-self::before, .vx-instant-self::after,
+.vx-instant-self *, .vx-instant-self *::before, .vx-instant-self *::after { transition: none !important; }
+/* The page never scrolls by itself: fresh loads, #links, text links and Back/Forward land instantly.
+   voidex-winter.js turns smooth scrolling on only for a visitor's click on a same-page link. */
+html { scroll-behavior: auto; }
+/* The hero layers move with the scroll position, so they must never be the browser's scroll anchor
+   (that is what made a reload near the top glide back by itself). */
+.vx-whero, .vx-whero__text, .vx-whero__visual { overflow-anchor: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .vx-motion .vx-whero__text { transform: none; opacity: 1; }
