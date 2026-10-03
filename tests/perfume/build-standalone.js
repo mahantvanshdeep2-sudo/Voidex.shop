@@ -12,6 +12,7 @@ const schemaOf = (s) => JSON.parse(s.match(/{%-?\s*schema\s*-?%}([\s\S]*?){%-?\s
 const engine = new Liquid({ strictFilters: true, root: [path.join(THEME, 'snippets')], extname: '.liquid' });
 const money = (c) => '$' + (Number(c || 0) / 100).toFixed(2);
 engine.registerFilter('money', money);
+engine.registerFilter('money_without_currency', (c) => (Number(c || 0) / 100).toFixed(2));
 engine.registerFilter('money_with_currency', (c) => money(c) + ' CAD');
 engine.registerFilter('asset_url', (f) => '/assets/' + f);
 engine.registerFilter('stylesheet_tag', (u) => `<link href="${u}" rel="stylesheet">`);
@@ -31,7 +32,7 @@ engine.registerTag('form', class extends Tag {
     const o = yield this.hash.render(ctx);
     const attrs = Object.entries(o).map(([k, v]) => `${k}="${v}"`).join(' ');
     const action = this.type === 'product' ? '/cart/add' : '/contact';
-    ctx.push({ form: { posted_successfully_q: false, errors: null } });
+    ctx.push({ form: { posted_successfully_q: false, errors: null, name: '', email: '', body: '', order_number: '' } });
     em.write(`<form method="post" action="${action}" ${attrs}><input type="hidden" name="form_type" value="${this.type}">`);
     yield this.liquid.renderer.renderTemplates(this.tpls, ctx, em); em.write('</form>'); ctx.pop();
   }
@@ -58,8 +59,8 @@ const cartItems = [products[0], products[3], products[2]].map((p, i) => ({ key: 
 const globals = {
   shop: { name: 'VOIDEX.SHOP', money_format: '${{amount}}', enabled_payment_types: ['visa', 'master', 'paypal'], privacy_policy: { url: '/policies/privacy-policy' }, refund_policy: { url: '/policies/refund-policy' }, shipping_policy: { url: '/policies/shipping-policy' }, terms_of_service: { url: '/policies/terms-of-service' } },
   routes: { root_url: '/', cart_url: '/cart', cart_add_url: '/cart/add', account_url: '/account', search_url: '/search', all_products_collection_url: '/collections/all' },
-  cart: { item_count: 3, items: cartItems, total_price: cartItems.reduce((s, i) => s + i.final_line_price, 0), cart_level_discount_applications: [] },
-  request: { locale: { iso_code: 'en' } }, collections: { 'voidex-perfume-samples': collection }, collection,
+  cart: { currency: { iso_code: 'CAD' }, item_count: 3, items: cartItems, total_price: cartItems.reduce((s, i) => s + i.final_line_price, 0), cart_level_discount_applications: [] },
+  request: { locale: { iso_code: 'en' }, page_type: 'index' }, page_image: { src: '//voidexshop.com/cdn/shop/files/og.jpg' },  collections: { 'voidex-perfume-samples': collection }, collection,
   canonical_url: 'https://voidexshop.com/', page_title: 'VOIDEX.SHOP', content_for_header: ''
 };
 async function page(file, tplName, extra) {
@@ -80,8 +81,9 @@ async function page(file, tplName, extra) {
   for (const [n, c] of [['amber', '#c9822b'], ['citrus', '#d8cf55'], ['oud', '#6b3f22'], ['rose', '#c4507a']])
     fs.writeFileSync(path.join(OUT, 'img', n + '.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#070707"/><circle cx="200" cy="230" r="150" fill="${c}" opacity=".12"/><rect x="185" y="90" width="30" height="30" rx="4" fill="#d4af37"/><rect x="150" y="125" width="100" height="170" rx="14" fill="${c}" stroke="#d4af37" stroke-opacity=".4"/><text x="200" y="350" fill="#777" font-size="14" text-anchor="middle" font-family="sans-serif">stand-in image</text></svg>`);
   await page('index.html', 'index', {});
-  await page('product.html', 'product', { product: products[0], page_title: products[0].title });
+  await page('product.html', 'product', { product: products[0], page_title: products[0].title, request: { locale: { iso_code: 'en' }, page_type: 'product' } });
   await page('cart.html', 'cart', {});
   await page('collection.html', 'collection', {});
+  await page('contact.html', 'page.contact', { page: { title: 'Contact', content: '<p>Questions about a scent or an order? Write to us below.</p>' }, page_title: 'Contact' });
   console.log('built', OUT);
 })().catch((e) => { console.error(e); process.exit(1); });

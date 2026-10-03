@@ -724,3 +724,13 @@ body.vx-body {
   .vx-line__price { grid-column: 2 / -1; text-align: left; }
   .vx-cart-actions .vx-btn { flex: 1 1 100%; }
 }
+
+/* Contact page form (page.contact template) */
+.vx-contact { display: grid; gap: 18px; margin-top: 32px; }
+.vx-contact__row { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.vx-field { display: grid; gap: 8px; min-width: 0; }
+.vx-field label { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold-light); }
+.vx-field input, .vx-field textarea { width: 100%; min-width: 0; padding: 15px 18px; border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text); border: 1px solid var(--border); font: 15px var(--font-body); }
+.vx-field textarea { resize: vertical; min-height: 140px; }
+.vx-field input:focus, .vx-field textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 20px rgba(212, 175, 55, 0.12); }
+.vx-contact .vx-btn { justify-self: start; }

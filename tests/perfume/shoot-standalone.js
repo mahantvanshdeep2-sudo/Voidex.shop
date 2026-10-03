@@ -8,6 +8,7 @@ const srv = http.createServer((q, s) => {
   const u = new URL(q.url, 'http://x');
   if (q.method === 'POST') { let b = ''; q.on('data', (c) => (b += c)); q.on('end', () => { posts.push([u.pathname, b]); s.writeHead(200, { 'Content-Type': 'application/json' }); s.end('{"items":[]}'); }); return; }
   if (u.pathname === '/cart.js') { s.writeHead(200, { 'Content-Type': 'application/json' }); return s.end('{"item_count":4}'); }
+  if (u.pathname.startsWith('/fonts/') && !fs.existsSync(path.join(__dirname, u.pathname))) { s.writeHead(404); return s.end(); }
   const f = path.join(u.pathname.startsWith('/fonts/') ? __dirname : SITE, u.pathname === '/' ? 'index.html' : u.pathname);
   if (!fs.existsSync(f)) { s.writeHead(404); return s.end(); }
   s.writeHead(200, { 'Content-Type': T[path.extname(f)] || 'application/octet-stream' }); fs.createReadStream(f).pipe(s);
@@ -19,13 +20,16 @@ let fail = 0; const check = (n, ok, d = '') => { console.log(`${ok ? 'PASS' : 'F
   for (const [vp, tag] of [[{ width: 1366, height: 860 }, 'desktop'], [{ width: 375, height: 800 }, 'mobile']]) {
     const ctx = await br.newContext({ viewport: vp }); const pg = await ctx.newPage(); const errs = [];
     pg.on('pageerror', (e) => errs.push(e.message)); pg.on('console', (m) => m.type() === 'error' && errs.push(m.text()));
-    await pg.route('https://fonts.googleapis.com/**', (r) => r.fulfill({ contentType: 'text/css', body: fs.readFileSync(path.join(__dirname, 'fonts/local.css'), 'utf8').replace(/url\(\/fonts\//g, 'url(' + B + '/fonts/') }));
-    for (const p of ['index', 'product', 'cart', 'collection']) {
+    await pg.route('https://fonts.googleapis.com/**', (r) => r.fulfill({ contentType: 'text/css', body: (fs.existsSync(path.join(__dirname, 'fonts/local.css')) ? fs.readFileSync(path.join(__dirname, 'fonts/local.css'), 'utf8') : '').replace(/url\(\/fonts\//g, 'url(' + B + '/fonts/') }));
+    for (const p of ['index', 'product', 'cart', 'collection', 'contact']) {
       await pg.goto(`${B}/${p}.html`); await pg.waitForTimeout(2300);
       const info = await pg.evaluate(() => ({ bg: getComputedStyle(document.body).backgroundColor, logo: (document.querySelector('.vx-header .vx-logo') || {}).textContent, sw: document.documentElement.scrollWidth, vw: innerWidth }));
       check(`[${tag}] ${p}: black bg, VØIDEX header, no horizontal scroll`, info.bg === 'rgb(5, 5, 5)' && (info.logo || '').trim() === 'VØIDEX' && info.sw <= info.vw, JSON.stringify(info));
       await pg.screenshot({ path: path.join(SHOTS, `standalone-${tag}-${p}.png`), fullPage: p !== 'index' });
     }
+    await pg.goto(`${B}/contact.html`); await pg.waitForTimeout(300);
+    const cf = await pg.evaluate(() => { const f = document.querySelector('form#vx-contact'); return f && [f.getAttribute('action'), f.querySelector('[name="form_type"]').value, ['contact[email]', 'contact[body]'].every((n) => f.querySelector(`[name="${n}"]`).required), [...f.querySelectorAll('input:not([type=hidden]),textarea')].every((i) => i.labels.length === 1)]; });
+    check(`[${tag}] contact: form posts to /contact, email+message required, every field labelled`, cf && cf[0] === '/contact' && cf[1] === 'contact' && cf[2] && cf[3], JSON.stringify(cf));
     await pg.goto(`${B}/product.html`); await pg.waitForTimeout(500);
     await pg.click('[data-vx-size][data-size="10mL"]');
     const pr = await pg.evaluate(() => [document.querySelector('[data-vx-price]').textContent, document.querySelector('[data-vx-variant]').value]);

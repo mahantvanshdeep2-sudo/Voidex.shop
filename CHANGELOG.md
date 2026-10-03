@@ -2,6 +2,32 @@
 
 Changes, fixes, findings, and decisions, most recent first.
 
+## 2026-10-03 — Black & gold theme polish (draft copy, not published)
+
+Owner picked "keep and polish" the live black & gold theme. Found first (Admin API): MAIN is
+`voidex-royal-black-gold-theme` (`186431111418`, published 2026-10-01 16:53 UTC), and all 35 of its
+files match `voidex-theme-standalone/` byte for byte (md5). Fixes went onto a duplicate,
+`VOIDEX Black Gold — polish DRAFT` (`186486456570`, UNPUBLISHED); live theme untouched.
+
+- **Shipping copy**: announcement bar, hero trust line, "Fast Shipping" step and FAQ said "free on
+  orders over $49". Checkout rates and `policies/02` both say free on every order, no minimum, so
+  the theme now says that.
+- **Contact page had no form**: page `contact` uses template suffix `contact`, which the standalone
+  theme never had, so it fell back to plain page text. Added `templates/page.contact.json` +
+  `sections/main-contact.liquid` (name, email, order number, message → Shopify contact form).
+- **Share previews**: `layout/theme.liquid` now emits `og:image` (from `page_image`) and, on product
+  pages, `og:type=product` + price/currency, so links shared on Instagram/Meta show a picture.
+- **Footer "All Products"** pointed at `/collections/all`, which lists the still-active Sneaker Wash
+  Bag and Winter Heated Jacket. Now "All Scents" → `/collections/voidex-perfume-samples`.
+
+Verification: `tests/perfume` standalone harness (now renders the contact page too) — 18/18 Chromium
+checks at 1366px and 375px. Upload via staged URL; Shopify `size` and `checksumMd5` match the local
+file for all 9 changed files. Not verified: rendering on the real storefront (egress-blocked).
+
+Left for the owner (store data, not theme): the Sneaker Wash Bag and Winter Heated Jacket are still
+ACTIVE; the published "Shoe Care FAQ" page; the contact page text still links the Shoe Care FAQ and
+mentions "machine safety"; free shipping on a $5.94 sample vs. the margin target.
+
 ## 2026-10-01 (evening) — Supplier outreach and risk clean-up
 
 - Quote-request emails sent from the owner's Gmail (ids 1a0f86c0252ebd10, 1a0f86c07dcbae7c,

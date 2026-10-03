@@ -17,7 +17,9 @@ Owner: Vanshdeep Mahant (mahantvanshdeep2@gmail.com). Timezone: America/Toronto.
 
 | Theme | ID | Role | Notes |
 |---|---|---|---|
-| Updated copy of Savor | `186287948026` | **MAIN (live)** | Savor after a theme-version update; the owner published it 2026-09-28. Untouched by this repo. |
+| voidex-royal-black-gold-theme | `186431111418` | **MAIN (live)** | Standalone black & gold theme, source `voidex-theme-standalone/`, published 2026-10-01 16:53 UTC. Matched the repo byte for byte on 2026-10-03. |
+| VOIDEX Black Gold — polish DRAFT | `186486456570` | unpublished | Copy of MAIN + 2026-10-03 polish (see `CHANGELOG.md`). Preview: `https://voidexshop.com/?preview_theme_id=186486456570` |
+| Updated copy of Savor | `186287948026` | unpublished | Savor after a theme-version update; was MAIN 2026-09-28 to 2026-10-01. |
 | VOIDEX Royal Black Gold — DRAFT | `186421772538` | unpublished | Duplicate of MAIN (2026-10-01) + the perfume landing in `voidex-theme/`. Preview: `https://voidexshop.com/pages/voidex-perfume-samples?preview_theme_id=186421772538` |
 | Savor | `167336870138` | unpublished | The original Savor install (was MAIN until 2026-09-28). |
 | VOIDEX Motion — DEV | `167583219962` | unpublished | Old Savor + the motion layer in `theme/`. Also holds a weaker perfume section another tool uploaded 2026-10-01 12:01 UTC — superseded by the Royal Black Gold theme. |

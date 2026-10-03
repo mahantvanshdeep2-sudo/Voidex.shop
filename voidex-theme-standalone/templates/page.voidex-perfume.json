@@ -61,7 +61,7 @@
           "type": "step",
           "settings": {
             "title": "Fast Shipping",
-            "text": "Dispatched within 1 business day. Free shipping on orders over $49, and a 30-day money-back promise."
+            "text": "Dispatched within 1 business day. Free shipping on every order, and a 30-day money-back promise."
           }
         },
         "trust_authentic": {
@@ -77,7 +77,7 @@
           "settings": {
             "icon": "shipping",
             "title": "Fast Shipping",
-            "text": "Dispatched within 1 business day. Free on orders over $49."
+            "text": "Dispatched within 1 business day. Free on every order."
           }
         },
         "trust_support": {
@@ -148,7 +148,7 @@
           "type": "faq",
           "settings": {
             "question": "How long does shipping take?",
-            "answer": "<p>Orders are dispatched within 1 business day. Delivery takes 3–5 business days in Canada, 3–7 in the United States and 7–14 elsewhere. Free shipping on orders over $49.</p>"
+            "answer": "<p>Orders are dispatched within 1 business day. Delivery takes 3–5 business days in Canada, 3–7 in the United States and 7–14 elsewhere. Shipping is free on every order.</p>"
           }
         },
         "faq_refund": {
