@@ -1,18 +1,21 @@
-/* VOIDEX — Winter layer: snowfall, aurora, frost and the heated-jacket landing.
-   Loaded after voidex-perfume.css (which carries the ice palette variables).
-   Like the base sheet, every hidden-for-motion state is gated on html.vx-motion. */
+/* VOIDEX — Winter layer: snowfall, sky glow, frost and the heated-jacket landing.
+   Loaded after voidex-perfume.css (which carries the light sky-blue palette variables).
+   Like the base sheet, every hidden-for-motion state is gated on html.vx-motion.
+   Smoothness rules for this file: animate only transform and opacity, never filter, blur or
+   background-position, and no backdrop-filter over the snow (it would re-blur every frame). */
 
-.vx-header { background: rgba(5, 10, 19, 0.78); }
-.vx-particles { opacity: 0.9; }
+.vx-particles { opacity: 1; }
 
 /* ---------- Aurora + frost edges (fixed, behind content) ---------- */
+/* Soft sky glow. The radial gradients are already soft, so no blur filter: an animated 30px blur on a
+   full-width layer is what dropped desktop scrolling to ~26 fps. */
 .vx-aurora {
-  position: fixed; inset: -20% -10% auto; height: 70vh; z-index: 0; pointer-events: none;
+  position: fixed; inset: -20% -10% auto; height: 75vh; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(40% 60% at 20% 40%, rgba(124, 196, 245, 0.16), transparent 70%),
-    radial-gradient(35% 55% at 70% 30%, rgba(120, 255, 214, 0.10), transparent 70%),
-    radial-gradient(30% 50% at 50% 60%, rgba(158, 132, 255, 0.08), transparent 70%);
-  filter: blur(30px);
+    radial-gradient(42% 62% at 18% 38%, rgba(124, 200, 247, 0.34), transparent 72%),
+    radial-gradient(36% 56% at 72% 28%, rgba(160, 222, 255, 0.36), transparent 72%),
+    radial-gradient(32% 52% at 50% 62%, rgba(196, 233, 255, 0.4), transparent 72%);
+  will-change: transform;
 }
 .vx-motion .vx-aurora { animation: vx-aurora 22s ease-in-out infinite alternate; }
 @keyframes vx-aurora {
@@ -31,7 +34,7 @@
 }
 .vx-whero__eyebrow {
   display: inline-flex; align-items: center; gap: 10px; margin-bottom: 26px; padding: 9px 18px; border-radius: 100px;
-  background: rgba(143, 211, 255, 0.07); border: 1px solid rgba(143, 211, 255, 0.28);
+  background: rgba(255, 255, 255, 0.8); border: 1px solid var(--border-gold);
   font-size: 12px; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase; color: var(--gold-light);
 }
 .vx-whero__eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: var(--heat); box-shadow: 0 0 12px var(--heat); }
@@ -43,12 +46,9 @@
 .vx-frost-word {
   background: var(--gold-text); -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: var(--gold);
-  background-size: 220% 100%;
 }
-.vx-motion .vx-frost-word { animation: vx-frost-sheen 7s ease-in-out 1.4s infinite; }
-@keyframes vx-frost-sheen { 0%, 100% { background-position: 0% 0; } 50% { background-position: 100% 0; } }
 .vx-heat-word {
-  background: linear-gradient(135deg, #ffd29a 0%, var(--heat) 45%, var(--heat-deep) 100%);
+  background: linear-gradient(135deg, #f97316 0%, var(--heat) 45%, var(--heat-deep) 100%);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: var(--heat);
 }
 .vx-whero__sub { max-width: 540px; margin: 0 0 36px; font-size: clamp(17px, 2vw, 20px); font-weight: 300; line-height: 1.6; color: var(--text-muted); }
@@ -56,7 +56,7 @@
 .vx-whero__chips { display: flex; flex-wrap: wrap; gap: 10px; margin: 40px 0 0; padding: 0; list-style: none; }
 .vx-whero__chips li {
   padding: 10px 16px; border-radius: 12px; font-size: 13px; color: var(--text);
-  background: rgba(10, 18, 32, 0.7); border: 1px solid var(--border-gold);
+  background: rgba(255, 255, 255, 0.86); border: 1px solid var(--border-gold); box-shadow: 0 4px 16px rgba(16, 52, 92, 0.06);
 }
 .vx-whero__chips strong { color: var(--gold-light); font-weight: 600; }
 
@@ -66,27 +66,30 @@
 .vx-motion .vx-whero__text > :nth-child(3) { animation-delay: 0.26s; }
 .vx-motion .vx-whero__text > :nth-child(4) { animation-delay: 0.4s; }
 .vx-motion .vx-whero__text > :nth-child(5) { animation-delay: 0.54s; }
-@keyframes vx-thaw { from { opacity: 0; transform: translateY(30px); filter: blur(8px); } to { opacity: 1; transform: none; filter: blur(0); } }
+@keyframes vx-thaw { from { opacity: 0; transform: translate3d(0, 30px, 0); } to { opacity: 1; transform: none; } }
 
 /* Hero visual: product in a frosted orb with a breathing heat core */
 .vx-whero__visual { position: relative; aspect-ratio: 1; max-width: 560px; width: 100%; justify-self: center; }
 .vx-orb {
   position: absolute; inset: 6%; border-radius: 50%; overflow: hidden;
-  background: radial-gradient(circle at 50% 45%, rgba(255, 173, 77, 0.22), rgba(10, 18, 32, 0.2) 55%, rgba(143, 211, 255, 0.08) 100%);
-  border: 1px solid rgba(191, 230, 255, 0.25);
-  box-shadow: inset 0 0 60px rgba(143, 211, 255, 0.14), 0 30px 80px rgba(0, 0, 0, 0.55);
+  background: radial-gradient(circle at 50% 45%, rgba(255, 173, 77, 0.2), rgba(255, 255, 255, 0.85) 55%, rgba(124, 200, 247, 0.25) 100%);
+  border: 4px solid #fff;
+  box-shadow: 0 0 0 1px var(--border-gold), 0 30px 70px rgba(16, 52, 92, 0.2);
 }
-.vx-orb img { position: absolute; inset: 9%; width: 82%; height: 82%; object-fit: contain; border-radius: 50%; mix-blend-mode: normal; }
+.vx-orb img { position: absolute; inset: 9%; width: 82%; height: 82%; object-fit: contain; border-radius: 50%; }
+/* A full scene photo (hero image setting) fills the whole orb instead of floating inside it. */
+.vx-orb--photo img { inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 0; }
+.vx-orb--photo .vx-orb__heat { display: none; }
 .vx-orb__heat {
   position: absolute; left: 50%; top: 48%; width: 46%; height: 46%; margin: -23% 0 0 -23%; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 140, 50, 0.45), transparent 70%); filter: blur(10px); pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 140, 50, 0.45), rgba(255, 140, 50, 0.12) 45%, transparent 70%); pointer-events: none;
 }
 .vx-motion .vx-orb__heat { animation: vx-breathe 4.6s ease-in-out infinite; }
 @keyframes vx-breathe { 0%, 100% { transform: scale(0.85); opacity: 0.55; } 50% { transform: scale(1.12); opacity: 1; } }
 .vx-ring {
-  position: absolute; inset: 0; border-radius: 50%; border: 1px dashed rgba(191, 230, 255, 0.28); pointer-events: none;
+  position: absolute; inset: 0; border-radius: 50%; border: 1.5px dashed rgba(28, 124, 196, 0.35); pointer-events: none;
 }
-.vx-ring--2 { inset: -5%; border-style: solid; border-color: rgba(191, 230, 255, 0.1); }
+.vx-ring--2 { inset: -5%; border-style: solid; border-color: rgba(28, 124, 196, 0.14); }
 .vx-motion .vx-ring { animation: vx-spin 60s linear infinite; }
 .vx-motion .vx-ring--2 { animation-duration: 90s; animation-direction: reverse; }
 @keyframes vx-spin { to { transform: rotate(360deg); } }
@@ -94,10 +97,10 @@
 @keyframes vx-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -14px; } }
 .vx-temp {
   position: absolute; right: 2%; bottom: 10%; padding: 12px 16px; border-radius: 14px;
-  background: rgba(8, 15, 28, 0.82); border: 1px solid var(--border-gold);
-  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); font-size: 12px; color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.95); border: 1px solid var(--border-gold); box-shadow: 0 10px 30px rgba(16, 52, 92, 0.14);
+  font-size: 12px; color: var(--text-muted);
 }
-.vx-temp b { display: block; font-family: var(--font-display); font-size: 22px; color: var(--heat); }
+.vx-temp b { display: block; font-family: var(--font-display); font-size: 22px; color: var(--heat-deep); }
 .vx-temp--cold { left: 0; right: auto; top: 10%; bottom: auto; }
 .vx-temp--cold b { color: var(--gold-light); }
 
@@ -112,7 +115,7 @@
 .vx-gallery__main img.is-swapping { opacity: 0; transform: scale(1.03); }
 .vx-gallery__main::after {
   content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), inset 0 -60px 80px -60px rgba(143, 211, 255, 0.25);
+  box-shadow: inset 0 -60px 80px -60px rgba(28, 124, 196, 0.12);
 }
 .vx-thumbs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
 .vx-thumb {
@@ -140,12 +143,12 @@
   transition: border-color 0.25s, background-color 0.25s, transform 0.25s var(--ease), box-shadow 0.25s;
 }
 .vx-chip:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--gold-deep); }
-.vx-chip.is-active { border-color: var(--gold); background: rgba(143, 211, 255, 0.1); box-shadow: 0 0 0 1px var(--gold), 0 8px 26px rgba(143, 211, 255, 0.16); }
+.vx-chip.is-active { border-color: var(--gold); background: #e3f2fd; box-shadow: 0 0 0 1px var(--gold), 0 8px 22px rgba(28, 124, 196, 0.16); }
 .vx-chip:disabled, .vx-chip.is-unavailable { opacity: 0.38; cursor: not-allowed; text-decoration: line-through; }
-.vx-chip__dot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.35); background: var(--dot, #333); }
+.vx-chip__dot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(11, 37, 64, 0.25); background: var(--dot, #333); }
 .vx-chip small { font-size: 11px; color: var(--text-muted); }
 .vx-buy__note { margin: 14px 0 0; font-size: 13px; color: var(--text-muted); }
-.vx-buy__note strong { color: var(--heat); font-weight: 600; }
+.vx-buy__note strong { color: var(--heat-deep); font-weight: 600; }
 .vx-buy__cta { width: 100%; margin-top: 6px; padding-top: 18px; padding-bottom: 18px; font-size: 14px; }
 .vx-buy__cta.is-loading { opacity: 0.7; }
 .vx-buy__list { list-style: none; margin: 26px 0 0; padding: 22px 0 0; border-top: 1px solid var(--border); display: grid; gap: 12px; }
@@ -159,9 +162,9 @@
   background: linear-gradient(180deg, var(--bg-card), var(--bg)); border: 1px solid var(--border);
 }
 .vx-zone.is-settled { transition: transform 0.45s var(--ease), border-color 0.4s; }
-.vx-zone:hover { transform: translateY(-8px); border-color: rgba(255, 173, 77, 0.45); }
-.vx-zone__n { font-family: var(--font-display); font-size: 54px; font-weight: 700; line-height: 1; }
-.vx-zone__n span { font-size: 16px; font-weight: 500; color: var(--text-muted); margin-left: 6px; }
+.vx-zone:hover { transform: translateY(-8px); border-color: rgba(234, 88, 12, 0.45); box-shadow: var(--shadow-gold); }
+.vx-zone .vx-zone__n { font-family: var(--font-display); font-size: 54px; font-weight: 700; line-height: 1; color: var(--gold-deep); }
+.vx-zone .vx-zone__n span { font-size: 16px; font-weight: 500; color: var(--text-muted); margin-left: 6px; }
 .vx-zone h3 { font-family: var(--font-display); font-size: 19px; margin: 14px 0 8px; }
 .vx-zone p { color: var(--text-muted); font-size: 14px; line-height: 1.7; margin: 0; }
 .vx-zone__bar { height: 4px; border-radius: 4px; margin-top: 20px; background: var(--border); overflow: hidden; }
@@ -175,29 +178,42 @@
 .vx-sizes-table thead th { background: var(--bg-elevated); color: var(--gold-light); font-weight: 600; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
 .vx-sizes-table tbody th { color: var(--text); font-weight: 600; }
 .vx-sizes-table td { color: var(--text-muted); }
-.vx-sizes-table tbody tr:hover { background: rgba(143, 211, 255, 0.05); }
+.vx-sizes-table tbody tr:hover { background: #eef7fe; }
+.vx-sizes-table tbody { background: #fff; }
 .vx-sizes-note { max-width: 900px; margin: 18px auto 0; text-align: center; font-size: 14px; color: var(--text-muted); }
 
 /* ---------- Closing CTA ---------- */
-.vx-wfinal { text-align: center; overflow: hidden; background: radial-gradient(60% 120% at 50% 100%, rgba(255, 140, 50, 0.12), transparent 70%), linear-gradient(180deg, var(--bg), #07101d); }
+.vx-wfinal { text-align: center; overflow: hidden; background: radial-gradient(60% 100% at 50% 100%, rgba(255, 255, 255, 0.95), transparent 70%), linear-gradient(180deg, var(--bg), #d3ebfc); }
 .vx-wfinal h2 { font-family: var(--font-display); font-size: clamp(32px, 5vw, 56px); margin: 0 0 16px; }
 .vx-wfinal p { color: var(--text-muted); margin: 0 auto 32px; max-width: 520px; font-size: 18px; }
 
-/* ---------- Frosted glass on cards site-wide ---------- */
-.vx-step, .vx-faq__item, .vx-zone { -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+/* ---------- Cards site-wide: solid white on the light sky (no backdrop blur over the moving snow) ---------- */
+.vx-step, .vx-zone, .vx-card, .vx-review { background: #fff; box-shadow: 0 6px 24px rgba(16, 52, 92, 0.06); }
 
 /* Size guide units */
 .vx-units { display: flex; justify-content: center; gap: 6px; margin: -18px auto 22px; }
 .vx-units[hidden] { display: none; }
 .vx-units__btn {
   padding: 8px 18px; border-radius: 100px; font: inherit; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; cursor: pointer;
-  color: var(--text-muted); background: rgba(10, 18, 32, 0.7); border: 1px solid var(--border-gold); transition: color 0.2s, background 0.2s, border-color 0.2s;
+  color: var(--text-muted); background: #fff; border: 1px solid var(--border-gold); transition: color 0.2s, background 0.2s, border-color 0.2s;
 }
 .vx-units__btn:hover { color: var(--text); }
-.vx-units__btn.is-active { color: var(--bg); background: var(--gold-light); border-color: var(--gold-light); }
+.vx-units__btn.is-active { color: #fff; background: var(--gold-light); border-color: var(--gold-light); }
 .vx-sizes-table .vx-u-in { display: none; }
 .vx-sizes-table.is-in .vx-u-in { display: inline; }
 .vx-sizes-table.is-in .vx-u-cm { display: none; }
+
+/* A section title with no subheading still needs room before the FAQ list. */
+.vx-title + .vx-faq { margin-top: 48px; }
+
+/* Country / currency picker in the footer */
+.vx-locale { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
+.vx-locale select {
+  padding: 8px 32px 8px 12px; border-radius: 100px; border: 1px solid var(--border-gold); background: #fff; color: var(--text);
+  font: 500 13px var(--font-body); cursor: pointer; max-width: 240px;
+}
+.vx-locale button { padding: 8px 14px; }
+.vx-js .vx-locale button { display: none; }
 
 /* Other products in the store */
 .vx-more .vx-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 280px)); justify-content: center; }
@@ -214,6 +230,7 @@
 }
 @media (max-width: 600px) {
   .vx-whero { padding: 24px 16px 80px; }
+  .vx-whero__eyebrow { letter-spacing: 0.8px; font-size: 11px; padding: 8px 14px; }
   .vx-whero__visual { max-width: 300px; }
   .vx-temp { font-size: 11px; padding: 8px 12px; }
   .vx-temp b { font-size: 18px; }
@@ -221,5 +238,5 @@
   .vx-whero__cta .vx-btn { flex: 1 1 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .vx-aurora, .vx-orb__heat, .vx-ring, .vx-whero__visual, .vx-frost-word { animation: none !important; }
+  .vx-aurora, .vx-orb__heat, .vx-ring, .vx-whero__visual { animation: none !important; }
 }

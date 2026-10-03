@@ -2,6 +2,46 @@
 
 Changes, fixes, findings, and decisions, most recent first.
 
+## 2026-10-03 (later) — Winter storefront: new jacket photos, sky blue + white, smoother motion
+
+Owner's TASK 2: "improve the quality and motions to ultra smooth fps also replace the pictures of the
+jacket … showing different angles … for the website theme use light sky blue and white theme and should
+fit well for phone as well as desktop users". All on the unpublished `VOIDEX Winter — DEV`
+(`186493436154`); live theme untouched.
+
+- **Photos:** 6 new jacket photos made with Kling (Nano Banana Pro, 20 credits each, 120 total),
+  using the live product's own photos as reference: front, back with the heating zones lit, close-up of
+  button + reflective lining + power-bank pocket, street walk, roadside blizzard, snowstorm hero. Saved to
+  Shopify Files (`MediaImage/46326035382522` … `46326035546362`, 2048², byte sizes checked against the
+  downloads). Checked visually against the real product photos: same quilted chevron puffer, hood,
+  chest button, zip pockets. They lead the homepage gallery through new section settings
+  (`photo_1`–`photo_6`, `hero_image`), which also hide the product's ten generic supplier photos there;
+  the 16 variant photos stay so each colour still shows its own picture. **The product's own media is
+  unchanged** (attaching them to the live product was blocked as a shared-store change; needs the
+  owner's word).
+- **Light theme:** palette tokens in `voidex-perfume.css` now hold white / sky blue / navy (button text
+  navy on a light sky gradient, contrast 6.7–10.6:1; body text 14.8:1; muted text 5.8:1), hard-coded
+  dark colours in both stylesheets mapped to light ones, solid white cards, white header, snow drawn as
+  white flakes with a sky-blue rim so it shows on white and on blue.
+- **Motion:** measured with `tests/perfume/fps-winter.js` (scrolls the homepage for 5 s × 3 under CPU
+  throttling, records every frame). Desktop 1440×900 at 2× throttle was **26 fps, 96% of frames over
+  25 ms**; the cause was the animated 30 px blur on the full-width aurora layer (removing only that gave
+  58 fps). Now **60 fps, 0% slow frames** on desktop and 60 fps on a 390×844 3× phone at 4× throttle.
+  Also: no `filter`/`backdrop-filter`/`background-position` animation anywhere in the winter layer,
+  snowfall moves by elapsed time (same speed at 60/90/120 Hz), stamps pre-rendered sprites, caps canvas
+  resolution at 1.5×, and thins itself if frames run long.
+- **Sharper images:** buy-box photos served up to 1600 px with a srcset, hero up to 1200 px.
+- **Global fixes from the readiness sweep:** hero now reads "Cold out there? You're ready." (no
+  Northern-winter assumption), footer country picker (each market in its own currency), variant prices
+  pre-formatted by Shopify instead of rebuilt in JS, FAQ shipping answer mentions import duties and no
+  longer promises a checkout timeframe, empty cart says "Continue shopping" (was "Shop the scents"),
+  search placeholder "Search products", heat-zone numbers render at their intended size.
+
+Verification: `node tests/perfume/build-winter.js && node tests/perfume/shoot-winter.js` → all 42
+checks pass (adds: storm hero, front photo leads, 6 new thumbs first and no old supplier photos, zone
+numbers 54 px, country picker posts `country_code`, no "Winter is coming"/"scents" copy). All 11 changed
+files uploaded by staged URL; every `checksumMd5` on the theme equals the local `md5sum`.
+
 ## 2026-10-03 — Winter storefront (new DEV theme, not published)
 
 Owner asked for "a smooth motion theme that represents winters and cold weather conditions". Built

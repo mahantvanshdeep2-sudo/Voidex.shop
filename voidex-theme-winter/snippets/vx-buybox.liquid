@@ -1,36 +1,106 @@
 {%- comment -%}
   Heated-jacket style buy box for products with one or two options (e.g. Color + Size).
-  Params: product (required), title (optional display name), kicker (optional), note (optional).
+  Params: product (required), title (optional display name), kicker (optional), note (optional),
+  photos (optional: an object with photo_1 ... photo_6 image settings, e.g. section.settings).
+  When photos are given they lead the gallery and stand in for the product's generic photos; the photos
+  attached to variants stay, so picking a colour still shows that colour.
   Without JS the form posts the preselected variant to /cart/add.
 {%- endcomment -%}
 {%- liquid
   assign bb_current = product.selected_or_first_available_variant
   assign bb_title = title | default: product.title
   assign bb_label = 'Add to Cart'
+
+  assign bb_first_photo = false
+  assign bb_photo_count = 0
+  if photos
+    for i in (1..6)
+      assign bb_key = 'photo_' | append: i
+      if photos[bb_key] != blank
+        assign bb_photo_count = bb_photo_count | plus: 1
+        unless bb_first_photo
+          assign bb_first_photo = photos[bb_key]
+        endunless
+      endif
+    endfor
+  endif
+
+  # Ids of photos attached to variants, wrapped in pipes for exact matching.
+  assign bb_variant_imgs = '|'
+  for v in product.variants
+    if v.featured_image
+      assign bb_needle = '|' | append: v.featured_image.id | append: '|'
+      unless bb_variant_imgs contains bb_needle
+        assign bb_variant_imgs = bb_variant_imgs | append: v.featured_image.id | append: '|'
+      endunless
+    endif
+  endfor
+
+  # First photo: the variant in the URL (?variant=), else the lead photo, else the product's featured photo.
+  assign bb_img = product.featured_image
+  if product.selected_variant.featured_image
+    assign bb_img = product.selected_variant.featured_image
+  elsif bb_first_photo
+    assign bb_img = bb_first_photo
+  endif
+  assign bb_widths = '600, 900, 1200, 1600'
+  assign bb_sizes = '(min-width: 990px) 55vw, 100vw'
 -%}
 <div class="vx-buy" data-vx-buy data-vx-card>
   <div class="vx-gallery">
     <div class="vx-gallery__main" data-vx-gallery-main>
-      {%- assign bb_img = bb_current.featured_image | default: product.featured_image -%}
       {%- if bb_img -%}
-        {{ bb_img | image_url: width: 1100 | image_tag: data-vx-main-img: '', data-vx-image-id: bb_img.id, loading: 'eager', sizes: '(min-width: 990px) 55vw, 100vw', alt: bb_title }}
+        {{ bb_img | image_url: width: 1600 | image_tag: data-vx-main-img: '', data-vx-image-id: bb_img.id, loading: 'eager', fetchpriority: 'high', widths: bb_widths, sizes: bb_sizes, alt: bb_title }}
       {%- endif -%}
     </div>
-    {%- if product.images.size > 1 -%}
-      <div class="vx-thumbs" role="group" aria-label="Product photos">
-        {%- for image in product.images limit: 14 -%}
-          <button type="button" class="vx-thumb{% if image.id == bb_img.id %} is-active{% endif %}" data-vx-thumb data-image-id="{{ image.id }}" aria-label="Show photo {{ forloop.index }}">
-            {{ image | image_url: width: 160 | image_tag: loading: 'lazy', alt: '' }}
-          </button>
+    {%- capture bb_thumbs -%}
+      {%- assign bb_n = 0 -%}
+      {%- if bb_photo_count > 0 -%}
+        {%- for i in (1..6) -%}
+          {%- assign bb_key = 'photo_' | append: i -%}
+          {%- assign image = photos[bb_key] -%}
+          {%- if image != blank -%}
+            {%- assign bb_n = bb_n | plus: 1 -%}
+            <button type="button" class="vx-thumb{% if image.id == bb_img.id %} is-active{% endif %}" data-vx-thumb data-image-id="{{ image.id }}" aria-label="Show photo {{ bb_n }}">
+              {{ image | image_url: width: 200 | image_tag: loading: 'lazy', alt: '' }}
+            </button>
+          {%- endif -%}
         {%- endfor -%}
-      </div>
+      {%- endif -%}
+      {%- for image in product.images -%}
+        {%- assign bb_needle = '|' | append: image.id | append: '|' -%}
+        {%- if bb_photo_count > 0 -%}
+          {%- unless bb_variant_imgs contains bb_needle -%}{%- continue -%}{%- endunless -%}
+        {%- endif -%}
+        {%- if bb_n >= 14 -%}{%- break -%}{%- endif -%}
+        {%- assign bb_n = bb_n | plus: 1 -%}
+        <button type="button" class="vx-thumb{% if image.id == bb_img.id %} is-active{% endif %}" data-vx-thumb data-image-id="{{ image.id }}" aria-label="Show photo {{ bb_n }}">
+          {{ image | image_url: width: 200 | image_tag: loading: 'lazy', alt: '' }}
+        </button>
+      {%- endfor -%}
+    {%- endcapture -%}
+    {%- if bb_n > 1 -%}
+      <div class="vx-thumbs" role="group" aria-label="Product photos">{{ bb_thumbs }}</div>
     {%- endif -%}
     {%- comment -%}
       One inert template per photo. The picker swaps photos by cloning these (matched by image id), so
       nothing read from the page is ever written into an img src. Template images don't download until used.
     {%- endcomment -%}
+    {%- if bb_photo_count > 0 -%}
+      {%- for i in (1..6) -%}
+        {%- assign bb_key = 'photo_' | append: i -%}
+        {%- assign image = photos[bb_key] -%}
+        {%- if image != blank -%}
+          <template data-vx-img="{{ image.id }}">{{ image | image_url: width: 1600 | image_tag: data-vx-main-img: '', data-vx-image-id: image.id, widths: bb_widths, sizes: bb_sizes, alt: bb_title }}</template>
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endif -%}
     {%- for image in product.images -%}
-      <template data-vx-img="{{ image.id }}">{{ image | image_url: width: 1100 | image_tag: data-vx-main-img: '', data-vx-image-id: image.id, sizes: '(min-width: 990px) 55vw, 100vw', alt: bb_title }}</template>
+      {%- assign bb_needle = '|' | append: image.id | append: '|' -%}
+      {%- if bb_photo_count > 0 -%}
+        {%- unless bb_variant_imgs contains bb_needle -%}{%- continue -%}{%- endunless -%}
+      {%- endif -%}
+      <template data-vx-img="{{ image.id }}">{{ image | image_url: width: 1600 | image_tag: data-vx-main-img: '', data-vx-image-id: image.id, widths: bb_widths, sizes: bb_sizes, alt: bb_title }}</template>
     {%- endfor -%}
   </div>
 
@@ -128,7 +198,7 @@
     <script type="application/json" data-vx-variants>
       [{%- for v in product.variants -%}
         {%- assign v_img = v.featured_image | default: product.featured_image -%}
-        {"id":{{ v.id }},"title":{{ v.title | json }},"price":{{ v.price }},"compare_at_price":{{ v.compare_at_price | default: 0 }},"available":{{ v.available }},"options":{{ v.options | json }},"image_id":{% if v_img %}"{{ v_img.id }}"{% else %}null{% endif %}}{% unless forloop.last %},{% endunless %}
+        {"id":{{ v.id }},"title":{{ v.title | json }},"price":{{ v.price }},"price_formatted":{{ v.price | money | json }},"compare_at_price":{{ v.compare_at_price | default: 0 }},"compare_formatted":{{ v.compare_at_price | money | json }},"available":{{ v.available }},"options":{{ v.options | json }},"image_id":{% if v_img %}"{{ v_img.id }}"{% else %}null{% endif %}}{% unless forloop.last %},{% endunless %}
       {%- endfor -%}]
     </script>
   </div>

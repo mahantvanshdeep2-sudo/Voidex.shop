@@ -34,10 +34,10 @@
       <div data-vx-parallax style="position:absolute;inset:0">
         <span class="vx-ring vx-ring--2"></span>
         <span class="vx-ring"></span>
-        <div class="vx-orb">
+        <div class="vx-orb{% if section.settings.hero_image != blank %} vx-orb--photo{% endif %}">
           <span class="vx-orb__heat"></span>
           {%- assign hero_img = section.settings.hero_image | default: w_product.featured_image -%}
-          {%- if hero_img -%}{{ hero_img | image_url: width: 900 | image_tag: loading: 'eager', alt: '' }}{%- endif -%}
+          {%- if hero_img -%}{{ hero_img | image_url: width: 1200 | image_tag: loading: 'eager', fetchpriority: 'high', widths: '400, 600, 800, 1200', sizes: '(min-width: 990px) 560px, (min-width: 600px) 420px, 300px', alt: '' }}{%- endif -%}
         </div>
         {%- if section.settings.temp_out != blank -%}
           <p class="vx-temp vx-temp--cold">Outside<b>{{ section.settings.temp_out | escape }}</b></p>
@@ -53,7 +53,7 @@
   <section class="vx-section" id="jacket" aria-label="{{ w_title | escape }}">
     {%- if w_product != blank -%}
       <div class="vx-reveal">
-        {% render 'vx-buybox', product: w_product, title: w_title, kicker: section.settings.kicker, note: section.settings.buy_note %}
+        {% render 'vx-buybox', product: w_product, title: w_title, kicker: section.settings.kicker, note: section.settings.buy_note, photos: section.settings %}
       </div>
     {%- else -%}
       <p class="vx-empty">Pick the featured product in the theme editor.</p>
@@ -236,12 +236,20 @@
     { "type": "richtext", "id": "buy_note", "label": "Note under the button", "default": "<p><strong>Power bank not included.</strong> Works with any USB power bank; a 10,000 mAh bank is a good fit.</p>" },
     { "type": "header", "content": "Hero" },
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Built for winter, wherever you are" },
-    { "type": "text", "id": "title_cold", "label": "Heading line 1 (frost)", "default": "Winter is coming." },
+    { "type": "text", "id": "title_cold", "label": "Heading line 1 (frost)", "default": "Cold out there?" },
     { "type": "text", "id": "title_warm", "label": "Heading line 2 (heat)", "default": "You're ready." },
     { "type": "text", "id": "subheading", "label": "Subheading", "default": "A lightweight heated jacket with carbon-fibre heating panels and three heat levels at the press of a button. Plug in a power bank and step outside." },
     { "type": "text", "id": "primary_cta", "label": "Primary button", "default": "Shop the Heated Jacket" },
     { "type": "text", "id": "secondary_cta", "label": "Secondary button", "default": "How it heats" },
-    { "type": "image_picker", "id": "hero_image", "label": "Hero image (defaults to product photo)" },
+    { "type": "image_picker", "id": "hero_image", "label": "Hero image (defaults to product photo)", "info": "A full scene photo fills the round frame." },
+    { "type": "header", "content": "Product photos" },
+    { "type": "paragraph", "content": "Photos that lead the buy box gallery and replace the product's generic photos here. Photos attached to variants still show when a colour is picked." },
+    { "type": "image_picker", "id": "photo_1", "label": "Photo 1" },
+    { "type": "image_picker", "id": "photo_2", "label": "Photo 2" },
+    { "type": "image_picker", "id": "photo_3", "label": "Photo 3" },
+    { "type": "image_picker", "id": "photo_4", "label": "Photo 4" },
+    { "type": "image_picker", "id": "photo_5", "label": "Photo 5" },
+    { "type": "image_picker", "id": "photo_6", "label": "Photo 6" },
     { "type": "text", "id": "chip_1", "label": "Chip 1", "default": "<strong>3</strong> heat levels" },
     { "type": "text", "id": "chip_2", "label": "Chip 2", "default": "Up to <strong>9</strong> heating zones" },
     { "type": "text", "id": "chip_3", "label": "Chip 3", "default": "<strong>Free</strong> shipping" },

@@ -2,7 +2,7 @@
 const http = require('http'); const fs = require('fs'); const path = require('path');
 const { chromium } = require('playwright-core');
 const SITE = path.join(__dirname, 'site-winter'); const SHOTS = path.join(__dirname, 'shots'); fs.mkdirSync(SHOTS, { recursive: true });
-const T = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml' };
+const T = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg' };
 const posts = [];
 const srv = http.createServer((q, s) => {
   const u = new URL(q.url, 'http://x');
@@ -23,7 +23,7 @@ let fail = 0; const check = (n, ok, d = '') => { console.log(`${ok ? 'PASS' : 'F
     for (const p of ['index', 'product']) {
       await pg.goto(`${B}/${p}.html`); await pg.waitForTimeout(1800);
       const info = await pg.evaluate(() => ({ bg: getComputedStyle(document.body).backgroundColor, sw: document.documentElement.scrollWidth, vw: innerWidth, snow: !!document.querySelector('canvas[data-vx-snow]') && document.querySelector('canvas[data-vx-snow]').width > 0 }));
-      check(`[${tag}] ${p}: winter bg, snow canvas running, no horizontal scroll`, info.bg === 'rgb(5, 10, 19)' && info.snow && info.sw <= info.vw, JSON.stringify(info));
+      check(`[${tag}] ${p}: light sky-white bg, snow canvas running, no horizontal scroll`, info.bg === 'rgb(244, 250, 255)' && info.snow && info.sw <= info.vw, JSON.stringify(info));
       // Scroll through the page so every scroll reveal fires, then confirm none stayed hidden.
       const H = await pg.evaluate(() => document.documentElement.scrollHeight);
       for (let y = 0; y < H; y += Math.round(vp.height * 0.6)) { await pg.evaluate((yy) => window.scrollTo({ top: yy, behavior: 'instant' }), y); await pg.waitForTimeout(120); }
@@ -35,8 +35,9 @@ let fail = 0; const check = (n, ok, d = '') => { console.log(`${ok ? 'PASS' : 'F
     // Global copy: no Canada-only wording, no fixed temperature, no dead perfume link; live products listed
     for (const p of ['index', 'product']) {
       await pg.goto(`${B}/${p}.html`); await pg.waitForTimeout(300);
-      const txt = await pg.evaluate(() => document.body.innerText);
-      const bad = ['Canad', '°C', '°F', '−20', '-20', 'Perfume'].filter((w) => txt.includes(w));
+      // Page text minus the country picker, whose list legitimately names every country (Canada included).
+      const txt = await pg.evaluate(() => { const c = document.body.cloneNode(true); c.querySelectorAll('.vx-locale, script, style, template').forEach((e) => e.remove()); return c.textContent; });
+      const bad = ['Canad', '°C', '°F', '−20', '-20', 'Perfume', 'Winter is coming', 'scents'].filter((w) => txt.includes(w));
       check(`[${tag}] ${p}: no Canada-only wording, temperature number or perfume link`, bad.length === 0, bad.join(','));
     }
     await pg.goto(`${B}/index.html`); await pg.waitForTimeout(300);
@@ -44,6 +45,20 @@ let fail = 0; const check = (n, ok, d = '') => { console.log(`${ok ? 'PASS' : 'F
     check(`[${tag}] "More from VOIDEX" lists the other live products, not the jacket`, more.join(',') === '/products/voidex-sneaker-wash-bag,/products/special-glass-for-car-snow-removal-tools-deicing-and-melting-snow', more.join(','));
     const nav = await pg.evaluate(() => [...document.querySelectorAll('header a')].map((a) => a.textContent.trim() + '=' + a.getAttribute('href')).filter((x) => /Shop All/.test(x)));
     check(`[${tag}] menu has Shop All -> /collections/all`, nav.length > 0 && nav.every((x) => x.endsWith('=/collections/all')), nav.join(' | '));
+    // New photos: the hero shows the snowstorm photo; the gallery leads with the six new photos and drops the
+    // product's old generic supplier photos (variant photos stay so each colour still has its picture)
+    const gal = await pg.evaluate(() => ({
+      hero: document.querySelector('.vx-orb--photo img') && document.querySelector('.vx-orb--photo img').getAttribute('src'),
+      main: document.querySelector('[data-vx-main-img]').getAttribute('src'),
+      thumbs: [...document.querySelectorAll('.vx-thumb')].map((t) => t.dataset.imageId),
+      zone: getComputedStyle(document.querySelector('.vx-zone__n')).fontSize
+    }));
+    check(`[${tag}] new photos: storm hero, front photo leads, 6 new thumbs first, old supplier photos gone`, gal.hero === '/img/storm.jpg' && gal.main === '/img/front.jpg' && gal.thumbs.slice(0, 6).every((id) => id.startsWith('4632603500000')) && !gal.thumbs.some((id) => id.startsWith('5282326999999')), JSON.stringify(gal));
+    check(`[${tag}] heat-zone numbers render large`, gal.zone === '54px', gal.zone);
+    // Footer country picker: choosing a country submits the localization form with that country
+    posts.length = 0; await pg.selectOption('[data-vx-locale-select]', 'DE'); await pg.waitForTimeout(600);
+    check(`[${tag}] footer country picker submits the chosen country`, posts.some(([u, b]) => u === '/localization' && b.includes('country_code=DE')), JSON.stringify(posts));
+    await pg.goto(`${B}/index.html`); await pg.waitForTimeout(300);
     const cell = () => pg.evaluate(() => { const td = document.querySelector('[data-vx-sizes] tbody td'); return td.innerText.trim(); });
     const cm = await cell(); await pg.click('[data-vx-unit="in"]'); const inch = await cell(); await pg.click('[data-vx-unit="cm"]'); const back = await cell();
     check(`[${tag}] size guide switches cm <-> inches`, cm === '64' && inch === '25.2' && back === '64', [cm, inch, back].join(' / '));

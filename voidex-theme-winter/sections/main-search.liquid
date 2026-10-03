@@ -2,7 +2,7 @@
   <h1 class="vx-title">Search</h1>
   <form action="{{ routes.search_url }}" method="get" class="vx-email__form vx-searchform" role="search">
     <label class="vx-visually-hidden" for="vx-q">Search</label>
-    <input id="vx-q" type="search" name="q" value="{{ search.terms | escape }}" placeholder="Search scents">
+    <input id="vx-q" type="search" name="q" value="{{ search.terms | escape }}" placeholder="Search products">
     <input type="hidden" name="type" value="product">
     <button class="vx-btn vx-btn--gold" type="submit">Search</button>
   </form>

@@ -66,6 +66,18 @@
 
   <div class="vx-footer__bottom">
     <span>&copy; {{ 'now' | date: '%Y' }} {{ shop.name | escape }}. All rights reserved.</span>
+    {%- if localization.available_countries.size > 1 -%}
+      {%- comment -%} Shoppers outside the home market pick their country to see prices in their own currency. {%- endcomment -%}
+      {%- form 'localization', class: 'vx-locale' -%}
+        <label for="vx-country">Ship to</label>
+        <select id="vx-country" name="country_code" data-vx-locale-select>
+          {%- for c in localization.available_countries -%}
+            <option value="{{ c.iso_code }}"{% if c.iso_code == localization.country.iso_code %} selected{% endif %}>{{ c.name }} ({{ c.currency.iso_code }} {{ c.currency.symbol }})</option>
+          {%- endfor -%}
+        </select>
+        <button type="submit" class="vx-btn vx-btn--ghost vx-btn--sm">Update</button>
+      {%- endform -%}
+    {%- endif -%}
     {%- if shop.enabled_payment_types.size > 0 %}
       <ul class="vx-footer__pay" aria-label="Payment methods">
         {%- for type in shop.enabled_payment_types -%}

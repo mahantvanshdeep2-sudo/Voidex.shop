@@ -17,59 +17,89 @@
     return fmt.replace(/\{\{\s*\w+\s*\}\}/, amount);
   }
 
-  /* ---------- Snowfall (three depth layers, gentle sway, wind follows the pointer) ---------- */
+  /* ---------- Snowfall (depth layers, gentle sway, wind follows the pointer) ----------
+     Built for a steady frame rate: movement is scaled by real elapsed time (same speed at 60, 90 or
+     120 Hz, and no lurch after a slow frame), flakes are stamped from a few pre-rendered sprites instead
+     of building a path and a colour string per flake per frame, the canvas resolution is capped, and if
+     the device still can't keep up the flake count drops until it can. */
   function initSnow() {
     const canvas = $('[data-vx-snow]');
     if (!canvas || !canvas.getContext) return;
-    const ctx = canvas.getContext('2d');
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    let w = 0, h = 0, flakes = [], frame = 0, running = false, wind = 0, windTarget = 0;
+    const ctx = canvas.getContext('2d', { alpha: true });
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const SIZES = [1.2, 1.8, 2.4, 3.1, 3.9];
+    // Soft flake: white core with a sky-blue rim, so it reads on white snow and on the blue glow alike.
+    const sprites = SIZES.map((r) => {
+      const c = document.createElement('canvas');
+      const px = Math.ceil(r * 2 * dpr) + 2;
+      c.width = c.height = px;
+      const g = c.getContext('2d');
+      const grad = g.createRadialGradient(px / 2, px / 2, 0, px / 2, px / 2, px / 2);
+      grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+      grad.addColorStop(0.45, 'rgba(168, 214, 246, 0.95)');
+      grad.addColorStop(1, 'rgba(110, 175, 228, 0)');
+      g.fillStyle = grad; g.fillRect(0, 0, px, px);
+      return { c, size: px / dpr };
+    });
+    let w = 0, h = 0, flakes = [], target = 0, frame = 0, running = false, last = 0;
+    let wind = 0, windTarget = 0, slowTime = 0, sampleTime = 0;
 
     const make = (anywhere) => {
       const depth = Math.random();
       return {
         x: Math.random() * w,
-        y: anywhere ? Math.random() * h : -10,
-        r: 0.6 + depth * 2.4,
+        y: anywhere ? Math.random() * h : -8,
+        s: sprites[Math.min(SIZES.length - 1, Math.floor(depth * SIZES.length))],
         vy: 0.25 + depth * 0.95,
         sway: 0.4 + Math.random() * 1.1,
         phase: Math.random() * Math.PI * 2,
-        a: 0.25 + depth * 0.6
+        a: 0.35 + depth * 0.6
       };
     };
     const resize = () => {
       w = window.innerWidth; h = window.innerHeight;
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const count = Math.round(Math.min(150, Math.max(50, (w * h) / 11000)));
+      target = Math.round(Math.min(140, Math.max(45, (w * h) / 12000)));
       flakes = [];
-      for (let i = 0; i < count; i++) flakes.push(make(true));
+      for (let i = 0; i < target; i++) flakes.push(make(true));
     };
-    const draw = (move) => {
+    const draw = (k) => {
       ctx.clearRect(0, 0, w, h);
-      wind += (windTarget - wind) * 0.02;
+      wind += (windTarget - wind) * Math.min(1, 0.02 * k);
       for (let i = 0; i < flakes.length; i++) {
-        const f = flakes[i];
-        if (move) {
-          f.phase += 0.012 * f.sway;
-          f.y += f.vy;
-          f.x += Math.sin(f.phase) * 0.35 * f.sway + wind * f.vy;
-          if (f.y > h + 6) { flakes[i] = make(false); continue; }
-          if (f.x < -6) f.x = w + 6; else if (f.x > w + 6) f.x = -6;
+        let f = flakes[i];
+        if (k) {
+          f.phase += 0.012 * f.sway * k;
+          f.y += f.vy * k;
+          f.x += (Math.sin(f.phase) * 0.35 * f.sway + wind * f.vy) * k;
+          if (f.y > h + 8) { f = flakes[i] = make(false); }
+          if (f.x < -8) f.x = w + 8; else if (f.x > w + 8) f.x = -8;
         }
-        ctx.beginPath();
-        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(235, 247, 255, ' + f.a.toFixed(3) + ')';
-        ctx.fill();
+        const half = f.s.size / 2;
+        ctx.globalAlpha = f.a;
+        ctx.drawImage(f.s.c, f.x - half, f.y - half, f.s.size, f.s.size);
       }
+      ctx.globalAlpha = 1;
     };
-    const loop = () => { draw(true); frame = requestAnimationFrame(loop); };
-    const start = () => { if (!running && !reduceMotion) { running = true; frame = requestAnimationFrame(loop); } };
+    const loop = (now) => {
+      // k = elapsed time in 60 Hz frames; capped so a stalled tab doesn't teleport the snow.
+      const dt = Math.min(50, now - (last || now)); last = now;
+      draw(dt / (1000 / 60));
+      // Adaptive load: if frames run long for a sustained second, thin the snow by a fifth.
+      sampleTime += dt; if (dt > 22) slowTime += dt;
+      if (sampleTime > 1000) {
+        if (slowTime > 400 && flakes.length > 30) flakes.length = Math.round(flakes.length * 0.8);
+        sampleTime = slowTime = 0;
+      }
+      frame = requestAnimationFrame(loop);
+    };
+    const start = () => { if (!running && !reduceMotion) { running = true; last = 0; frame = requestAnimationFrame(loop); } };
     const stop = () => { running = false; cancelAnimationFrame(frame); };
 
-    resize(); draw(false); start();
+    resize(); draw(0); start();
     let t;
-    window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { resize(); draw(false); }, 150); });
+    window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { resize(); draw(0); }, 150); });
     window.addEventListener('pointermove', (e) => { windTarget = ((e.clientX / Math.max(w, 1)) - 0.5) * 0.9; }, { passive: true });
     document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
   }
@@ -136,7 +166,7 @@
         thumbs.forEach((t) => t.classList.toggle('is-active', t.getAttribute('data-image-id') === id));
       };
 
-      const refresh = () => {
+      const refresh = (initial) => {
         // The last option (e.g. Size) is disabled where no in-stock variant matches the earlier
         // choices. Earlier options (e.g. Color) stay clickable; picking one snaps the rest to a match.
         groups.forEach((g, gi) => {
@@ -155,10 +185,10 @@
         const v = find(selected);
         if (v) {
           input.value = v.id;
-          if (priceEl) { priceEl.textContent = formatMoney(v.price); priceEl.classList.remove('is-ticking'); void priceEl.offsetWidth; priceEl.classList.add('is-ticking'); }
-          if (compareEl) { compareEl.hidden = !(v.compare_at_price > v.price); compareEl.textContent = v.compare_at_price ? formatMoney(v.compare_at_price) : ''; }
+          if (priceEl) { priceEl.textContent = v.price_formatted || formatMoney(v.price); priceEl.classList.remove('is-ticking'); void priceEl.offsetWidth; priceEl.classList.add('is-ticking'); }
+          if (compareEl) { compareEl.hidden = !(v.compare_at_price > v.price); compareEl.textContent = v.compare_at_price ? (v.compare_formatted || formatMoney(v.compare_at_price)) : ''; }
           if (cta) { cta.disabled = !v.available; cta.textContent = v.available ? cta.getAttribute('data-label') : 'Sold Out'; }
-          if (v.image_id) swapImage(v.image_id);
+          if (v.image_id && !initial) swapImage(v.image_id);
         } else if (cta) {
           cta.disabled = true; cta.textContent = 'Unavailable';
         }
@@ -202,7 +232,7 @@
       });
 
       thumbs.forEach((t) => t.addEventListener('click', () => swapImage(t.getAttribute('data-image-id'))));
-      refresh();
+      refresh(true);
     });
   }
 
@@ -224,8 +254,14 @@
     btns.forEach((b) => b.addEventListener('click', () => set(b.getAttribute('data-vx-unit'))));
   }
 
+  /* ---------- Country picker: switching country reloads with that market's currency ---------- */
+  function initLocale() {
+    $$('[data-vx-locale-select]').forEach((sel) => sel.addEventListener('change', () => sel.form && sel.form.submit()));
+  }
+
   initSnow();
   initParallax();
   initBuy();
   initUnits();
+  initLocale();
 })();
