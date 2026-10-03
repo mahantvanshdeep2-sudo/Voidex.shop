@@ -53,7 +53,7 @@
         <div class="vx-rte vx-pdp__desc">{{ product.description }}</div>
       {%- endif -%}
       <ul class="vx-pdp__trust">
-        <li>Dispatched within 1 business day</li>
+        <li>Free shipping on every order</li>
         <li>30-day money-back promise</li>
         <li>Secure checkout</li>
       </ul>
@@ -63,6 +63,6 @@
 {%- endif -%}
 {% schema %}
 { "name": "Product", "tag": "div", "settings": [
-  { "type": "richtext", "id": "multi_note", "label": "Note under the button (heated products only)", "default": "<p><strong>Power bank not included.</strong> Works with any USB power bank.</p>" }
+  { "type": "richtext", "id": "multi_note", "label": "Note under the button (heated products only)", "default": "<p><strong>Power bank not included.</strong> Works with standard USB power banks.</p>" }
 ] }
 {% endschema %}

@@ -7,7 +7,7 @@
           "type": "step",
           "settings": {
             "title": "Plug in",
-            "text": "Connect any USB power bank to the cable in the inner pocket. A 10,000 mAh bank is a good match."
+            "text": "Connect a standard USB power bank to the cable in the inner pocket. A 10,000 mAh bank is a good match."
           }
         },
         "step_2": {
@@ -92,7 +92,7 @@
           "type": "faq",
           "settings": {
             "question": "Is a power bank included?",
-            "answer": "<p>No. The jacket works with any USB power bank. A 10,000 mAh bank is a good size: it fits the inner pocket and gives the longest run time.</p>"
+            "answer": "<p>No. The jacket works with standard USB power banks. A 10,000 mAh bank is a good size: it fits the inner pocket and gives the longest run time.</p>"
           }
         },
         "faq_size": {
