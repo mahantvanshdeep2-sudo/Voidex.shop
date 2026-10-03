@@ -41,6 +41,10 @@ let fail = 0; const check = (n, ok, d = '') => { console.log(`${ok ? 'PASS' : 'F
     await pg.click('.vx-chip[data-value="Blue Zone8"]'); await pg.click('.vx-chip[data-value="L"]'); await pg.waitForTimeout(600);
     const v = await pg.evaluate(() => [document.querySelector('[data-vx-variant]').value, document.querySelector('[data-vx-price]').textContent, document.querySelector('[data-vx-main-img]').getAttribute('src')]);
     check(`[${tag}] picker: Blue Zone8 / L -> id 67614466113786, $121.89, blue image`, v[0] === '67614466113786' && v[1] === '$121.89' && v[2].includes('Blue-Zone8'), v.join(' '));
+    // Thumbnail click swaps the main photo from its template and leaves exactly one main image
+    await pg.click('.vx-thumb[data-image-id="52823270000003"]'); await pg.waitForTimeout(700);
+    const th = await pg.evaluate(() => { const w = document.querySelector('[data-vx-gallery-main]'); return [w.querySelectorAll('img').length, w.querySelector('img').getAttribute('src'), w.querySelector('img').classList.contains('is-swapping'), document.querySelector('.vx-thumb.is-active').dataset.imageId]; });
+    check(`[${tag}] thumbnail swaps the main photo`, th[0] === 1 && th[1].includes('Red-Zone8') && !th[2] && th[3] === '52823270000003', JSON.stringify(th));
     // Sizes are listed smallest to largest even though the store sends S, M, 2XL ... 6XL, L, XL
     const order = await pg.evaluate(() => [...[...document.querySelectorAll('[data-vx-opt]')][1].querySelectorAll('.vx-chip')].map((c) => c.dataset.value).join(','));
     check(`[${tag}] size chips run S to 6XL`, order === 'S,M,L,XL,2XL,3XL,4XL,5XL,6XL', order);

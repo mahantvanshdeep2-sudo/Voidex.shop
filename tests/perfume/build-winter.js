@@ -52,7 +52,7 @@ engine.registerTag('section', class extends Tag {
 const FX = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', 'heated-jacket-variants.json'), 'utf8'));
 const COLORS = { 'Black Zone2': '#222', 'Black Zone4': '#2a2a2a', 'Blue Zone8': '#2c5fb8', 'Red Zone8': '#b8262f', 'Black Zone8 Set': '#333', 'Black Zone8': '#1d1d1d', 'Black Zone9': '#111', 'Blue Zone2': '#3a6fc8', 'Blue Zone4': '#3366bb', 'Red Zone2': '#c43a3a', 'Red Zone4': '#a83030' };
 for (const [n, c] of Object.entries(COLORS)) fs.writeFileSync(path.join(OUT, 'img', n.replace(/ /g, '-') + '.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#fff"/><path d="M140 90h120l40 60-30 20v170H130V170l-30-20z" fill="${c}"/><text x="200" y="380" fill="#999" font-size="14" text-anchor="middle" font-family="sans-serif">${n} (stand-in)</text></svg>`);
-const img = (n) => ({ src: '/img/' + n.replace(/ /g, '-') + '.svg' });
+const img = (n) => ({ src: '/img/' + n.replace(/ /g, '-') + '.svg', id: 52823270000000 + Object.keys(COLORS).indexOf(n) });
 const variants = FX.variants.map(([id, c, s, p, a]) => ({ id, title: `${c} / ${s}`, price: p, compare_at_price: null, available: a, options: [c, s], option1: c, option2: s, featured_image: img(c) }));
 const colorVals = FX.option_values.Color; const sizeVals = FX.option_values.Size;
 const jacket = {

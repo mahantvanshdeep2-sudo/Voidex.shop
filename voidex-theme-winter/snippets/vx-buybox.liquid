@@ -10,22 +10,28 @@
 -%}
 <div class="vx-buy" data-vx-buy data-vx-card>
   <div class="vx-gallery">
-    <div class="vx-gallery__main">
+    <div class="vx-gallery__main" data-vx-gallery-main>
       {%- assign bb_img = bb_current.featured_image | default: product.featured_image -%}
       {%- if bb_img -%}
-        {{ bb_img | image_url: width: 1100 | image_tag: data-vx-main-img: '', loading: 'eager', sizes: '(min-width: 990px) 55vw, 100vw', alt: bb_title }}
+        {{ bb_img | image_url: width: 1100 | image_tag: data-vx-main-img: '', data-vx-image-id: bb_img.id, loading: 'eager', sizes: '(min-width: 990px) 55vw, 100vw', alt: bb_title }}
       {%- endif -%}
     </div>
     {%- if product.images.size > 1 -%}
       <div class="vx-thumbs" role="group" aria-label="Product photos">
         {%- for image in product.images limit: 14 -%}
-          {%- assign t_src = image | image_url: width: 1100 -%}
-          <button type="button" class="vx-thumb{% if image.src == bb_img.src %} is-active{% endif %}" data-vx-thumb data-src="{{ t_src }}" data-alt="{{ bb_title | escape }}" aria-label="Show photo {{ forloop.index }}">
+          <button type="button" class="vx-thumb{% if image.id == bb_img.id %} is-active{% endif %}" data-vx-thumb data-image-id="{{ image.id }}" aria-label="Show photo {{ forloop.index }}">
             {{ image | image_url: width: 160 | image_tag: loading: 'lazy', alt: '' }}
           </button>
         {%- endfor -%}
       </div>
     {%- endif -%}
+    {%- comment -%}
+      One inert template per photo. The picker swaps photos by cloning these (matched by image id), so
+      nothing read from the page is ever written into an img src. Template images don't download until used.
+    {%- endcomment -%}
+    {%- for image in product.images -%}
+      <template data-vx-img="{{ image.id }}">{{ image | image_url: width: 1100 | image_tag: data-vx-main-img: '', data-vx-image-id: image.id, sizes: '(min-width: 990px) 55vw, 100vw', alt: bb_title }}</template>
+    {%- endfor -%}
   </div>
 
   <div class="vx-buy__info">
@@ -122,7 +128,7 @@
     <script type="application/json" data-vx-variants>
       [{%- for v in product.variants -%}
         {%- assign v_img = v.featured_image | default: product.featured_image -%}
-        {"id":{{ v.id }},"title":{{ v.title | json }},"price":{{ v.price }},"compare_at_price":{{ v.compare_at_price | default: 0 }},"available":{{ v.available }},"options":{{ v.options | json }},"image":{% if v_img %}{{ v_img | image_url: width: 1100 | json }}{% else %}null{% endif %}}{% unless forloop.last %},{% endunless %}
+        {"id":{{ v.id }},"title":{{ v.title | json }},"price":{{ v.price }},"compare_at_price":{{ v.compare_at_price | default: 0 }},"available":{{ v.available }},"options":{{ v.options | json }},"image_id":{% if v_img %}"{{ v_img.id }}"{% else %}null{% endif %}}{% unless forloop.last %},{% endunless %}
       {%- endfor -%}]
     </script>
   </div>

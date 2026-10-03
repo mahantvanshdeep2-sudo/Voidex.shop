@@ -102,27 +102,38 @@
       const priceEl = $('[data-vx-price]', box);
       const compareEl = $('[data-vx-compare]', box);
       const cta = $('[data-vx-atc-btn]', box);
-      const mainImg = $('[data-vx-main-img]', box);
+      const mainWrap = $('[data-vx-gallery-main]', box);
       const groups = $$('[data-vx-opt]', box);
       const thumbs = $$('[data-vx-thumb]', box);
+      const photos = $$('template[data-vx-img]', box);
       const selected = groups.map((g) => {
         const on = $('.vx-chip.is-active', g);
         return on ? on.getAttribute('data-value') : null;
       });
+      const firstImg = mainWrap && $('img', mainWrap);
+      let currentId = firstImg ? firstImg.getAttribute('data-vx-image-id') : null;
 
       const find = (sel) => variants.find((v) => v.options.every((o, i) => o === sel[i]));
 
-      const swapImage = (src, alt) => {
-        if (!mainImg || !src || mainImg.getAttribute('src') === src) return;
-        mainImg.classList.add('is-swapping');
-        const next = new Image();
-        next.onload = next.onerror = () => {
-          mainImg.src = src;
-          if (alt) mainImg.alt = alt;
-          requestAnimationFrame(() => mainImg.classList.remove('is-swapping'));
+      // Swap the main photo by cloning its inert <template> (matched by image id): the old photo fades,
+      // the new one decodes off-screen, then replaces it and fades in. A newer swap cancels an older one.
+      const swapImage = (id) => {
+        if (!mainWrap || !id || id === currentId) return;
+        const tpl = photos.find((t) => t.getAttribute('data-vx-img') === id);
+        const fresh = tpl && document.importNode(tpl.content, true).querySelector('img');
+        if (!fresh) return;
+        currentId = id;
+        const old = $('img', mainWrap);
+        if (old) old.classList.add('is-swapping');
+        fresh.classList.add('is-swapping');
+        const show = () => {
+          if (currentId !== id) return;
+          const current = $('img', mainWrap);
+          if (current) current.replaceWith(fresh); else mainWrap.prepend(fresh);
+          requestAnimationFrame(() => requestAnimationFrame(() => fresh.classList.remove('is-swapping')));
         };
-        next.src = src;
-        thumbs.forEach((t) => t.classList.toggle('is-active', t.getAttribute('data-src') === src));
+        (fresh.decode ? fresh.decode() : Promise.resolve()).then(show, show);
+        thumbs.forEach((t) => t.classList.toggle('is-active', t.getAttribute('data-image-id') === id));
       };
 
       const refresh = () => {
@@ -147,7 +158,7 @@
           if (priceEl) { priceEl.textContent = formatMoney(v.price); priceEl.classList.remove('is-ticking'); void priceEl.offsetWidth; priceEl.classList.add('is-ticking'); }
           if (compareEl) { compareEl.hidden = !(v.compare_at_price > v.price); compareEl.textContent = v.compare_at_price ? formatMoney(v.compare_at_price) : ''; }
           if (cta) { cta.disabled = !v.available; cta.textContent = v.available ? cta.getAttribute('data-label') : 'Sold Out'; }
-          if (v.image) swapImage(v.image, v.title);
+          if (v.image_id) swapImage(v.image_id);
         } else if (cta) {
           cta.disabled = true; cta.textContent = 'Unavailable';
         }
@@ -190,7 +201,7 @@
         });
       });
 
-      thumbs.forEach((t) => t.addEventListener('click', () => swapImage(t.getAttribute('data-src'), t.getAttribute('data-alt'))));
+      thumbs.forEach((t) => t.addEventListener('click', () => swapImage(t.getAttribute('data-image-id'))));
       refresh();
     });
   }

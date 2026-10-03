@@ -28,10 +28,12 @@ Preview: https://voidexshop.com/?preview_theme_id=186493436154 . Live theme unto
   (no error returned; the file just didn't appear). Removing the empty default fixed it.
 
 Verification: `tests/perfume/build-winter.js` + `shoot-winter.js` render the theme with LiquidJS using
-all 96 real variants (`tests/perfume/fixtures/heated-jacket-variants.json`), then 24 Chromium checks at
+all 96 real variants (`tests/perfume/fixtures/heated-jacket-variants.json`), then 26 Chromium checks at
 1366px and 375px all pass: snow animates, no sideways scroll, every reveal fires, each of the 96
-variants is selectable and posts its own id, Add to Cart posts the chosen variant, reduced-motion and
-no-JS fallbacks. All 41 files on theme `186493436154` match `voidex-theme-winter/` by md5. Not
+variants is selectable and posts its own id, thumbnails swap the photo, Add to Cart posts the chosen
+variant, reduced-motion and no-JS fallbacks. CodeQL flagged the first version of the photo swap
+(a URL read from the page written into `img.src`); photos now swap by cloning an inert `<template>`
+per image, matched by image id, so no page text reaches an `src`. All 41 files on theme `186493436154` match `voidex-theme-winter/` by md5. Not
 verified: the real storefront render (egress-blocked); fonts and product photos were stand-ins locally.
 
 Product data found while building (not changed, owner decision): jacket prices range $59.99–$330.38
