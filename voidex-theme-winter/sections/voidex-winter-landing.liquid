@@ -1,0 +1,249 @@
+{%- liquid
+  assign w_product = section.settings.product
+  assign w_title = section.settings.display_title | default: w_product.title
+-%}
+<div class="vx-landing vx-winter" data-vx-landing>
+
+  {%- comment -%} ============ HERO ============ {%- endcomment -%}
+  <section class="vx-whero" aria-labelledby="vx-whero-title">
+    <div class="vx-whero__text">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="vx-whero__eyebrow"><i aria-hidden="true"></i>{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h1 class="vx-whero__title" id="vx-whero-title">
+        <span class="vx-frost-word">{{ section.settings.title_cold | escape }}</span>
+        <span class="vx-heat-word">{{ section.settings.title_warm | escape }}</span>
+      </h1>
+      {%- if section.settings.subheading != blank -%}
+        <p class="vx-whero__sub">{{ section.settings.subheading | escape }}</p>
+      {%- endif -%}
+      <div class="vx-whero__cta">
+        <a href="#jacket" class="vx-btn vx-btn--gold">{{ section.settings.primary_cta | escape }} <span aria-hidden="true">→</span></a>
+        <a href="#how" class="vx-btn vx-btn--ghost">{{ section.settings.secondary_cta | escape }}</a>
+      </div>
+      <ul class="vx-whero__chips">
+        {%- for i in (1..3) -%}
+          {%- assign chip_key = 'chip_' | append: i -%}
+          {%- assign chip = section.settings[chip_key] -%}
+          {%- if chip != blank -%}<li>{{ chip }}</li>{%- endif -%}
+        {%- endfor -%}
+      </ul>
+    </div>
+
+    <div class="vx-whero__visual" aria-hidden="true">
+      <div data-vx-parallax style="position:absolute;inset:0">
+        <span class="vx-ring vx-ring--2"></span>
+        <span class="vx-ring"></span>
+        <div class="vx-orb">
+          <span class="vx-orb__heat"></span>
+          {%- assign hero_img = section.settings.hero_image | default: w_product.featured_image -%}
+          {%- if hero_img -%}{{ hero_img | image_url: width: 900 | image_tag: loading: 'eager', alt: '' }}{%- endif -%}
+        </div>
+        {%- if section.settings.temp_out != blank -%}
+          <p class="vx-temp vx-temp--cold">Outside<b>{{ section.settings.temp_out | escape }}</b></p>
+        {%- endif -%}
+        {%- if section.settings.temp_in != blank -%}
+          <p class="vx-temp">Inside<b>{{ section.settings.temp_in | escape }}</b></p>
+        {%- endif -%}
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%} ============ BUY BOX ============ {%- endcomment -%}
+  <section class="vx-section" id="jacket" aria-label="{{ w_title | escape }}">
+    {%- if w_product != blank -%}
+      <div class="vx-reveal">
+        {% render 'vx-buybox', product: w_product, title: w_title, kicker: section.settings.kicker, note: section.settings.buy_note %}
+      </div>
+    {%- else -%}
+      <p class="vx-empty">Pick the featured product in the theme editor.</p>
+    {%- endif -%}
+  </section>
+
+  {%- comment -%} ============ HOW IT HEATS ============ {%- endcomment -%}
+  {%- assign w_steps = section.blocks | where: 'type', 'step' -%}
+  {%- if w_steps.size > 0 -%}
+    <section class="vx-section" id="how" aria-labelledby="vx-how-title">
+      <h2 class="vx-title vx-reveal" id="vx-how-title">{{ section.settings.steps_heading | escape }}</h2>
+      <p class="vx-sub vx-reveal" data-vx-delay="1">{{ section.settings.steps_subheading | escape }}</p>
+      <ol class="vx-steps">
+        {%- for block in w_steps -%}
+          <li class="vx-step vx-reveal" data-vx-delay="{{ forloop.index }}" {{ block.shopify_attributes }}>
+            <span class="vx-step__num" aria-hidden="true">{{ forloop.index }}</span>
+            <h3>{{ block.settings.title | escape }}</h3>
+            <p>{{ block.settings.text | escape }}</p>
+          </li>
+        {%- endfor -%}
+      </ol>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} ============ HEAT ZONES ============ {%- endcomment -%}
+  {%- assign w_zones = section.blocks | where: 'type', 'zone' -%}
+  {%- if w_zones.size > 0 -%}
+    <section class="vx-section" id="zones" aria-labelledby="vx-zones-title">
+      <h2 class="vx-title vx-reveal" id="vx-zones-title">{{ section.settings.zones_heading | escape }}</h2>
+      <p class="vx-sub vx-reveal" data-vx-delay="1">{{ section.settings.zones_subheading | escape }}</p>
+      <div class="vx-zones">
+        {%- for block in w_zones -%}
+          <article class="vx-zone vx-reveal" data-vx-delay="{{ forloop.index }}" {{ block.shopify_attributes }}>
+            <p class="vx-zone__n">{{ block.settings.zones }}<span>zones</span></p>
+            <h3>{{ block.settings.title | escape }}</h3>
+            <p>{{ block.settings.text | escape }}</p>
+            <div class="vx-zone__bar" aria-hidden="true"><i style="--w: {{ block.settings.zones | times: 11 }}%"></i></div>
+          </article>
+        {%- endfor -%}
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} ============ SIZE GUIDE ============ {%- endcomment -%}
+  {%- if section.settings.show_sizes -%}
+    <section class="vx-section" id="size-guide" aria-labelledby="vx-size-title">
+      <h2 class="vx-title vx-reveal" id="vx-size-title">{{ section.settings.sizes_heading | escape }}</h2>
+      <p class="vx-sub vx-reveal" data-vx-delay="1">Garment measurements in centimetres, laid flat.</p>
+      <div class="vx-sizes-wrap vx-reveal" data-vx-delay="2">
+        <table class="vx-sizes-table">
+          <thead><tr><th scope="col">Size</th><th scope="col">Length</th><th scope="col">Shoulder</th><th scope="col">Chest (½)</th><th scope="col">Hem (½)</th><th scope="col">Sleeve</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">S</th><td>64</td><td>42.8</td><td>50</td><td>42</td><td>62.5</td></tr>
+            <tr><th scope="row">M</th><td>66</td><td>44</td><td>52</td><td>44</td><td>64</td></tr>
+            <tr><th scope="row">L</th><td>68</td><td>45.2</td><td>54</td><td>46</td><td>65.5</td></tr>
+            <tr><th scope="row">XL</th><td>70</td><td>46.4</td><td>56</td><td>48</td><td>67</td></tr>
+            <tr><th scope="row">2XL</th><td>72</td><td>47.6</td><td>58</td><td>50</td><td>68.5</td></tr>
+            <tr><th scope="row">3XL</th><td>74</td><td>48.8</td><td>60</td><td>52</td><td>70</td></tr>
+            <tr><th scope="row">4XL</th><td>76</td><td>50</td><td>62</td><td>54</td><td>71.5</td></tr>
+            <tr><th scope="row">5XL</th><td>78</td><td>51.2</td><td>64</td><td>56</td><td>73</td></tr>
+            <tr><th scope="row">6XL</th><td>80</td><td>52.4</td><td>66</td><td>58</td><td>74.5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      {%- if section.settings.sizes_note != blank -%}
+        <p class="vx-sizes-note vx-reveal" data-vx-delay="3">{{ section.settings.sizes_note | escape }}</p>
+      {%- endif -%}
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} ============ TRUST ============ {%- endcomment -%}
+  {%- assign w_trust = section.blocks | where: 'type', 'trust' -%}
+  {%- if w_trust.size > 0 -%}
+    <section class="vx-band vx-trust" aria-label="Why VOIDEX">
+      <ul class="vx-trust__grid">
+        {%- for block in w_trust -%}
+          <li class="vx-trust__item vx-reveal" data-vx-delay="{{ forloop.index }}" {{ block.shopify_attributes }}>
+            <span class="vx-trust__icon" aria-hidden="true">
+              {%- case block.settings.icon -%}
+                {%- when 'shipping' -%}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>
+                {%- when 'support' -%}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg>
+                {%- when 'guarantee' -%}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/><path d="M9 12.5l2 2 4-4.5"/></svg>
+                {%- else -%}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4.5"/></svg>
+              {%- endcase -%}
+            </span>
+            <h3>{{ block.settings.title | escape }}</h3>
+            <p>{{ block.settings.text | escape }}</p>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} ============ FAQ ============ {%- endcomment -%}
+  {%- assign w_faqs = section.blocks | where: 'type', 'faq' -%}
+  {%- if w_faqs.size > 0 -%}
+    <section class="vx-section" id="faq" aria-labelledby="vx-faq-title">
+      <h2 class="vx-title vx-reveal" id="vx-faq-title">{{ section.settings.faq_heading | escape }}</h2>
+      {%- if section.settings.faq_subheading != blank -%}<p class="vx-sub vx-reveal" data-vx-delay="1">{{ section.settings.faq_subheading | escape }}</p>{%- endif -%}
+      <div class="vx-faq">
+        {%- for block in w_faqs -%}
+          <div class="vx-faq__item vx-reveal" data-vx-delay="{{ forloop.index | modulo: 4 }}" data-vx-faq {{ block.shopify_attributes }}>
+            <h3 class="vx-faq__h">
+              <button type="button" class="vx-faq__q" id="vx-faq-q-{{ block.id }}" aria-expanded="false" aria-controls="vx-faq-a-{{ block.id }}">
+                <span>{{ block.settings.question | escape }}</span>
+                <span class="vx-faq__icon" aria-hidden="true"></span>
+              </button>
+            </h3>
+            <div class="vx-faq__a" id="vx-faq-a-{{ block.id }}" role="region" aria-labelledby="vx-faq-q-{{ block.id }}">
+              <div class="vx-faq__inner">{{ block.settings.answer }}</div>
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} ============ CLOSING CTA ============ {%- endcomment -%}
+  {%- if section.settings.final_heading != blank -%}
+    <section class="vx-band vx-wfinal" aria-labelledby="vx-wfinal-title">
+      <h2 class="vx-reveal" id="vx-wfinal-title">{{ section.settings.final_heading | escape }}</h2>
+      {%- if section.settings.final_text != blank -%}<p class="vx-reveal" data-vx-delay="1">{{ section.settings.final_text | escape }}</p>{%- endif -%}
+      <a href="#jacket" class="vx-btn vx-btn--gold vx-reveal" data-vx-delay="2">{{ section.settings.primary_cta | escape }}</a>
+    </section>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Winter landing",
+  "tag": "div",
+  "settings": [
+    { "type": "header", "content": "Featured product" },
+    { "type": "product", "id": "product", "label": "Product" },
+    { "type": "text", "id": "display_title", "label": "Display name", "default": "VOIDEX Heated Jacket" },
+    { "type": "text", "id": "kicker", "label": "Small line above the name", "default": "Heated outerwear" },
+    { "type": "richtext", "id": "buy_note", "label": "Note under the button", "default": "<p><strong>Power bank not included.</strong> Works with any USB power bank; a 10,000 mAh bank is a good fit.</p>" },
+    { "type": "header", "content": "Hero" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Built for Canadian winters" },
+    { "type": "text", "id": "title_cold", "label": "Heading line 1 (frost)", "default": "Winter is coming." },
+    { "type": "text", "id": "title_warm", "label": "Heading line 2 (heat)", "default": "You're ready." },
+    { "type": "text", "id": "subheading", "label": "Subheading", "default": "A lightweight heated jacket with carbon-fibre heating panels and three heat levels at the press of a button. Plug in a power bank and step outside." },
+    { "type": "text", "id": "primary_cta", "label": "Primary button", "default": "Shop the Heated Jacket" },
+    { "type": "text", "id": "secondary_cta", "label": "Secondary button", "default": "How it heats" },
+    { "type": "image_picker", "id": "hero_image", "label": "Hero image (defaults to product photo)" },
+    { "type": "text", "id": "chip_1", "label": "Chip 1", "default": "<strong>3</strong> heat levels" },
+    { "type": "text", "id": "chip_2", "label": "Chip 2", "default": "Up to <strong>9</strong> heating zones" },
+    { "type": "text", "id": "chip_3", "label": "Chip 3", "default": "<strong>Free</strong> shipping" },
+    { "type": "text", "id": "temp_out", "label": "Outside temperature tag", "default": "−20°C" },
+    { "type": "text", "id": "temp_in", "label": "Inside temperature tag", "default": "Toasty" },
+    { "type": "header", "content": "Sections" },
+    { "type": "text", "id": "steps_heading", "label": "How it heats heading", "default": "How It Heats" },
+    { "type": "text", "id": "steps_subheading", "label": "How it heats subheading", "default": "Three steps from cold to comfortable." },
+    { "type": "text", "id": "zones_heading", "label": "Zones heading", "default": "Pick Your Heat Zones" },
+    { "type": "text", "id": "zones_subheading", "label": "Zones subheading", "default": "The number in each colour option is how many heating zones the jacket has. More zones, more of you kept warm." },
+    { "type": "checkbox", "id": "show_sizes", "label": "Show size guide", "default": true },
+    { "type": "text", "id": "sizes_heading", "label": "Size guide heading", "default": "Size Guide" },
+    { "type": "text", "id": "sizes_note", "label": "Size guide note", "default": "These jackets run 1–2 sizes small. If you're between sizes, or want room for a sweater underneath, size up." },
+    { "type": "text", "id": "faq_heading", "label": "FAQ heading", "default": "Questions" },
+    { "type": "text", "id": "faq_subheading", "label": "FAQ subheading" },
+    { "type": "text", "id": "final_heading", "label": "Closing heading", "default": "Don't let winter decide your plans." },
+    { "type": "text", "id": "final_text", "label": "Closing text", "default": "Free shipping on every order, and a 30-day money-back promise." }
+  ],
+  "blocks": [
+    { "type": "step", "name": "Step", "settings": [
+      { "type": "text", "id": "title", "label": "Title" },
+      { "type": "textarea", "id": "text", "label": "Text" }
+    ] },
+    { "type": "zone", "name": "Heat zone option", "settings": [
+      { "type": "range", "id": "zones", "label": "Zones", "min": 1, "max": 9, "step": 1, "default": 4 },
+      { "type": "text", "id": "title", "label": "Title" },
+      { "type": "textarea", "id": "text", "label": "Text" }
+    ] },
+    { "type": "trust", "name": "Trust badge", "settings": [
+      { "type": "select", "id": "icon", "label": "Icon", "options": [
+        { "value": "shipping", "label": "Shipping" }, { "value": "guarantee", "label": "Guarantee" },
+        { "value": "secure", "label": "Secure" }, { "value": "support", "label": "Support" }
+      ], "default": "shipping" },
+      { "type": "text", "id": "title", "label": "Title" },
+      { "type": "text", "id": "text", "label": "Text" }
+    ] },
+    { "type": "faq", "name": "FAQ", "settings": [
+      { "type": "text", "id": "question", "label": "Question" },
+      { "type": "richtext", "id": "answer", "label": "Answer" }
+    ] }
+  ],
+  "presets": [{ "name": "Winter landing" }]
+}
+{% endschema %}

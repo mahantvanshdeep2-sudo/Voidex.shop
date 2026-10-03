@@ -1,0 +1,129 @@
+{%- comment -%}
+  Heated-jacket style buy box for products with one or two options (e.g. Color + Size).
+  Params: product (required), title (optional display name), kicker (optional), note (optional).
+  Without JS the form posts the preselected variant to /cart/add.
+{%- endcomment -%}
+{%- liquid
+  assign bb_current = product.selected_or_first_available_variant
+  assign bb_title = title | default: product.title
+  assign bb_label = 'Add to Cart'
+-%}
+<div class="vx-buy" data-vx-buy data-vx-card>
+  <div class="vx-gallery">
+    <div class="vx-gallery__main">
+      {%- assign bb_img = bb_current.featured_image | default: product.featured_image -%}
+      {%- if bb_img -%}
+        {{ bb_img | image_url: width: 1100 | image_tag: data-vx-main-img: '', loading: 'eager', sizes: '(min-width: 990px) 55vw, 100vw', alt: bb_title }}
+      {%- endif -%}
+    </div>
+    {%- if product.images.size > 1 -%}
+      <div class="vx-thumbs" role="group" aria-label="Product photos">
+        {%- for image in product.images limit: 14 -%}
+          {%- assign t_src = image | image_url: width: 1100 -%}
+          <button type="button" class="vx-thumb{% if image.src == bb_img.src %} is-active{% endif %}" data-vx-thumb data-src="{{ t_src }}" data-alt="{{ bb_title | escape }}" aria-label="Show photo {{ forloop.index }}">
+            {{ image | image_url: width: 160 | image_tag: loading: 'lazy', alt: '' }}
+          </button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+
+  <div class="vx-buy__info">
+    {%- if kicker != blank -%}<p class="vx-buy__kicker">{{ kicker | escape }}</p>{%- endif -%}
+    <h2 class="vx-buy__title vx-card__name">{{ bb_title | escape }}</h2>
+    <p class="vx-buy__price">
+      <span data-vx-price>{{ bb_current.price | money }}</span>
+      <s data-vx-compare{% unless bb_current.compare_at_price > bb_current.price %} hidden{% endunless %}>{{ bb_current.compare_at_price | money }}</s>
+    </p>
+
+    {%- form 'product', product, class: 'vx-buy__form', data-vx-atc: '' -%}
+      {%- unless product.has_only_default_variant -%}
+        {%- for option in product.options_with_values -%}
+          {%- assign opt_index = forloop.index0 -%}
+          {%- liquid
+            # Work with plain value names (captured as text, so this holds whether option.values gives strings or
+            # option-value objects), and list sizes smallest to largest: suppliers send them in any order (S, M, 2XL ... L, XL).
+            assign names = ''
+            for value in option.values
+              capture v_name
+                echo value
+              endcapture
+              assign names = names | append: '~|~' | append: v_name
+            endfor
+            assign names_wrapped = names | append: '~|~'
+            assign opt_name = option.name | downcase
+            if opt_name contains 'size'
+              assign size_order = 'XXS,XS,S,M,L,XL,XXL,2XL,XXXL,3XL,4XL,5XL,6XL,7XL,8XL' | split: ','
+              assign sorted = ''
+              for s in size_order
+                assign needle = '~|~' | append: s | append: '~|~'
+                if names_wrapped contains needle
+                  assign sorted = sorted | append: '~|~' | append: s
+                endif
+              endfor
+              assign rest = names | remove_first: '~|~' | split: '~|~'
+              for n in rest
+                assign needle = '~|~' | append: n | append: '~|~'
+                assign sorted_wrapped = sorted | append: '~|~'
+                unless sorted_wrapped contains needle
+                  assign sorted = sorted | append: '~|~' | append: n
+                endunless
+              endfor
+              assign names = sorted
+            endif
+            assign opt_values = names | remove_first: '~|~' | split: '~|~'
+            unless opt_name contains 'size'
+              # Group colour/zone values together (Black ..., Blue ..., Red ...).
+              assign opt_values = opt_values | sort_natural
+            endunless
+            capture opt_selected
+              echo option.selected_value
+            endcapture
+          -%}
+          <fieldset class="vx-opt" data-vx-opt>
+            <legend>{{ option.name | escape }}: <b data-vx-opt-label>{{ opt_selected | escape }}</b></legend>
+            <div class="vx-opt__list">
+              {%- for value in opt_values -%}
+                {%- liquid
+                  assign v_down = value | downcase
+                  assign dot = ''
+                  if option.name contains 'olor' or option.name contains 'olour'
+                    if v_down contains 'black'
+                      assign dot = '#121417'
+                    elsif v_down contains 'blue'
+                      assign dot = '#2c5fb8'
+                    elsif v_down contains 'red'
+                      assign dot = '#b8262f'
+                    elsif v_down contains 'grey' or v_down contains 'gray'
+                      assign dot = '#8a9099'
+                    elsif v_down contains 'white'
+                      assign dot = '#f2f4f7'
+                    endif
+                  endif
+                -%}
+                <button type="button" class="vx-chip{% if value == opt_selected %} is-active{% endif %}" data-value="{{ value | escape }}" aria-pressed="{% if value == opt_selected %}true{% else %}false{% endif %}">
+                  {%- if dot != '' -%}<span class="vx-chip__dot" style="--dot: {{ dot }}" aria-hidden="true"></span>{%- endif -%}
+                  {{- value | escape -}}
+                </button>
+              {%- endfor -%}
+            </div>
+          </fieldset>
+        {%- endfor -%}
+      {%- endunless -%}
+      <input type="hidden" name="id" value="{{ bb_current.id }}" data-vx-variant>
+      <input type="hidden" name="quantity" value="1">
+      <button type="submit" class="vx-btn vx-btn--gold vx-buy__cta" data-vx-atc-btn data-label="{{ bb_label }}"{% unless bb_current.available %} disabled{% endunless %}>
+        {%- if bb_current.available -%}{{ bb_label }}{%- else -%}Sold Out{%- endif -%}
+      </button>
+    {%- endform -%}
+
+    {%- if note != blank -%}<p class="vx-buy__note">{{ note }}</p>{%- endif -%}
+
+    <script type="application/json" data-vx-variants>
+      [{%- for v in product.variants -%}
+        {%- assign v_img = v.featured_image | default: product.featured_image -%}
+        {"id":{{ v.id }},"title":{{ v.title | json }},"price":{{ v.price }},"compare_at_price":{{ v.compare_at_price | default: 0 }},"available":{{ v.available }},"options":{{ v.options | json }},"image":{% if v_img %}{{ v_img | image_url: width: 1100 | json }}{% else %}null{% endif %}}{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}]
+    </script>
+  </div>
+</div>

@@ -1,0 +1,70 @@
+{%- if product.options.size > 1 -%}
+{%- assign pdp_note = '' -%}{%- if product.title contains 'Heat' -%}{%- assign pdp_note = section.settings.multi_note -%}{%- endif -%}
+<section class="vx-section vx-pdp vx-pdp--multi">
+  {% render 'vx-buybox', product: product, title: product.title, note: pdp_note %}
+  {%- if product.description != blank -%}
+    <div class="vx-rte vx-pdp__desc vx-narrow" style="margin: 64px auto 0">{{ product.description }}</div>
+  {%- endif -%}
+</section>
+{%- else -%}
+{%- liquid
+  assign current = product.selected_or_first_available_variant
+  assign p_name = product.title | split: ' — ' | first
+-%}
+<section class="vx-section vx-pdp" data-vx-card>
+  <div class="vx-pdp__grid">
+    <div class="vx-pdp__media">
+      {%- if product.media.size > 0 -%}
+        {%- for media in product.media -%}
+          {%- if media.media_type == 'image' -%}
+            {%- assign m_alt = media.alt | default: p_name -%}{{ media | image_url: width: 1200 | image_tag: loading: 'eager', class: 'vx-pdp__img', sizes: '(min-width: 990px) 50vw, 100vw', alt: m_alt }}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- else -%}
+        <div class="vx-card__media vx-pdp__placeholder" aria-hidden="true"><div class="vx-bottle-float"><div class="vx-bottle"><span class="vx-bottle__cap"></span><span class="vx-bottle__neck"></span><span class="vx-bottle__body"><span class="vx-bottle__liquid"></span><span class="vx-bottle__shine"></span><span class="vx-bottle__label">{{ p_name | split: ' ' | first | upcase }}</span></span></div><span class="vx-bottle__glow"></span></div></div>
+      {%- endif -%}
+    </div>
+    <div class="vx-pdp__info">
+      <p class="vx-card__brand">{{ product.vendor | escape }}</p>
+      <h1 class="vx-card__name vx-pdp__title">{{ p_name | escape }}</h1>
+      <p class="vx-card__price vx-pdp__price">
+        <span class="vx-card__from" data-vx-from>{% if product.has_only_default_variant %}Price{% else %}{{ current.title | split: ' ' | first | escape }}{% endif %}</span>
+        <span class="vx-card__amount" data-vx-price>{{ current.price | money }}</span>
+        {%- if current.compare_at_price > current.price -%}<s class="vx-pdp__compare">{{ current.compare_at_price | money }}</s>{%- endif -%}
+      </p>
+      {%- form 'product', product, class: 'vx-card__form', data-vx-atc: '' -%}
+        {%- unless product.has_only_default_variant -%}
+          <fieldset class="vx-sizes vx-pdp__sizes">
+            <legend class="vx-pdp__legend">{{ product.options.first | escape }}</legend>
+            {%- for variant in product.variants -%}
+              {%- assign v_size = variant.title | split: ' ' | first -%}
+              {%- assign v_ml = v_size | downcase | remove: 'ml' | plus: 0 -%}
+              <button type="button" class="vx-size{% if variant.id == current.id %} is-active{% endif %}" data-vx-size data-variant-id="{{ variant.id }}" data-size="{{ v_size | escape }}" data-price="{{ variant.price | money | strip_html | escape }}" aria-pressed="{% if variant.id == current.id %}true{% else %}false{% endif %}" {% unless variant.available %}disabled{% endunless %}>
+                {{ v_size | escape }}<small>{% if v_ml > 0 %}~{{ v_ml | times: 10 }} sprays{% else %}{{ variant.title | escape }}{% endif %}</small>
+              </button>
+            {%- endfor -%}
+          </fieldset>
+        {%- endunless -%}
+        <input type="hidden" name="id" value="{{ current.id }}" data-vx-variant>
+        <input type="hidden" name="quantity" value="1">
+        <button type="submit" class="vx-btn vx-btn--gold vx-pdp__cta" data-vx-atc-btn{% unless current.available %} disabled{% endunless %}>
+          {%- if current.available -%}Add to Cart{%- else -%}Sold Out{%- endif -%}
+        </button>
+      {%- endform -%}
+      {%- if product.description != blank -%}
+        <div class="vx-rte vx-pdp__desc">{{ product.description }}</div>
+      {%- endif -%}
+      <ul class="vx-pdp__trust">
+        <li>Dispatched within 1 business day</li>
+        <li>30-day money-back promise</li>
+        <li>Secure checkout</li>
+      </ul>
+    </div>
+  </div>
+</section>
+{%- endif -%}
+{% schema %}
+{ "name": "Product", "tag": "div", "settings": [
+  { "type": "richtext", "id": "multi_note", "label": "Note under the button (heated products only)", "default": "<p><strong>Power bank not included.</strong> Works with any USB power bank.</p>" }
+] }
+{% endschema %}

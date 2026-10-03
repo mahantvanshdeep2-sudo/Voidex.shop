@@ -18,6 +18,7 @@ Owner: Vanshdeep Mahant (mahantvanshdeep2@gmail.com). Timezone: America/Toronto.
 | Theme | ID | Role | Notes |
 |---|---|---|---|
 | voidex-royal-black-gold-theme | `186431111418` | **MAIN (live)** | Standalone black & gold theme, source `voidex-theme-standalone/`, published 2026-10-01 16:53 UTC. Matched the repo byte for byte on 2026-10-03. |
+| VOIDEX Winter — DEV | `186493436154` | unpublished | Winter storefront (ice palette, snowfall, heated-jacket homepage), source `voidex-theme-winter/`, built 2026-10-03 on the owner's request. Preview: `https://voidexshop.com/?preview_theme_id=186493436154` |
 | VOIDEX Black Gold — polish DRAFT | `186486456570` | unpublished | Copy of MAIN + 2026-10-03 polish (see `CHANGELOG.md`). Preview: `https://voidexshop.com/?preview_theme_id=186486456570` |
 | Updated copy of Savor | `186287948026` | unpublished | Savor after a theme-version update; was MAIN 2026-09-28 to 2026-10-01. |
 | VOIDEX Royal Black Gold — DRAFT | `186421772538` | unpublished | Duplicate of MAIN (2026-10-01) + the perfume landing in `voidex-theme/`. Preview: `https://voidexshop.com/pages/voidex-perfume-samples?preview_theme_id=186421772538` |

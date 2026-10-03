@@ -2,6 +2,43 @@
 
 Changes, fixes, findings, and decisions, most recent first.
 
+## 2026-10-03 — Winter storefront (new DEV theme, not published)
+
+Owner asked for "a smooth motion theme that represents winters and cold weather conditions". Built
+`voidex-theme-winter/` (a copy of `voidex-theme-standalone/` plus the polish) and uploaded it to a new
+unpublished theme, `VOIDEX Winter — DEV` (`186493436154`), duplicated from the polish draft.
+Preview: https://voidexshop.com/?preview_theme_id=186493436154 . Live theme untouched.
+
+- **Default chosen where the ask forked:** the store's perfume line doesn't fit a winter look, so the
+  homepage is built around the ACTIVE Winter Heated Jacket (`gid://shopify/Product/15402327769338`,
+  96 variants, Color × Size). Perfume stays reachable from the menu and footer
+  (`/pages/voidex-perfume-samples` still uses its own template).
+- **Look and motion:** ice-blue palette replacing gold (`voidex-perfume.css` tokens), slow aurora
+  background, canvas snowfall in three depth layers that drifts with the pointer and pauses when the
+  tab is hidden, frosted heading sheen, a breathing "heat" glow and spinning frost rings around the
+  hero product, thaw-in entrance, pointer/scroll parallax, scroll reveals. All motion is off under
+  "reduce motion" and the page is fully visible without JavaScript.
+- **Homepage (`sections/voidex-winter-landing.liquid`):** hero, jacket buy box, how it heats, heat
+  zones (2/4/8/9), size guide (supplier cm table, "size up" note), trust badges, FAQ, closing CTA.
+- **Buy box (`snippets/vx-buybox.liquid`, also used on the product page for multi-option products):**
+  colour and size chips, price and photo follow the chosen variant, sizes listed S→6XL (the store
+  sends them as S, M, 2XL…6XL, L, XL), colours grouped Black/Blue/Red, sizes that don't exist for a
+  colour are greyed, and switching colour moves to the nearest size that exists.
+- Shopify rejected the section on the first upload because a text setting had `"default": ""`
+  (no error returned; the file just didn't appear). Removing the empty default fixed it.
+
+Verification: `tests/perfume/build-winter.js` + `shoot-winter.js` render the theme with LiquidJS using
+all 96 real variants (`tests/perfume/fixtures/heated-jacket-variants.json`), then 24 Chromium checks at
+1366px and 375px all pass: snow animates, no sideways scroll, every reveal fires, each of the 96
+variants is selectable and posts its own id, Add to Cart posts the chosen variant, reduced-motion and
+no-JS fallbacks. All 41 files on theme `186493436154` match `voidex-theme-winter/` by md5. Not
+verified: the real storefront render (egress-blocked); fonts and product photos were stand-ins locally.
+
+Product data found while building (not changed, owner decision): jacket prices range $59.99–$330.38
+for the same garment (Black Zone2 S $59.99, M $330.38, L $96.77); product type is
+"Laundry Accessories"; title is the supplier's long title; run time and zone claims come from the
+supplier; power bank not included.
+
 ## 2026-10-03 — Black & gold theme polish (draft copy, not published)
 
 Owner picked "keep and polish" the live black & gold theme. Found first (Admin API): MAIN is
