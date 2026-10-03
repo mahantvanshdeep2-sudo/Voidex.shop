@@ -2,3 +2,8 @@ node_modules/
 tests/harness/index.html
 tests/harness/voidex-motion.js
 tests/shots/
+tests/perfume/site/
+tests/perfume/fonts/
+tests/perfume/shots/
+tests/perfume/site-standalone/
+tests/perfume/site-winter/

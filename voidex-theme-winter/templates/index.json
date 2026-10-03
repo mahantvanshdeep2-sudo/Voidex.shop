@@ -1,0 +1,170 @@
+{
+  "sections": {
+    "main": {
+      "type": "voidex-winter-landing",
+      "blocks": {
+        "step_1": {
+          "type": "step",
+          "settings": {
+            "title": "Plug in",
+            "text": "Connect a standard USB power bank to the cable in the inner pocket. A 10,000 mAh bank is a good match."
+          }
+        },
+        "step_2": {
+          "type": "step",
+          "settings": {
+            "title": "Press the button",
+            "text": "Turn the heat on and switch between three levels with the button on the chest."
+          }
+        },
+        "step_3": {
+          "type": "step",
+          "settings": {
+            "title": "Head out",
+            "text": "Carbon-fibre panels warm your core. The maker rates it at up to 8–12 hours on a full 10,000 mAh charge, depending on heat level."
+          }
+        },
+        "zone_2": {
+          "type": "zone",
+          "settings": {
+            "zones": 2,
+            "title": "Essential",
+            "text": "Lightest heat coverage. Good for mild days, commutes and layering under a shell."
+          }
+        },
+        "zone_4": {
+          "type": "zone",
+          "settings": {
+            "zones": 4,
+            "title": "Everyday",
+            "text": "More panels across the body for colder walks, dog walks and errands."
+          }
+        },
+        "zone_8": {
+          "type": "zone",
+          "settings": {
+            "zones": 8,
+            "title": "Deep cold",
+            "text": "Wide heat coverage for long stretches outside in deep cold."
+          }
+        },
+        "zone_9": {
+          "type": "zone",
+          "settings": {
+            "zones": 9,
+            "title": "Maximum",
+            "text": "The most heating zones we offer, for the coldest days of the year."
+          }
+        },
+        "trust_shipping": {
+          "type": "trust",
+          "settings": {
+            "icon": "shipping",
+            "title": "Free Shipping",
+            "text": "On every order, no minimum."
+          }
+        },
+        "trust_guarantee": {
+          "type": "trust",
+          "settings": {
+            "icon": "guarantee",
+            "title": "30-Day Promise",
+            "text": "Not right for you? Full refund within 30 days."
+          }
+        },
+        "trust_secure": {
+          "type": "trust",
+          "settings": {
+            "icon": "secure",
+            "title": "Secure Checkout",
+            "text": "Encrypted payments through Shopify."
+          }
+        },
+        "trust_support": {
+          "type": "trust",
+          "settings": {
+            "icon": "support",
+            "title": "Real Support",
+            "text": "Real answers within 2 business days, usually the same day."
+          }
+        },
+        "faq_battery": {
+          "type": "faq",
+          "settings": {
+            "question": "Is a power bank included?",
+            "answer": "<p>No. The jacket works with standard USB power banks. A 10,000 mAh bank is a good size: it fits the inner pocket and gives the longest run time.</p>"
+          }
+        },
+        "faq_size": {
+          "type": "faq",
+          "settings": {
+            "question": "What size should I order?",
+            "answer": "<p>These jackets run 1–2 sizes small. Check the size guide above, and if you're between sizes or want to wear a sweater underneath, size up.</p>"
+          }
+        },
+        "faq_wash": {
+          "type": "faq",
+          "settings": {
+            "question": "Can I wash it?",
+            "answer": "<p>Yes. Unplug and remove the power bank first, then wash on a gentle cycle and let it air dry.</p>"
+          }
+        },
+        "faq_zones": {
+          "type": "faq",
+          "settings": {
+            "question": "What do Zone 2, 4, 8 and 9 mean?",
+            "answer": "<p>The number is how many heating zones the jacket has. More zones spread heat over more of your body.</p>"
+          }
+        },
+        "faq_shipping": {
+          "type": "faq",
+          "settings": {
+            "question": "How much is shipping?",
+            "answer": "<p>Shipping is free on every order. Delivery times by region are in our <a href=\"/policies/shipping-policy\">shipping policy</a>. Import duties and taxes for your country are either included in the price or shown at checkout, depending on where you live.</p>"
+          }
+        },
+        "faq_returns": {
+          "type": "faq",
+          "settings": {
+            "question": "What if it doesn't fit?",
+            "answer": "<p>You have 30 days to ask for a full refund. See our <a href=\"/policies/refund-policy\">refund policy</a>.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "step_1",
+        "step_2",
+        "step_3",
+        "zone_2",
+        "zone_4",
+        "zone_8",
+        "zone_9",
+        "trust_shipping",
+        "trust_guarantee",
+        "trust_secure",
+        "trust_support",
+        "faq_battery",
+        "faq_size",
+        "faq_wash",
+        "faq_zones",
+        "faq_shipping",
+        "faq_returns"
+      ],
+      "settings": {
+        "product": "winter-heated-jacket-usb-electric-cotton-coat-zip-up-heater-thermal-clothing-heating-vest-for-men",
+        "hero_image": "shopify://shop_images/EMXN1y8qTwoGdXBsb2FkEg55bGFiLXN0dW50LXNncBo1c3RhcmdhdGUvMTEyLzI4NTZkNjY5LWFmNmMtNDhkMy1hZDIyLTkzYjA4ZDMwNjEwZS5wbmc.png",
+        "photo_1": "shopify://shop_images/EMXN1y8qTwoGdXBsb2FkEg55bGFiLXN0dW50LXNncBo1c3RhcmdhdGUvMTEyLzI4NTZkNjY5LWFmNmMtNDhkMy1hZDIyLTkzYjA4ZDMwNjEwZS5wbmc.png",
+        "photo_2": "shopify://shop_images/EMXN1y8qTwoGdXBsb2FkEg55bGFiLXN0dW50LXNncBo1c3RhcmdhdGUvMTEyL2MwZGU4MWUyLWQ5YzItNGVmZi1hZTlhLTViZGJjMmY4NjY3Yi5wbmc.png",
+        "photo_3": "shopify://shop_images/EMXN1y8qTwoGdXBsb2FkEg55bGFiLXN0dW50LXNncBo1c3RhcmdhdGUvMTEyLzU0ZTM5NDc5LTM5ZDUtNDgyYy1iMGQ3LTM0OTE1YjE3MGQzMS5wbmc.png",
+        "photo_4": "shopify://shop_images/EMXN1y8qTwoGdXBsb2FkEg55bGFiLXN0dW50LXNncBo1c3RhcmdhdGUvMTEyL2ZlYzAwYjI5LWY5OWQtNDQ2MC1iNDFhLTQ2MGNiNzFjZTY2Ny5wbmc.png",
+        "photo_5": "shopify://shop_images/EMXN1y8qTwoGdXBsb2FkEg55bGFiLXN0dW50LXNncBo1c3RhcmdhdGUvMTEyLzY3MTVlY2NhLTU2ZjEtNGU0Ny04ZWEwLWEzMmI4MDkxYjQ4Yy5wbmc.png",
+        "photo_6": "shopify://shop_images/EMXN1y8qTwoGdXBsb2FkEg55bGFiLXN0dW50LXNncBo1c3RhcmdhdGUvMTEyLzZkNTQ1OWI1LWRmMDAtNDU1MC04MmQ2LWVlZGRhY2Q5MmViZC5wbmc.png",
+        "title_cold": "Cold out there?",
+        "title_warm": "You're ready."
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}
