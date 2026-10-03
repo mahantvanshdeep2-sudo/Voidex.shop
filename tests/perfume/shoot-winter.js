@@ -50,7 +50,7 @@ let fail = 0; const check = (n, ok, d = '') => { console.log(`${ok ? 'PASS' : 'F
     check(`[${tag}] "More from VOIDEX" lists the other live products, not the jacket`, more.join(',') === '/products/voidex-sneaker-wash-bag,/products/special-glass-for-car-snow-removal-tools-deicing-and-melting-snow', more.join(','));
     const nav = await pg.evaluate(() => [...document.querySelectorAll('header a')].map((a) => a.textContent.trim() + '=' + a.getAttribute('href')).filter((x) => /Shop All/.test(x)));
     check(`[${tag}] menu has Shop All -> /collections/all`, nav.length > 0 && nav.every((x) => x.endsWith('=/collections/all')), nav.join(' | '));
-    // New photos: the hero shows the snowstorm photo; the gallery leads with the six new photos and drops the
+    // New photos: the hero shows the product-only front shot; the gallery leads with the six new photos and drops the
     // product's old generic supplier photos (variant photos stay so each colour still has its picture)
     const gal = await pg.evaluate(() => ({
       hero: document.querySelector('.vx-orb--photo img') && document.querySelector('.vx-orb--photo img').getAttribute('src'),
@@ -58,7 +58,7 @@ let fail = 0; const check = (n, ok, d = '') => { console.log(`${ok ? 'PASS' : 'F
       thumbs: [...document.querySelectorAll('.vx-thumb')].map((t) => t.dataset.imageId),
       zone: getComputedStyle(document.querySelector('.vx-zone__n')).fontSize
     }));
-    check(`[${tag}] new photos: storm hero, front photo leads, 6 new thumbs first, old supplier photos gone`, gal.hero === '/img/storm.jpg' && gal.main === '/img/front.jpg' && gal.thumbs.slice(0, 6).every((id) => id.startsWith('4632603500000')) && !gal.thumbs.some((id) => id.startsWith('5282326999999')), JSON.stringify(gal));
+    check(`[${tag}] new photos: product-only hero, front photo leads, 6 new thumbs first, old supplier photos gone`, gal.hero === '/img/front.jpg' && gal.main === '/img/front.jpg' && gal.thumbs.slice(0, 6).every((id) => id.startsWith('4632603500000')) && !gal.thumbs.some((id) => id.startsWith('5282326999999')), JSON.stringify(gal));
     check(`[${tag}] heat-zone numbers render large`, gal.zone === '54px', gal.zone);
     // Footer country picker: choosing a country submits the localization form with that country
     posts.length = 0; await pg.selectOption('[data-vx-locale-select]', 'DE'); await pg.waitForTimeout(600);
@@ -115,6 +115,26 @@ let fail = 0; const check = (n, ok, d = '') => { console.log(`${ok ? 'PASS' : 'F
       return [data.length, bad.length, bad.slice(0, 3).join('; ')];
     });
     check(`[${tag}] all real variants selectable with the right id`, reach[0] === 96 && reach[1] === 0, JSON.stringify(reach));
+    // FAQ: keyboard focus shows a ring inside the question; a closed answer's links are out of the Tab order
+    await pg.goto(`${B}/index.html`); await pg.waitForTimeout(300);
+    const faq = await pg.evaluate(() => { const q = document.querySelector('.vx-faq__q'); const a = q.closest('[data-vx-faq]').querySelector('.vx-faq__a'); const closed = [...document.querySelectorAll('[data-vx-faq]')].every((it) => it.querySelector('.vx-faq__a').inert === (it.querySelector('.vx-faq__q').getAttribute('aria-expanded') !== 'true')); q.click(); const opened = a.inert === false; q.click(); return [closed, opened, a.inert]; });
+    await pg.focus('.vx-faq__q'); await pg.keyboard.press('Shift+Tab'); await pg.keyboard.press('Tab');
+    const ring = await pg.evaluate(() => { const q = document.activeElement; const cs = getComputedStyle(q); return [q.classList.contains('vx-faq__q'), cs.outlineStyle, cs.outlineOffset]; });
+    check(`[${tag}] FAQ: focus ring drawn inside the question, closed answers out of Tab order`, faq[0] && faq[1] && faq[2] && ring[0] && ring[1] === 'solid' && ring[2] === '-4px', JSON.stringify([faq, ring]));
+    // Opening the page at a #link lands there directly: no glide, nothing animates in on its own
+    await pg.goto('about:blank'); await pg.goto(`${B}/index.html#faq`); await pg.waitForTimeout(150); const y1 = await pg.evaluate(() => scrollY);
+    const run = await pg.evaluate(() => document.getAnimations().filter((an) => an.playState === 'running').length);
+    await pg.waitForTimeout(900); const y2 = await pg.evaluate(() => scrollY);
+    check(`[${tag}] opening at #faq jumps there with no self-running scroll or reveal`, y1 > 0 && y1 === y2 && run === 0, JSON.stringify([y1, y2, run]));
+    if (tag === 'desktop') {
+      await pg.evaluate(() => scrollTo({ top: 0, behavior: 'instant' })); await pg.hover('.vx-nav a'); await pg.waitForTimeout(400);
+      const ul = await pg.evaluate(() => { const cs = getComputedStyle(document.querySelector('.vx-nav a'), '::after'); return [cs.transform, cs.opacity]; });
+      check(`[${tag}] nav underline fades in place on hover (no sweep)`, ul[0] === 'none' && ul[1] === '1', ul.join(' '));
+    }
+    // Product page for the jacket: short display name as the page's h1, the six new photos lead the gallery
+    await pg.goto(`${B}/product.html`); await pg.waitForTimeout(300);
+    const pdp = await pg.evaluate(() => [document.querySelectorAll('h1').length, document.querySelector('h1').textContent.trim(), document.querySelector('[data-vx-main-img]').getAttribute('src'), [...document.querySelectorAll('.vx-thumb')].slice(0, 6).every((t) => t.dataset.imageId.startsWith('4632603500000')), [...document.querySelectorAll('.vx-thumb')].some((t) => t.dataset.imageId.startsWith('5282326999999'))]);
+    check(`[${tag}] jacket page: "VOIDEX Heated Jacket" h1, new photos lead, old supplier photos gone`, pdp[0] === 1 && pdp[1] === 'VOIDEX Heated Jacket' && pdp[2] === '/img/front.jpg' && pdp[3] && !pdp[4], JSON.stringify(pdp));
     const ov = await pg.evaluate(() => [...document.querySelectorAll('body *')].filter((e) => { const r = e.getBoundingClientRect(); return r.right > innerWidth + 0.5 && getComputedStyle(e).position !== 'fixed'; }).slice(0, 5).map((e) => e.className + ' ' + Math.round(e.getBoundingClientRect().right)));
     if (ov.length) console.log('overflowing:', ov.join(' | '));
     check(`[${tag}] no console errors`, errs.length === 0, errs.join(' | '));

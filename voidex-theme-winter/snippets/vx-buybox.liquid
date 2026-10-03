@@ -1,7 +1,8 @@
 {%- comment -%}
   Heated-jacket style buy box for products with one or two options (e.g. Color + Size).
   Params: product (required), title (optional display name), kicker (optional), note (optional),
-  photos (optional: an object with photo_1 ... photo_6 image settings, e.g. section.settings).
+  photos (optional: an object with photo_1 ... photo_6 image settings, e.g. section.settings),
+  heading (optional: the title's tag, default h2; product pages pass h1).
   When photos are given they lead the gallery and stand in for the product's generic photos; the photos
   attached to variants stay, so picking a colour still shows that colour.
   Without JS the form posts the preselected variant to /cart/add.
@@ -106,7 +107,8 @@
 
   <div class="vx-buy__info">
     {%- if kicker != blank -%}<p class="vx-buy__kicker">{{ kicker | escape }}</p>{%- endif -%}
-    <h2 class="vx-buy__title vx-card__name">{{ bb_title | escape }}</h2>
+    {%- assign bb_tag = heading | default: 'h2' -%}
+    <{{ bb_tag }} class="vx-buy__title vx-card__name">{{ bb_title | escape }}</{{ bb_tag }}>
     <p class="vx-buy__price">
       <span data-vx-price>{{ bb_current.price | money }}</span>
       <s data-vx-compare{% unless bb_current.compare_at_price > bb_current.price %} hidden{% endunless %}>{{ bb_current.compare_at_price | money }}</s>

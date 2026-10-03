@@ -45,7 +45,18 @@
         d.className = d.className.replace('vx-no-js', 'vx-js');
         var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (!reduce) d.classList.add('vx-motion');
-        window.__vxFailsafe = setTimeout(function () { d.classList.remove('vx-motion'); }, 3000);
+        /* Opening a #link lands on that section directly instead of gliding there on its own;
+           in-page link clicks stay smooth once the page has loaded. */
+        if (location.hash) {
+          d.style.scrollBehavior = 'auto';
+          addEventListener('load', function () { setTimeout(function () { d.style.scrollBehavior = ''; }, 0); });
+        }
+        /* The failsafe shows everything as it is, without animating it in. */
+        window.__vxFailsafe = setTimeout(function () {
+          d.classList.add('vx-instant');
+          d.classList.remove('vx-motion');
+          requestAnimationFrame(function () { requestAnimationFrame(function () { d.classList.remove('vx-instant'); }); });
+        }, 3000);
       })();
       window.VX = {
         routes: {

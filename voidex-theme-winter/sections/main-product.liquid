@@ -1,7 +1,17 @@
 {%- if product.options.size > 1 -%}
-{%- assign pdp_note = '' -%}{%- if product.title contains 'Heat' -%}{%- assign pdp_note = section.settings.multi_note -%}{%- endif -%}
+{%- comment -%} Heated products get the same short display name and photos as the homepage, not the long supplier title. {%- endcomment -%}
+{%- liquid
+  assign pdp_note = ''
+  assign pdp_title = product.title
+  assign pdp_photos = false
+  if product.title contains 'Heat'
+    assign pdp_note = section.settings.multi_note
+    assign pdp_title = section.settings.heat_title | default: product.title
+    assign pdp_photos = section.settings
+  endif
+-%}
 <section class="vx-section vx-pdp vx-pdp--multi">
-  {% render 'vx-buybox', product: product, title: product.title, note: pdp_note %}
+  {% render 'vx-buybox', product: product, title: pdp_title, note: pdp_note, photos: pdp_photos, heading: 'h1' %}
   {%- if product.description != blank -%}
     <div class="vx-rte vx-pdp__desc vx-narrow" style="margin: 64px auto 0">{{ product.description }}</div>
   {%- endif -%}
@@ -63,6 +73,14 @@
 {%- endif -%}
 {% schema %}
 { "name": "Product", "tag": "div", "settings": [
-  { "type": "richtext", "id": "multi_note", "label": "Note under the button (heated products only)", "default": "<p><strong>Power bank not included.</strong> Works with standard USB power banks.</p>" }
+  { "type": "richtext", "id": "multi_note", "label": "Note under the button (heated products only)", "default": "<p><strong>Power bank not included.</strong> Works with standard USB power banks.</p>" },
+  { "type": "header", "content": "Heated products" },
+  { "type": "text", "id": "heat_title", "label": "Display name", "default": "VOIDEX Heated Jacket" },
+  { "type": "image_picker", "id": "photo_1", "label": "Photo 1" },
+  { "type": "image_picker", "id": "photo_2", "label": "Photo 2" },
+  { "type": "image_picker", "id": "photo_3", "label": "Photo 3" },
+  { "type": "image_picker", "id": "photo_4", "label": "Photo 4" },
+  { "type": "image_picker", "id": "photo_5", "label": "Photo 5" },
+  { "type": "image_picker", "id": "photo_6", "label": "Photo 6" }
 ] }
 {% endschema %}

@@ -49,7 +49,7 @@
     }) : [];
     let w = 0, h = 0, heroH = 1, flakes = [];
     let frame = 0, running = false, last = 0, lastY = window.scrollY, energy = 0, lastScrollAt = 0;
-    let slowTime = 0, sampleTime = 0, heroP = -1, aur = '', vis = '';
+    let slowTime = 0, sampleTime = 0, cadence = [], base = 0, heroP = -1, aur = '', vis = '', spin = '';
 
     const make = (anywhere) => {
       const depth = Math.random();
@@ -67,12 +67,17 @@
     const resize = () => {
       heroH = hero ? Math.max(1, hero.offsetHeight) : 1;
       if (!ctx) return;
+      const ow = w;
       w = window.innerWidth; h = window.innerHeight;
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const target = Math.round(Math.min(140, Math.max(45, (w * h) / 12000)));
-      flakes = [];
-      for (let i = 0; i < target; i++) flakes.push(make(true));
+      if (!flakes.length) { for (let i = 0; i < target; i++) flakes.push(make(true)); return; }
+      // Keep the snowfield where it is: a phone toolbar showing or hiding changes only the height, so no
+      // flake moves. x is rescaled when the width changes; y never is, because the canvas is fixed at the top.
+      if (ow && w !== ow) flakes.forEach((f) => { f.x *= w / ow; });
+      if (flakes.length > target) flakes.length = target;
+      while (flakes.length < target) flakes.push(make(true));
     };
     // k: elapsed time in 60 Hz frames. dy: how far the page scrolled this frame (flakes drift with it by depth).
     const drawSnow = (k, dy) => {
@@ -96,7 +101,11 @@
     // Layers tied to the scroll position itself, so they stop the instant the page stops.
     // Each style is written only when it changes.
     const follow = (y) => {
-      if (reduceMotion || !root.classList.contains('vx-motion')) return;
+      if (reduceMotion || !root.classList.contains('vx-motion')) {
+        // Motion switched off (the layout's failsafe): put the layers back at rest once.
+        if (aur || vis) { if (aurora) aurora.style.transform = ''; if (visual) visual.style.transform = ''; aur = vis = ''; }
+        return;
+      }
       if (aurora) {
         const t = 'translate3d(' + (Math.sin(y / 900) * 4).toFixed(2) + '%,' + (-Math.min(y, 3000) * 0.03).toFixed(1) + 'px,0) scale(' + (1.04 + Math.sin(y / 1300) * 0.04).toFixed(3) + ')';
         if (t !== aur) { aurora.style.transform = t; aur = t; }
@@ -108,7 +117,9 @@
       }
       if (visual) {
         const t = 'translate3d(0,' + (Math.min(y, 800) * -0.08).toFixed(1) + 'px,0)';
-        if (t !== vis) { visual.style.transform = t; visual.style.setProperty('--vx-spin', (Math.min(y, 1600) * 0.12).toFixed(1)); vis = t; }
+        if (t !== vis) { visual.style.transform = t; vis = t; }
+        const sp = (Math.min(y, 1600) * 0.12).toFixed(1);
+        if (sp !== spin) { visual.style.setProperty('--vx-spin', sp); spin = sp; }
       }
     };
     const loop = (now) => {
@@ -120,8 +131,11 @@
       energy += (target - energy) * Math.min(1, (target > energy ? 0.35 : 0.1) * k);
       if (ctx) drawSnow(k, dy);
       follow(y);
-      // Adaptive load: if frames run long for a sustained second, thin the snow by a fifth.
-      sampleTime += dt; if (dt > 22) slowTime += dt;
+      // Adaptive load: if frames run long for a sustained second, thin the snow by a fifth. "Long" is measured
+      // against this device's own steady frame time (median of the first frames), so a 30 Hz cap such as a
+      // phone's low-power mode isn't mistaken for lag.
+      if (dt > 0 && cadence.length < 9) { cadence.push(dt); if (cadence.length === 9) base = cadence.slice().sort((a, b) => a - b)[4]; }
+      sampleTime += dt; if (base && dt > base * 1.5) slowTime += dt;
       if (sampleTime > 1000) {
         if (slowTime > 400 && flakes.length > 30) flakes.length = Math.round(flakes.length * 0.8);
         sampleTime = slowTime = 0;
@@ -131,7 +145,7 @@
     };
     const wake = () => {
       lastScrollAt = performance.now();
-      if (!running && !reduceMotion && !document.hidden) { running = true; last = 0; frame = requestAnimationFrame(loop); }
+      if (!running && !reduceMotion && !document.hidden) { running = true; last = 0; cadence = []; base = 0; sampleTime = slowTime = 0; frame = requestAnimationFrame(loop); }
     };
 
     resize();
@@ -139,7 +153,7 @@
     follow(window.scrollY);
     window.addEventListener('scroll', wake, { passive: true });
     let t;
-    window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { resize(); if (ctx) drawSnow(0, 0); heroP = -1; aur = vis = ''; follow(window.scrollY); }, 150); });
+    window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { resize(); if (ctx) drawSnow(0, 0); heroP = -1; aur = vis = spin = ''; follow(window.scrollY); }, 150); });
     document.addEventListener('visibilitychange', () => { if (document.hidden && running) { running = false; cancelAnimationFrame(frame); energy = 0; } });
   }
 

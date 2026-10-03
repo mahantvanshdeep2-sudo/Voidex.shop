@@ -181,15 +181,25 @@
     }
     // Motion only reacts to scrolling: whatever is already on screen when the page opens is shown as it is,
     // with no fade-in or count-up. Only sections the visitor scrolls to animate in.
-    const onScreen = items.filter((el) => el.getBoundingClientRect().top < window.innerHeight);
-    if (onScreen.length) {
+    const settle = (els) => {
       root.classList.add('vx-instant');
-      onScreen.forEach((el) => el.classList.add('is-visible', 'is-settled'));
+      els.forEach((el) => el.classList.add('is-visible', 'is-settled'));
       requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('vx-instant')));
-    }
+    };
+    // Hidden elements (display:none) report top 0; leave them to the observer.
+    const onScreen = items.filter((el) => { const r = el.getBoundingClientRect(); return r.height > 0 && r.top < window.innerHeight; });
+    if (onScreen.length) settle(onScreen);
+    // Until the visitor's first real input, anything the observer reports (the browser jumping to a #link
+    // or restoring the scroll position after reload/back) is also shown as it is.
+    let interacted = false;
+    const INPUT = ['wheel', 'touchstart', 'keydown', 'pointerdown'];
+    const mark = () => { interacted = true; INPUT.forEach((t) => window.removeEventListener(t, mark, true)); };
+    INPUT.forEach((t) => window.addEventListener(t, mark, { capture: true, passive: true }));
     const io = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) { show(entry.target); io.unobserve(entry.target); }
+        if (!entry.isIntersecting) return;
+        io.unobserve(entry.target);
+        if (interacted) show(entry.target); else settle([entry.target]);
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
     items.forEach((el) => { if (onScreen.indexOf(el) === -1) io.observe(el); });
@@ -489,10 +499,15 @@
   function initFaq() {
     $$('[data-vx-faq]').forEach((item) => {
       const q = $('.vx-faq__q', item);
+      const a = $('.vx-faq__a', item);
+      // A closed answer is out of the Tab order, so its links can't take focus while invisible.
+      const sync = () => { if (a) a.inert = q.getAttribute('aria-expanded') !== 'true'; };
+      sync();
       q.addEventListener('click', () => {
         const open = q.getAttribute('aria-expanded') !== 'true';
         q.setAttribute('aria-expanded', String(open));
         item.classList.toggle('is-open', open);
+        sync();
       });
     });
   }

@@ -25,6 +25,7 @@
   --heat-deep: #fdba74;
   --border: #2f6894;
   --border-gold: #4a87b8;
+  --field-border: #6fa4cf; /* 3.23:1 on --bg, 3.82:1 on --bg-elevated: form fields need 3:1 (WCAG 1.4.11) */
   --radius: 16px;
   --radius-sm: 10px;
   --shadow-gold: 0 10px 36px rgba(4, 18, 32, 0.38);
@@ -55,6 +56,7 @@ body.vx-body {
 :where(.vx-body) :where(ul, ol) { list-style: none; }
 :where(.vx-body) :where(button) { font: inherit; color: inherit; }
 .vx-body :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.vx-body ::placeholder { color: var(--text-muted); opacity: 1; }
 .vx-visually-hidden { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .vx-skip { position: absolute; left: 12px; top: -60px; z-index: 10001; background: var(--gold-deep); color: var(--on-accent); padding: 10px 16px; border-radius: 8px; font-weight: 600; text-decoration: none; }
 .vx-skip:focus { top: 12px; }
@@ -253,7 +255,7 @@ body.vx-body {
 .vx-empty { text-align: center; color: var(--text-muted); font-family: var(--font-serif); font-size: 18px; padding: 24px 0; }
 
 /* Scroll-triggered reveals: fade up by default, slide in from the side with --left/--right */
-.vx-reveal { transition: opacity 1s var(--ease), transform 1s var(--ease); }
+.vx-reveal { transition: opacity 1s var(--ease), transform 1s var(--ease); overflow-anchor: none; }
 .vx-motion .vx-reveal:not(.is-visible) { opacity: 0; transform: translateY(46px); }
 .vx-motion .vx-reveal--left:not(.is-visible) { transform: translateX(-46px); }
 .vx-motion .vx-reveal--right:not(.is-visible) { transform: translateX(46px); }
@@ -326,7 +328,7 @@ body.vx-body {
   position: absolute; top: 6px; right: 8px; width: 28px; height: 28px; border-radius: 50%;
   border: none; background: transparent; color: var(--text-muted); font-size: 18px; line-height: 1; cursor: pointer;
 }
-.vx-slot__remove:hover { color: #ff9a8f; }
+.vx-slot__remove:hover { color: #ffc2ba; }
 .vx-slot__remove[hidden] { display: none; }
 .vx-picker { margin-bottom: 22px; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: rgba(143, 211, 255, 0.03); }
 .vx-picker:not([hidden]) { animation: vx-drop 0.35s var(--ease); }
@@ -375,7 +377,7 @@ body.vx-body {
 .vx-bundle__hint { flex-basis: 100%; font-size: 12px; color: var(--text-muted); letter-spacing: 0.5px; }
 .vx-bundle__note { margin-top: 16px; text-align: center; font-size: 12px; letter-spacing: 0.6px; color: var(--text-muted); }
 .vx-bundle__status { margin-top: 8px; min-height: 1em; text-align: center; font-size: 13px; color: var(--gold-light); }
-.vx-bundle__status.is-error { color: #ff9a8f; }
+.vx-bundle__status.is-error { color: #ffc2ba; }
 
 /* ---------- Filters + product grid ---------- */
 .vx-filters { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin: -24px 0 48px; }
@@ -407,7 +409,7 @@ body.vx-body {
   display: flex; align-items: center; justify-content: center; perspective: 700px;
   background: radial-gradient(circle at 50% 42%, rgba(143, 211, 255, 0.07) 0%, transparent 62%), linear-gradient(180deg, #f2f9ff, #eef7fe);
   background:
-    radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--vx-tint, #d4af37) 14%, transparent) 0%, transparent 62%),
+    radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--vx-tint, #8fd3ff) 14%, transparent) 0%, transparent 62%),
     linear-gradient(180deg, #f2f9ff, #eef7fe);
 }
 .vx-card__media::after {
@@ -421,7 +423,7 @@ body.vx-body {
   position: absolute; z-index: 2; top: 14px; left: 14px; padding: 4px 12px; border-radius: 100px;
   background: var(--gold-gradient); color: var(--on-accent); font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
 }
-.vx-badge--new { background: linear-gradient(135deg, #e8c87c, #b8860b); }
+.vx-badge--new { background: var(--gold-gradient); }
 
 /* CSS-only 3D bottle: float (outer) and 360° spin (inner) on separate elements so they never fight */
 .vx-bottle-float { position: relative; width: 84px; height: 160px; animation: vx-float 4.2s ease-in-out infinite; }
@@ -553,6 +555,7 @@ body.vx-body {
   font-family: var(--font-display); font-size: 17px; font-weight: 600; transition: color 0.3s;
 }
 .vx-faq__q:hover { color: var(--gold-light); }
+.vx-faq__q:focus-visible { outline-offset: -4px; border-radius: calc(var(--radius-sm) - 1px); }
 .vx-faq__icon { position: relative; flex-shrink: 0; width: 16px; height: 16px; transition: transform 0.4s var(--ease); }
 .vx-faq__icon::before, .vx-faq__icon::after { content: ''; position: absolute; top: 7px; left: 0; width: 16px; height: 1.5px; background: var(--gold); }
 .vx-faq__icon::after { transform: rotate(90deg); }
@@ -576,13 +579,12 @@ body.vx-body {
 }
 .vx-email__text { max-width: 520px; margin: 0 auto 36px; font-family: var(--font-serif); font-size: 19px; color: var(--text-muted); }
 .vx-email__form { display: flex; flex-wrap: wrap; gap: 12px; max-width: 500px; margin: 0 auto; }
-.vx-email__form input[type='email'] {
+.vx-email__form input:not([type='hidden']) {
   flex: 1 1 240px; min-width: 0; padding: 17px 24px; border-radius: 100px;
-  background: var(--bg-card); color: var(--text); border: 1px solid var(--border); font: 15px var(--font-body);
+  background: var(--bg-card); color: var(--text); border: 1px solid var(--field-border); font: 15px var(--font-body);
 }
-.vx-email__form input[type='email']::placeholder { color: #a9c6de; }
-.vx-email__form input[type='email']:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 20px rgba(143, 211, 255, 0.18); }
-.vx-email__error { flex-basis: 100%; font-size: 13px; color: #ff9a8f; }
+.vx-email__form input:not([type='hidden']):focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 0 20px rgba(143, 211, 255, 0.18); }
+.vx-email__error { flex-basis: 100%; font-size: 13px; color: #ffc2ba; }
 .vx-email__error ul { list-style: none; }
 .vx-email__success { flex-basis: 100%; padding: 18px 22px; border: 1px solid var(--border-gold); border-radius: var(--radius-sm); background: rgba(143, 211, 255, 0.1); font-size: 15px; color: var(--gold-light); }
 .vx-email__success strong { letter-spacing: 2px; color: var(--gold-bright); }
@@ -616,7 +618,7 @@ body.vx-body {
 .vx-toast.is-in { animation: vx-toast-in 0.45s var(--ease); }
 @keyframes vx-toast-in { from { opacity: 0; transform: translate(-50%, 16px); } to { opacity: 1; transform: translate(-50%, 0); } }
 .vx-toast__msg { font-size: 14px; color: var(--text); }
-.vx-toast.is-error .vx-toast__msg { color: #ff9a8f; }
+.vx-toast.is-error .vx-toast__msg { color: #ffc2ba; }
 .vx-toast__actions { display: flex; gap: 8px; }
 .vx-toast.is-error .vx-toast__actions { display: none; }
 .vx-toast__link { padding: 8px 14px; border-radius: 100px; border: 1px solid var(--border-gold); font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; color: var(--gold-light); }
@@ -706,14 +708,14 @@ body.vx-body {
 .vx-line__variant, .vx-line__discount { font-size: 13px; color: var(--text-muted); }
 .vx-line__discount { color: var(--gold-light); }
 .vx-line__remove { font-size: 12px; color: var(--text-muted); }
-.vx-line__qty { width: 70px; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font: inherit; }
+.vx-line__qty { width: 70px; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--field-border); background: var(--bg-card); color: var(--text); font: inherit; }
 .vx-line__price { text-align: right; font-weight: 600; color: var(--gold-light); }
 .vx-cart-summary { max-width: 900px; margin: 28px auto 0; text-align: right; }
 .vx-cart-total { font-size: 20px; } .vx-cart-total strong { font-family: var(--font-display); color: var(--gold-light); margin-left: 10px; }
 .vx-cart-note { font-size: 13px; color: var(--text-muted); margin: 8px 0 20px; }
 .vx-cart-actions { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
 .vx-searchform { margin-bottom: 48px; }
-.vx-searchform input[type='search'] { flex: 1 1 240px; min-width: 0; padding: 17px 24px; border-radius: 100px; background: var(--bg-card); color: var(--text); border: 1px solid var(--border); font: 15px var(--font-body); }
+.vx-searchform input[type='search'] { flex: 1 1 240px; min-width: 0; padding: 17px 24px; border-radius: 100px; background: var(--bg-card); color: var(--text); border: 1px solid var(--field-border); font: 15px var(--font-body); }
 .vx-pagination { margin-top: 40px; text-align: center; color: var(--text-muted); }
 .vx-pagination a { color: var(--gold-light); margin: 0 6px; }
 .vx-post { padding: 28px 0; border-bottom: 1px solid var(--border); }
@@ -728,6 +730,7 @@ body.vx-body {
 @media (max-width: 600px) {
   .vx-line { grid-template-columns: 64px 1fr 60px; }
   .vx-line__img img { width: 64px; height: 64px; }
+  .vx-line__qty { width: 100%; }
   .vx-line__price { grid-column: 2 / -1; text-align: left; }
   .vx-cart-actions .vx-btn { flex: 1 1 100%; }
 }
@@ -737,7 +740,7 @@ body.vx-body {
 .vx-contact__row { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 .vx-field { display: grid; gap: 8px; min-width: 0; }
 .vx-field label { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold-light); }
-.vx-field input, .vx-field textarea { width: 100%; min-width: 0; padding: 15px 18px; border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text); border: 1px solid var(--border); font: 15px var(--font-body); }
+.vx-field input, .vx-field textarea { width: 100%; min-width: 0; padding: 15px 18px; border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text); border: 1px solid var(--field-border); font: 15px var(--font-body); }
 .vx-field textarea { resize: vertical; min-height: 140px; }
-.vx-field input:focus, .vx-field textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 20px rgba(143, 211, 255, 0.18); }
+.vx-field input:focus, .vx-field textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 0 20px rgba(143, 211, 255, 0.18); }
 .vx-contact .vx-btn { justify-self: start; }
