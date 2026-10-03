@@ -40,6 +40,11 @@ let fail = 0; const check = (n, ok, d = '') => { console.log(`${ok ? 'PASS' : 'F
       const bad = ['Canad', '°C', '°F', '−20', '-20', 'Perfume', 'Winter is coming', 'scents'].filter((w) => txt.includes(w));
       check(`[${tag}] ${p}: no Canada-only wording, temperature number or perfume link`, bad.length === 0, bad.join(','));
     }
+    // Single-option product page: full variant names, no perfume leftovers, add to cart posts the picked variant
+    await pg.goto(`${B}/product-bag.html`); await pg.waitForTimeout(400);
+    const bag = await pg.evaluate(() => [[...document.querySelectorAll('[data-vx-size]')].map((b) => b.textContent.trim()).join('|'), document.body.textContent.includes('sprays'), !!document.querySelector('.vx-bottle')]);
+    posts.length = 0; await pg.click('[data-vx-size][data-size="Value Set"]'); await pg.click('[data-vx-atc-btn]'); await pg.waitForTimeout(500);
+    check(`[${tag}] wash bag page: White|Grey|Value Set buttons, no perfume leftovers, posts Value Set`, bag[0] === 'White|Grey|Value Set' && !bag[1] && !bag[2] && posts[0] && posts[0][1].includes('50000000000003'), JSON.stringify([bag, posts[0]]));
     await pg.goto(`${B}/index.html`); await pg.waitForTimeout(300);
     const more = await pg.evaluate(() => [...document.querySelectorAll('#shop .vx-card')].map((a) => a.getAttribute('href')));
     check(`[${tag}] "More from VOIDEX" lists the other live products, not the jacket`, more.join(',') === '/products/voidex-sneaker-wash-bag,/products/special-glass-for-car-snow-removal-tools-deicing-and-melting-snow', more.join(','));

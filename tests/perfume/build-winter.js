@@ -108,5 +108,9 @@ async function page(file, tplName, extra) {
   for (const f of ['voidex-perfume.css', 'voidex-perfume.js', 'voidex-winter.css', 'voidex-winter.js']) fs.copyFileSync(path.join(THEME, 'assets', f), path.join(OUT, 'assets', f));
   await page('index.html', 'index', {});
   await page('product.html', 'product', { product: jacket, page_title: jacket.title, request: { locale: { iso_code: 'en' }, page_type: 'product' } });
+  // Single-option product page (the live Sneaker Wash Bag: White / Grey / Value Set), which uses the simpler size-button layout.
+  const bagVariants = [['White', 2099], ['Grey', 2399], ['Value Set', 3599]].map(([t, p], i) => ({ id: 50000000000001 + i, title: t, price: p, compare_at_price: null, available: true, options: [t] }));
+  const bag = { ...washBag, description: '<p>Padded sneaker wash bag.</p>', variants: bagVariants, has_only_default_variant: false, selected_or_first_available_variant: bagVariants[0], options: ['Style'], media: [{ media_type: 'image', src: washBag.featured_image.src, alt: 'Sneaker Wash Bag' }] };
+  await page('product-bag.html', 'product', { product: bag, page_title: bag.title, request: { locale: { iso_code: 'en' }, page_type: 'product' } });
   console.log('built', OUT);
 })().catch((e) => { console.error(e); process.exit(1); });

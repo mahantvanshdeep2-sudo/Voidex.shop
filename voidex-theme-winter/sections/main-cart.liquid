@@ -24,7 +24,7 @@
       <div class="vx-cart-summary">
         {%- for discount in cart.cart_level_discount_applications -%}<p class="vx-line__discount">{{ discount.title | escape }} (−{{ discount.total_allocated_amount | money }})</p>{%- endfor -%}
         <p class="vx-cart-total">Subtotal <strong>{{ cart.total_price | money_with_currency }}</strong></p>
-        <p class="vx-cart-note">Taxes and shipping calculated at checkout. Discount codes can be entered at checkout.</p>
+        <p class="vx-cart-note">Taxes, duties and shipping for your country are shown at checkout. Discount codes can be entered at checkout.</p>
         <div class="vx-cart-actions">
           <button type="submit" name="update" class="vx-btn vx-btn--ghost">Update cart</button>
           <button type="submit" name="checkout" class="vx-btn vx-btn--gold">Checkout</button>

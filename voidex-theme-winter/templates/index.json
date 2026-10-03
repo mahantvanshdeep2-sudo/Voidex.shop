@@ -120,7 +120,7 @@
           "type": "faq",
           "settings": {
             "question": "How much is shipping?",
-            "answer": "<p>Shipping is free on every order. Delivery times by region are in our <a href=\"/policies/shipping-policy\">shipping policy</a>. Depending on your country, import duties or taxes may be charged on delivery; they aren't included in our prices.</p>"
+            "answer": "<p>Shipping is free on every order. Delivery times by region are in our <a href=\"/policies/shipping-policy\">shipping policy</a>. Import duties and taxes for your country are either included in the price or shown at checkout, depending on where you live.</p>"
           }
         },
         "faq_returns": {

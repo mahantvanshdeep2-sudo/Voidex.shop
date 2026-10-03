@@ -36,11 +36,17 @@ fit well for phone as well as desktop users". All on the unpublished `VOIDEX Win
   pre-formatted by Shopify instead of rebuilt in JS, FAQ shipping answer mentions import duties and no
   longer promises a checkout timeframe, empty cart says "Continue shopping" (was "Shop the scents"),
   search placeholder "Search products", heat-zone numbers render at their intended size.
+- **Duties wording checked against Markets:** US and Rest of World `INCLUDE_DUTIES_IN_PRICE`, EU and
+  Canada `ADD_DUTIES_AT_CHECKOUT`, so the FAQ and cart note say duties are included or shown at checkout
+  (an earlier draft said "charged on delivery", which was wrong for every market).
+- **Product page (single-option, e.g. the wash bag):** perfume leftovers removed (bottle placeholder,
+  "~N sprays" labels); buttons show the full variant name (White / Grey / Value Set).
+- Store-data and policy findings that need the owner are in `/mnt/project-files/winter-storefront/store-findings.md`.
 
-Verification: `node tests/perfume/build-winter.js && node tests/perfume/shoot-winter.js` → all 42
+Verification: `node tests/perfume/build-winter.js && node tests/perfume/shoot-winter.js` → all 44
 checks pass (adds: storm hero, front photo leads, 6 new thumbs first and no old supplier photos, zone
-numbers 54 px, country picker posts `country_code`, no "Winter is coming"/"scents" copy). All 11 changed
-files uploaded by staged URL; every `checksumMd5` on the theme equals the local `md5sum`.
+numbers 54 px, country picker posts `country_code`, no "Winter is coming"/"scents" copy, wash-bag page
+posts the picked variant). All 13 changed files uploaded by staged URL; every `checksumMd5` on the theme equals the local `md5sum`.
 
 ## 2026-10-03 — Winter storefront (new DEV theme, not published)
 
