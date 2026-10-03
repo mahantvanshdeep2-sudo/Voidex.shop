@@ -186,6 +186,23 @@
 /* ---------- Frosted glass on cards site-wide ---------- */
 .vx-step, .vx-faq__item, .vx-zone { -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 
+/* Size guide units */
+.vx-units { display: flex; justify-content: center; gap: 6px; margin: -18px auto 22px; }
+.vx-units[hidden] { display: none; }
+.vx-units__btn {
+  padding: 8px 18px; border-radius: 100px; font: inherit; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; cursor: pointer;
+  color: var(--text-muted); background: rgba(10, 18, 32, 0.7); border: 1px solid var(--border-gold); transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+.vx-units__btn:hover { color: var(--text); }
+.vx-units__btn.is-active { color: var(--bg); background: var(--gold-light); border-color: var(--gold-light); }
+.vx-sizes-table .vx-u-in { display: none; }
+.vx-sizes-table.is-in .vx-u-in { display: inline; }
+.vx-sizes-table.is-in .vx-u-cm { display: none; }
+
+/* Other products in the store */
+.vx-more .vx-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 280px)); justify-content: center; }
+.vx-more__all { margin: 36px 0 0; text-align: center; }
+
 @media (max-width: 990px) {
   .vx-whero { grid-template-columns: 1fr; text-align: center; padding-top: 40px; gap: 28px; min-height: 0; }
   .vx-whero__sub { margin-left: auto; margin-right: auto; }

@@ -57,14 +57,19 @@ const variants = FX.variants.map(([id, c, s, p, a]) => ({ id, title: `${c} / ${s
 const colorVals = FX.option_values.Color; const sizeVals = FX.option_values.Size;
 const jacket = {
   title: 'Winter Heated Jacket USB Electric Cotton Coat Zip-up Heater Thermal Clothing Heating Vest For Men',
-  handle: 'winter-heated-jacket', url: '/products/winter-heated-jacket', vendor: 'VOIDEX', available: true,
+  id: 15402327769338, handle: 'winter-heated-jacket', url: '/products/winter-heated-jacket', vendor: 'VOIDEX', available: true,
   description: '<p>Supplier description.</p>', variants, has_only_default_variant: false,
   selected_or_first_available_variant: variants[0], featured_image: img('Black Zone2'),
   images: colorVals.map(img), options: ['Color', 'Size'],
   options_with_values: [{ name: 'Color', values: colorVals, selected_value: 'Black Zone2' }, { name: 'Size', values: sizeVals, selected_value: 'S' }],
   price: 5999, price_min: 5999, price_varies: true
 };
+// The other products published to the online store on 2026-10-03 (Admin API), with stand-in images.
+const standIn = (file, label) => { fs.writeFileSync(path.join(OUT, 'img', file), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#eef2f6"/><text x="200" y="200" fill="#667" font-size="18" text-anchor="middle" font-family="sans-serif">${label} (stand-in)</text></svg>`); return { src: '/img/' + file, alt: label }; };
+const washBag = { id: 9429393735930, title: 'VOIDEX Sneaker Wash Bag — Machine-Safe Padded Shoe Laundry Bag', handle: 'voidex-sneaker-wash-bag', url: '/products/voidex-sneaker-wash-bag', vendor: 'VOIDEX', available: true, price_min: 2099, price_varies: true, featured_image: standIn('wash-bag.svg', 'Sneaker Wash Bag') };
+const snowTool = { id: 15405275611386, title: 'Special Glass For Car Snow Removal Tools Deicing And Melting Snow', handle: 'special-glass-for-car-snow-removal-tools-deicing-and-melting-snow', url: '/products/special-glass-for-car-snow-removal-tools-deicing-and-melting-snow', vendor: 'VOIDEX', available: true, price_min: 4729, price_varies: true, featured_image: standIn('snow-tool.svg', 'Snow Removal Tool') };
 const globals = {
+  collections: { all: { products: [jacket, washBag, snowTool] } },
   shop: { name: 'VOIDEX.SHOP', money_format: '${{amount}}', enabled_payment_types: ['visa'], privacy_policy: { url: '/policies/privacy-policy' }, refund_policy: { url: '/policies/refund-policy' }, shipping_policy: { url: '/policies/shipping-policy' }, terms_of_service: { url: '/policies/terms-of-service' } },
   routes: { root_url: '/', cart_url: '/cart', cart_add_url: '/cart/add', account_url: '/account', search_url: '/search', collections_url: '/collections', all_products_collection_url: '/collections/all' },
   cart: { currency: { iso_code: 'CAD' }, item_count: 0, items: [], total_price: 0, cart_level_discount_applications: [] },

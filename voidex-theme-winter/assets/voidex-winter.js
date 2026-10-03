@@ -206,7 +206,26 @@
     });
   }
 
+  /* ---------- Size guide: cm / inches toggle (the table shows cm without JS) ---------- */
+  function initUnits() {
+    const group = $('[data-vx-units]');
+    const table = $('[data-vx-sizes]');
+    if (!group || !table) return;
+    group.hidden = false;
+    const btns = $$('[data-vx-unit]', group);
+    const set = (unit) => {
+      table.classList.toggle('is-in', unit === 'in');
+      btns.forEach((b) => {
+        const on = b.getAttribute('data-vx-unit') === unit;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', String(on));
+      });
+    };
+    btns.forEach((b) => b.addEventListener('click', () => set(b.getAttribute('data-vx-unit'))));
+  }
+
   initSnow();
   initParallax();
   initBuy();
+  initUnits();
 })();

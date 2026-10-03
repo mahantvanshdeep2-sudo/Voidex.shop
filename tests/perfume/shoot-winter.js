@@ -32,6 +32,21 @@ let fail = 0; const check = (n, ok, d = '') => { console.log(`${ok ? 'PASS' : 'F
       check(`[${tag}] ${p}: every scroll-reveal section becomes visible`, rev[1] === 0, `${rev[0]} reveal elements, ${rev[1]} still hidden`);
       await pg.screenshot({ path: path.join(SHOTS, `winter-${tag}-${p}.png`), fullPage: p === 'index' });
     }
+    // Global copy: no Canada-only wording, no fixed temperature, no dead perfume link; live products listed
+    for (const p of ['index', 'product']) {
+      await pg.goto(`${B}/${p}.html`); await pg.waitForTimeout(300);
+      const txt = await pg.evaluate(() => document.body.innerText);
+      const bad = ['Canad', '°C', '°F', '−20', '-20', 'Perfume'].filter((w) => txt.includes(w));
+      check(`[${tag}] ${p}: no Canada-only wording, temperature number or perfume link`, bad.length === 0, bad.join(','));
+    }
+    await pg.goto(`${B}/index.html`); await pg.waitForTimeout(300);
+    const more = await pg.evaluate(() => [...document.querySelectorAll('#shop .vx-card')].map((a) => a.getAttribute('href')));
+    check(`[${tag}] "More from VOIDEX" lists the other live products, not the jacket`, more.join(',') === '/products/voidex-sneaker-wash-bag,/products/special-glass-for-car-snow-removal-tools-deicing-and-melting-snow', more.join(','));
+    const nav = await pg.evaluate(() => [...document.querySelectorAll('header a')].map((a) => a.textContent.trim() + '=' + a.getAttribute('href')).filter((x) => /Shop All/.test(x)));
+    check(`[${tag}] menu has Shop All -> /collections/all`, nav.length > 0 && nav.every((x) => x.endsWith('=/collections/all')), nav.join(' | '));
+    const cell = () => pg.evaluate(() => { const td = document.querySelector('[data-vx-sizes] tbody td'); return td.innerText.trim(); });
+    const cm = await cell(); await pg.click('[data-vx-unit="in"]'); const inch = await cell(); await pg.click('[data-vx-unit="cm"]'); const back = await cell();
+    check(`[${tag}] size guide switches cm <-> inches`, cm === '64' && inch === '25.2' && back === '64', [cm, inch, back].join(' / '));
     // Snow actually moves between frames
     await pg.goto(`${B}/index.html`); await pg.waitForTimeout(800);
     const a = await pg.evaluate(() => document.querySelector('canvas[data-vx-snow]').toDataURL()); await pg.waitForTimeout(400);
