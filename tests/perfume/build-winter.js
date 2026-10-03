@@ -72,7 +72,7 @@ const jacket = {
   selected_or_first_available_variant: variants[0], selected_variant: null, featured_image: generic[0],
   images: generic.concat(colorVals.map(img)), options: ['Color', 'Size'],
   options_with_values: [{ name: 'Color', values: colorVals, selected_value: 'Black Zone2' }, { name: 'Size', values: sizeVals, selected_value: 'S' }],
-  price: 5999, price_min: 5999, price_varies: true
+  price: 8899, price_min: 8899, price_varies: true
 };
 // The other products published to the online store on 2026-10-03 (Admin API), with stand-in images.
 const standIn = (file, label) => { fs.writeFileSync(path.join(OUT, 'img', file), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#eef2f6"/><text x="200" y="200" fill="#667" font-size="18" text-anchor="middle" font-family="sans-serif">${label} (stand-in)</text></svg>`); return { src: '/img/' + file, alt: label }; };

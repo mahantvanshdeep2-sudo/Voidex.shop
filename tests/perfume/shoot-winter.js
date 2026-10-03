@@ -23,7 +23,7 @@ let fail = 0; const check = (n, ok, d = '') => { console.log(`${ok ? 'PASS' : 'F
     for (const p of ['index', 'product']) {
       await pg.goto(`${B}/${p}.html`); await pg.waitForTimeout(1800);
       const info = await pg.evaluate(() => ({ bg: getComputedStyle(document.body).backgroundColor, sw: document.documentElement.scrollWidth, vw: innerWidth, snow: !!document.querySelector('canvas[data-vx-snow]') && document.querySelector('canvas[data-vx-snow]').width > 0 }));
-      check(`[${tag}] ${p}: light sky-white bg, snow canvas running, no horizontal scroll`, info.bg === 'rgb(244, 250, 255)' && info.snow && info.sw <= info.vw, JSON.stringify(info));
+      check(`[${tag}] ${p}: deep winter-sky bg, snow canvas drawn, no horizontal scroll`, info.bg === 'rgb(30, 79, 120)' && info.snow && info.sw <= info.vw, JSON.stringify(info));
       // Scroll through the page so every scroll reveal fires, then confirm none stayed hidden.
       const H = await pg.evaluate(() => document.documentElement.scrollHeight);
       for (let y = 0; y < H; y += Math.round(vp.height * 0.6)) { await pg.evaluate((yy) => window.scrollTo({ top: yy, behavior: 'instant' }), y); await pg.waitForTimeout(120); }
@@ -67,15 +67,29 @@ let fail = 0; const check = (n, ok, d = '') => { console.log(`${ok ? 'PASS' : 'F
     const cell = () => pg.evaluate(() => { const td = document.querySelector('[data-vx-sizes] tbody td'); return td.innerText.trim(); });
     const cm = await cell(); await pg.click('[data-vx-unit="in"]'); const inch = await cell(); await pg.click('[data-vx-unit="cm"]'); const back = await cell();
     check(`[${tag}] size guide switches cm <-> inches`, cm === '64' && inch === '25.2' && back === '64', [cm, inch, back].join(' / '));
-    // Snow actually moves between frames
-    await pg.goto(`${B}/index.html`); await pg.waitForTimeout(800);
-    const a = await pg.evaluate(() => document.querySelector('canvas[data-vx-snow]').toDataURL()); await pg.waitForTimeout(400);
-    const b = await pg.evaluate(() => document.querySelector('canvas[data-vx-snow]').toDataURL());
-    check(`[${tag}] snowfall animates`, a !== b);
+    // Motion only on scroll: an idle page is completely still, scrolling moves the snow and sky, and it all
+    // settles once scrolling stops. Hover gives colour feedback only.
+    await pg.goto(`${B}/index.html`); await pg.waitForTimeout(1200);
+    const still = () => pg.evaluate(() => [document.querySelector('canvas[data-vx-snow]').toDataURL(), getComputedStyle(document.querySelector('.vx-aurora')).transform, getComputedStyle(document.querySelector('.vx-ring')).transform, getComputedStyle(document.querySelector('.vx-whero__text')).transform].join('|'));
+    const loops = await pg.evaluate(() => document.getAnimations().filter((an) => an.playState === 'running').map((an) => (an.animationName || an.transitionProperty || 'anim') + ':' + an.effect.getTiming().iterations));
+    const i1 = await still(); await pg.waitForTimeout(900); const i2 = await still();
+    check(`[${tag}] idle page is still: no frame changes, no running animations`, i1 === i2 && loops.length === 0, loops.join(','));
+    const mid = await pg.evaluate(() => new Promise((done) => {
+      let n = 0; const c = document.querySelector('canvas[data-vx-snow]'); const a0 = getComputedStyle(document.querySelector('.vx-aurora')).transform; const s0 = c.toDataURL();
+      const step = () => { window.scrollBy(0, 14); if (++n < 40) requestAnimationFrame(step); else done([s0 !== c.toDataURL(), a0 !== getComputedStyle(document.querySelector('.vx-aurora')).transform]); };
+      requestAnimationFrame(step);
+    }));
+    check(`[${tag}] scrolling makes the snow fall and the sky glow drift`, mid[0] && mid[1], JSON.stringify(mid));
+    await pg.waitForTimeout(1500); const s1 = await still(); await pg.waitForTimeout(700); const s2 = await still();
+    check(`[${tag}] motion settles after scrolling stops`, s1 === s2);
+    await pg.evaluate(() => document.querySelector('#shop .vx-card').scrollIntoView({ block: 'center' })); await pg.waitForTimeout(1300);
+    if (tag === 'desktop') { await pg.hover('#shop .vx-card'); await pg.waitForTimeout(700); }
+    const hov = await pg.evaluate(() => [getComputedStyle(document.querySelector('#shop .vx-card')).transform, getComputedStyle(document.querySelector('#shop .vx-card .vx-card__img') || document.body).transform]);
+    check(`[${tag}] hovering a product card doesn't move it`, hov.every((t) => t === 'none'), hov.join(' '));
     // Variant picker: Blue Zone8 + L -> its id and price; image swaps
     await pg.click('.vx-chip[data-value="Blue Zone8"]'); await pg.click('.vx-chip[data-value="L"]'); await pg.waitForTimeout(600);
     const v = await pg.evaluate(() => [document.querySelector('[data-vx-variant]').value, document.querySelector('[data-vx-price]').textContent, document.querySelector('[data-vx-main-img]').getAttribute('src')]);
-    check(`[${tag}] picker: Blue Zone8 / L -> id 67614466113786, $121.89, blue image`, v[0] === '67614466113786' && v[1] === '$121.89' && v[2].includes('Blue-Zone8'), v.join(' '));
+    check(`[${tag}] picker: Blue Zone8 / L -> id 67614466113786, $93.99, blue image`, v[0] === '67614466113786' && v[1] === '$93.99' && v[2].includes('Blue-Zone8'), v.join(' '));
     // Thumbnail click swaps the main photo from its template and leaves exactly one main image
     await pg.click('.vx-thumb[data-image-id="52823270000003"]'); await pg.waitForTimeout(700);
     const th = await pg.evaluate(() => { const w = document.querySelector('[data-vx-gallery-main]'); return [w.querySelectorAll('img').length, w.querySelector('img').getAttribute('src'), w.querySelector('img').classList.contains('is-swapping'), document.querySelector('.vx-thumb.is-active').dataset.imageId]; });
@@ -87,7 +101,7 @@ let fail = 0; const check = (n, ok, d = '') => { console.log(`${ok ? 'PASS' : 'F
     await pg.click('.vx-chip[data-value="Blue Zone8"]'); await pg.click('.vx-chip[data-value="6XL"]'); await pg.waitForTimeout(200);
     await pg.click('.vx-chip[data-value="Black Zone8 Set"]'); await pg.waitForTimeout(200);
     const snap = await pg.evaluate(() => [document.querySelector('[data-vx-variant]').value, [...document.querySelectorAll('[data-vx-opt]')][1].querySelector('.vx-chip.is-active').dataset.value, [...document.querySelectorAll('.vx-chip:disabled')].map((c) => c.dataset.value).join(','), document.querySelector('[data-vx-price]').textContent]);
-    check(`[${tag}] picker: Set from 6XL snaps to 3XL, 4XL-6XL greyed`, snap[0] === '67614464606458' && snap[1] === '3XL' && snap[2] === '4XL,5XL,6XL' && snap[3] === '$129.17', JSON.stringify(snap));
+    check(`[${tag}] picker: Set from 6XL snaps to 3XL, 4XL-6XL greyed`, snap[0] === '67614464606458' && snap[1] === '3XL' && snap[2] === '4XL,5XL,6XL' && snap[3] === '$95.99', JSON.stringify(snap));
     posts.length = 0; await pg.click('[data-vx-atc-btn]'); await pg.waitForTimeout(600);
     check(`[${tag}] Add to Cart posts the selected variant`, posts[0] && posts[0][0] === '/cart/add.js' && posts[0][1].includes('67614464606458'), JSON.stringify(posts[0]));
     // Every one of the 96 real variants is reachable through the chips and posts its own id
@@ -112,8 +126,10 @@ let fail = 0; const check = (n, ok, d = '') => { console.log(`${ok ? 'PASS' : 'F
   await pg.goto(`${B}/index.html`); await pg.waitForTimeout(500);
   const a = await pg.evaluate(() => document.querySelector('canvas[data-vx-snow]').toDataURL()); await pg.waitForTimeout(400);
   const b = await pg.evaluate(() => document.querySelector('canvas[data-vx-snow]').toDataURL());
+  await pg.evaluate(() => window.scrollBy(0, 600)); await pg.waitForTimeout(300);
+  const c3 = await pg.evaluate(() => document.querySelector('canvas[data-vx-snow]').toDataURL());
   const op = await pg.evaluate(() => getComputedStyle(document.querySelector('#vx-how-title')).opacity);
-  check('[reduced motion] snow is still, sections visible', a === b && op === '1', op);
+  check('[reduced motion] snow stays still even while scrolling, sections visible', a === b && b === c3 && op === '1', op);
   // JS blocked: everything visible, form still posts natively
   const c2 = await br.newContext({ viewport: { width: 375, height: 800 }, javaScriptEnabled: false }); const p2 = await c2.newPage();
   await p2.goto(`${B}/index.html`); await p2.waitForTimeout(3400);

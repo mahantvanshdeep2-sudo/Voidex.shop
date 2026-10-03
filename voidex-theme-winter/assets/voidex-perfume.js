@@ -179,12 +179,20 @@
       items.forEach((el) => el.classList.add('is-visible', 'is-settled'));
       return;
     }
+    // Motion only reacts to scrolling: whatever is already on screen when the page opens is shown as it is,
+    // with no fade-in or count-up. Only sections the visitor scrolls to animate in.
+    const onScreen = items.filter((el) => el.getBoundingClientRect().top < window.innerHeight);
+    if (onScreen.length) {
+      root.classList.add('vx-instant');
+      onScreen.forEach((el) => el.classList.add('is-visible', 'is-settled'));
+      requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('vx-instant')));
+    }
     const io = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) { show(entry.target); io.unobserve(entry.target); }
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-    items.forEach((el) => io.observe(el));
+    items.forEach((el) => { if (onScreen.indexOf(el) === -1) io.observe(el); });
   }
 
   /* ---------- Mobile menu ---------- */

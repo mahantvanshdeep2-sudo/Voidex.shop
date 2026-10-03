@@ -1,4 +1,4 @@
-/* VOIDEX — Winter layer behaviour: snowfall canvas, hero parallax, heated-jacket
+/* VOIDEX — Winter layer behaviour: scroll-driven snow, sky glow and hero motion, heated-jacket
    variant picker and gallery. Cart submission is handled by voidex-perfume.js
    ([data-vx-atc]); without JS the buy box still posts its default variant to /cart/add. */
 (function () {
@@ -17,32 +17,39 @@
     return fmt.replace(/\{\{\s*\w+\s*\}\}/, amount);
   }
 
-  /* ---------- Snowfall (depth layers, gentle sway, wind follows the pointer) ----------
-     Built for a steady frame rate: movement is scaled by real elapsed time (same speed at 60, 90 or
-     120 Hz, and no lurch after a slow frame), flakes are stamped from a few pre-rendered sprites instead
-     of building a path and a colour string per flake per frame, the canvas resolution is capped, and if
-     the device still can't keep up the flake count drops until it can. */
-  function initSnow() {
+  /* ---------- Scroll-driven motion: snow, sky glow, hero (nothing moves unless the page is scrolling) ----------
+     Owner's rule (2026-10-03): motion only as a reaction to scrolling. One passive scroll listener wakes a
+     single animation loop. Each frame it reads how far the page moved: the sky glow, the hero rings and the
+     hero text follow the scroll position directly, and the snow falls with an "energy" that rises with scroll
+     speed and eases back to zero just under a second after scrolling stops. When everything is still the
+     loop shuts off, so an idle page draws nothing.
+     Built for a steady frame rate: snow movement is scaled by real elapsed time (same speed at 60, 90 or
+     120 Hz), flakes are stamped from a few pre-rendered sprites, the canvas resolution is capped, and if
+     frames still run long the flake count drops until they don't. */
+  function initMotion() {
     const canvas = $('[data-vx-snow]');
-    if (!canvas || !canvas.getContext) return;
-    const ctx = canvas.getContext('2d', { alpha: true });
+    const ctx = canvas && canvas.getContext ? canvas.getContext('2d', { alpha: true }) : null;
+    const aurora = $('.vx-aurora');
+    const hero = $('.vx-whero');
+    const visual = $('[data-vx-parallax]');
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     const SIZES = [1.2, 1.8, 2.4, 3.1, 3.9];
-    // Soft flake: white core with a sky-blue rim, so it reads on white snow and on the blue glow alike.
-    const sprites = SIZES.map((r) => {
+    // Soft flake: white core with an ice-blue rim, bright against the dark winter sky.
+    const sprites = ctx ? SIZES.map((r) => {
       const c = document.createElement('canvas');
       const px = Math.ceil(r * 2 * dpr) + 2;
       c.width = c.height = px;
       const g = c.getContext('2d');
       const grad = g.createRadialGradient(px / 2, px / 2, 0, px / 2, px / 2, px / 2);
       grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-      grad.addColorStop(0.45, 'rgba(168, 214, 246, 0.95)');
-      grad.addColorStop(1, 'rgba(110, 175, 228, 0)');
+      grad.addColorStop(0.45, 'rgba(214, 238, 255, 0.9)');
+      grad.addColorStop(1, 'rgba(160, 214, 250, 0)');
       g.fillStyle = grad; g.fillRect(0, 0, px, px);
       return { c, size: px / dpr };
-    });
-    let w = 0, h = 0, flakes = [], target = 0, frame = 0, running = false, last = 0;
-    let wind = 0, windTarget = 0, slowTime = 0, sampleTime = 0;
+    }) : [];
+    let w = 0, h = 0, heroH = 1, flakes = [];
+    let frame = 0, running = false, last = 0, lastY = window.scrollY, energy = 0, lastScrollAt = 0;
+    let slowTime = 0, sampleTime = 0, heroP = -1, aur = '', vis = '';
 
     const make = (anywhere) => {
       const depth = Math.random();
@@ -50,6 +57,7 @@
         x: Math.random() * w,
         y: anywhere ? Math.random() * h : -8,
         s: sprites[Math.min(SIZES.length - 1, Math.floor(depth * SIZES.length))],
+        depth: depth,
         vy: 0.25 + depth * 0.95,
         sway: 0.4 + Math.random() * 1.1,
         phase: Math.random() * Math.PI * 2,
@@ -57,23 +65,26 @@
       };
     };
     const resize = () => {
+      heroH = hero ? Math.max(1, hero.offsetHeight) : 1;
+      if (!ctx) return;
       w = window.innerWidth; h = window.innerHeight;
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      target = Math.round(Math.min(140, Math.max(45, (w * h) / 12000)));
+      const target = Math.round(Math.min(140, Math.max(45, (w * h) / 12000)));
       flakes = [];
       for (let i = 0; i < target; i++) flakes.push(make(true));
     };
-    const draw = (k) => {
+    // k: elapsed time in 60 Hz frames. dy: how far the page scrolled this frame (flakes drift with it by depth).
+    const drawSnow = (k, dy) => {
       ctx.clearRect(0, 0, w, h);
-      wind += (windTarget - wind) * Math.min(1, 0.02 * k);
+      const drift = Math.max(-60, Math.min(60, dy)) * 0.08;
       for (let i = 0; i < flakes.length; i++) {
         let f = flakes[i];
         if (k) {
-          f.phase += 0.012 * f.sway * k;
-          f.y += f.vy * k;
-          f.x += (Math.sin(f.phase) * 0.35 * f.sway + wind * f.vy) * k;
-          if (f.y > h + 8) { f = flakes[i] = make(false); }
+          f.phase += 0.012 * f.sway * k * energy;
+          f.y += f.vy * 2.6 * energy * k - drift * f.depth;
+          f.x += Math.sin(f.phase) * 0.35 * f.sway * energy * k;
+          if (f.y > h + 8) { f = flakes[i] = make(false); } else if (f.y < -8) { f.y = h + 8; }
           if (f.x < -8) f.x = w + 8; else if (f.x > w + 8) f.x = -8;
         }
         const half = f.s.size / 2;
@@ -82,43 +93,54 @@
       }
       ctx.globalAlpha = 1;
     };
+    // Layers tied to the scroll position itself, so they stop the instant the page stops.
+    // Each style is written only when it changes.
+    const follow = (y) => {
+      if (reduceMotion || !root.classList.contains('vx-motion')) return;
+      if (aurora) {
+        const t = 'translate3d(' + (Math.sin(y / 900) * 4).toFixed(2) + '%,' + (-Math.min(y, 3000) * 0.03).toFixed(1) + 'px,0) scale(' + (1.04 + Math.sin(y / 1300) * 0.04).toFixed(3) + ')';
+        if (t !== aur) { aurora.style.transform = t; aur = t; }
+      }
+      if (y > heroH * 1.5 && heroP === 1) return; // hero is far off-screen and already at rest
+      if (hero) {
+        const p = Math.min(1, Math.max(0, y / heroH));
+        if (p !== heroP) { hero.style.setProperty('--vx-hero-p', p.toFixed(3)); heroP = p; }
+      }
+      if (visual) {
+        const t = 'translate3d(0,' + (Math.min(y, 800) * -0.08).toFixed(1) + 'px,0)';
+        if (t !== vis) { visual.style.transform = t; visual.style.setProperty('--vx-spin', (Math.min(y, 1600) * 0.12).toFixed(1)); vis = t; }
+      }
+    };
     const loop = (now) => {
-      // k = elapsed time in 60 Hz frames; capped so a stalled tab doesn't teleport the snow.
       const dt = Math.min(50, now - (last || now)); last = now;
-      draw(dt / (1000 / 60));
+      const k = dt / (1000 / 60);
+      const y = window.scrollY; const dy = y - lastY; lastY = y;
+      // Snow energy chases the scroll speed: quick to pick up, gentle to settle.
+      const target = k ? Math.min(1.6, Math.abs(dy) / k / 12) : 0;
+      energy += (target - energy) * Math.min(1, (target > energy ? 0.35 : 0.1) * k);
+      if (ctx) drawSnow(k, dy);
+      follow(y);
       // Adaptive load: if frames run long for a sustained second, thin the snow by a fifth.
       sampleTime += dt; if (dt > 22) slowTime += dt;
       if (sampleTime > 1000) {
         if (slowTime > 400 && flakes.length > 30) flakes.length = Math.round(flakes.length * 0.8);
         sampleTime = slowTime = 0;
       }
+      if (energy < 0.01 && now - lastScrollAt > 200) { running = false; energy = 0; return; }
       frame = requestAnimationFrame(loop);
     };
-    const start = () => { if (!running && !reduceMotion) { running = true; last = 0; frame = requestAnimationFrame(loop); } };
-    const stop = () => { running = false; cancelAnimationFrame(frame); };
-
-    resize(); draw(0); start();
-    let t;
-    window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { resize(); draw(0); }, 150); });
-    window.addEventListener('pointermove', (e) => { windTarget = ((e.clientX / Math.max(w, 1)) - 0.5) * 0.9; }, { passive: true });
-    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
-  }
-
-  /* ---------- Hero parallax (pointer on desktop, scroll everywhere) ---------- */
-  function initParallax() {
-    const visual = $('[data-vx-parallax]');
-    if (!visual || reduceMotion || !root.classList.contains('vx-motion')) return;
-    let px = 0, py = 0, sy = 0, queued = false;
-    const apply = () => {
-      queued = false;
-      visual.style.transform = 'translate3d(' + (px * 14).toFixed(1) + 'px,' + (py * 14 + sy * -0.08).toFixed(1) + 'px,0) rotate(' + (px * 2).toFixed(2) + 'deg)';
+    const wake = () => {
+      lastScrollAt = performance.now();
+      if (!running && !reduceMotion && !document.hidden) { running = true; last = 0; frame = requestAnimationFrame(loop); }
     };
-    const queue = () => { if (!queued) { queued = true; requestAnimationFrame(apply); } };
-    window.addEventListener('pointermove', (e) => {
-      if (e.pointerType && e.pointerType !== 'mouse') return;
-      px = e.clientX / window.innerWidth - 0.5; py = e.clientY / window.innerHeight - 0.5; queue();
-    }, { passive: true });
-    window.addEventListener('scroll', () => { sy = Math.min(window.scrollY, 800); queue(); }, { passive: true });
+
+    resize();
+    if (ctx) drawSnow(0, 0); // still snow on load; it only falls once the page scrolls
+    follow(window.scrollY);
+    window.addEventListener('scroll', wake, { passive: true });
+    let t;
+    window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { resize(); if (ctx) drawSnow(0, 0); heroP = -1; aur = vis = ''; follow(window.scrollY); }, 150); });
+    document.addEventListener('visibilitychange', () => { if (document.hidden && running) { running = false; cancelAnimationFrame(frame); energy = 0; } });
   }
 
   /* ---------- Buy box: two-option variant picker + gallery ---------- */
@@ -259,8 +281,7 @@
     $$('[data-vx-locale-select]').forEach((sel) => sel.addEventListener('change', () => sel.form && sel.form.submit()));
   }
 
-  initSnow();
-  initParallax();
+  initMotion();
   initBuy();
   initUnits();
   initLocale();
