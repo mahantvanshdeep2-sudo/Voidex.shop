@@ -17,8 +17,9 @@ Owner: Vanshdeep Mahant (mahantvanshdeep2@gmail.com). Timezone: America/Toronto.
 
 | Theme | ID | Role | Notes |
 |---|---|---|---|
-| voidex-royal-black-gold-theme | `186431111418` | **MAIN (live)** | Standalone black & gold theme, source `voidex-theme-standalone/`, published 2026-10-01 16:53 UTC. Matched the repo byte for byte on 2026-10-03. |
-| VOIDEX Winter — DEV | `186493436154` | unpublished | Winter storefront (light sky blue + white, snowfall, heated-jacket homepage with 6 Kling photos, footer country picker), source `voidex-theme-winter/`, built 2026-10-03 on the owner's request. Preview: `https://voidexshop.com/?preview_theme_id=186493436154` |
+| VOIDEX Winter — DEV | `186493436154` | **MAIN (live)** | Winter storefront (deep winter-sky blue, scroll-only snowfall, heated-jacket homepage with 6 Kling photos, footer country picker), source `voidex-theme-winter/` at commit `7c7fd27`. Published by the owner 2026-10-03 13:19 UTC. The connector refuses writes to it. |
+| VOIDEX Winter — fixes DRAFT | `186519257338` | unpublished | Duplicate of the live winter theme + the 2026-10-03 accessibility, motion and jacket-page fixes (commit `621ef31`); all 41 files matched the repo. Waiting for the owner to publish. Preview: `https://voidexshop.com/?preview_theme_id=186519257338` |
+| voidex-royal-black-gold-theme | `186431111418` | unpublished | Standalone black & gold theme, source `voidex-theme-standalone/`, was MAIN 2026-10-01 16:53 to 2026-10-03 13:19 UTC. |
 | VOIDEX Black Gold — polish DRAFT | `186486456570` | unpublished | Copy of MAIN + 2026-10-03 polish (see `CHANGELOG.md`). Preview: `https://voidexshop.com/?preview_theme_id=186486456570` |
 | Updated copy of Savor | `186287948026` | unpublished | Savor after a theme-version update; was MAIN 2026-09-28 to 2026-10-01. |
 | VOIDEX Royal Black Gold — DRAFT | `186421772538` | unpublished | Duplicate of MAIN (2026-10-01) + the perfume landing in `voidex-theme/`. Preview: `https://voidexshop.com/pages/voidex-perfume-samples?preview_theme_id=186421772538` |
