@@ -138,6 +138,27 @@ campaign budget needs explicit owner approval regardless.
   choice plus one sentence on why it's needed. Not an open-ended "what do you want to do".
 - He wants ongoing automated product research and store work, not one-off check-ins.
 
+## Design work — always use the UI/UX Pro Max skill
+
+The `ui-ux-pro-max` skill lives in `.claude/skills/ui-ux-pro-max/` (installed 2026-10-12 via
+`uipro-cli` 2.2.3). Every session that builds or changes anything visual — theme, sections,
+landing/product pages, artifacts, ad creatives' layout — must load it first and use its search
+(`python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<query>" --domain <style|color|typography|landing|ux>`)
+to ground choices instead of picking from memory.
+
+Design approval flow (the owner's rule — he approves the look, Claude does the rest):
+
+1. Before applying any new style, palette, font pairing or page layout, pull **3 distinct options**
+   from the skill, each with name, colours (hex), fonts, and one line on why it fits the
+   store's niche and buyer.
+2. Mark one **(Recommended)** with the reason, and show them side by side — a visual preview
+   artifact when possible, not just text.
+3. Ask for his pick with a single targeted question. Don't apply a design he hasn't chosen.
+4. Once chosen, implement it on the **DEV theme only** and hand him the preview link. Publishing
+   stays his call (see Theme state).
+5. Small fixes inside an already-approved design (spacing, contrast, accessibility, bugs) don't
+   need a new approval round — just do them and mention them.
+
 ## Sources
 
 - https://help.shopify.com/en/manual/online-sales-channels/manage
