@@ -1,0 +1,23 @@
+<section class="vx-section">
+  <h1 class="vx-title">Search</h1>
+  <form action="{{ routes.search_url }}" method="get" class="vx-email__form vx-searchform" role="search">
+    <label class="vx-visually-hidden" for="vx-q">Search</label>
+    <input id="vx-q" type="search" name="q" value="{{ search.terms | escape }}" placeholder="Search scents">
+    <input type="hidden" name="type" value="product">
+    <button class="vx-btn vx-btn--gold" type="submit">Search</button>
+  </form>
+  {%- if search.performed -%}
+    {%- if search.results_count == 0 -%}
+      <p class="vx-empty">No results for “{{ search.terms | escape }}”.</p>
+    {%- else -%}
+      <div class="vx-grid vx-search-grid">
+        {%- for item in search.results -%}
+          {%- if item.object_type == 'product' -%}{% render 'vx-product-tile', product: item %}{%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+</section>
+{% schema %}
+{ "name": "Search", "tag": "div", "settings": [] }
+{% endschema %}

@@ -85,3 +85,26 @@ Right now it's always on (and always respects `prefers-reduced-motion`). Adding 
 switch in the theme editor means editing `config/settings_schema.json`, a ~50KB
 Shopify-managed file. Straightforward, just not free — worth doing only if the owner wants to
 be able to turn animations off without touching code.
+
+## 11. Perfume launch (2026-10-01) — decisions only the owner can make
+
+1. **Free shipping on a $2.97 order.** The store ships every order free (shipping policy and
+   checkout). The landing copy says "free over $49", which is true but not the rule. A sample order
+   loses money on postage. Options: a flat rate under $49, or keep free. Store-wide change — affects
+   the Wash Bag too. Check at `https://admin.shopify.com/store/ceqr72-v1/settings/shipping`.
+2. **Margin.** No unit cost is recorded on any perfume variant, and the $15/unit target cannot be
+   met by a $2.97–$14.97 product. Enter CJ costs (Products → variant → Cost per item) so Shopify can
+   report margin; BUNDLE30 takes another 30% off.
+3. **CJ product linking.** CJ is installed, but each of the 12 SKUs must be connected to a CJ
+   product inside the CJ app or orders won't auto-fulfill. Also confirm CJ's processing and transit
+   times match the promise on the page (dispatch 1 business day, 3–5 days in Canada).
+4. **Product name "Oud Wood".** It is the name of Tom Ford's well-known fragrance and a registered
+   mark. Selling an EDP under that name is a trademark risk. Renaming costs nothing now.
+5. **Refund policy wording** is written for the Wash Bag ("keep it", "unused"). Opened perfume
+   needs its own line.
+6. **Perfume is a flammable liquid** (UN1266). Canada Post and air carriers restrict it; confirm
+   CJ ships it by ground or as limited quantity.
+7. **Reviews.** Section is off. Turn on only with real reviews (Judge.me is installed).
+8. **Publish** the Royal Black Gold theme when happy with the preview. The home page (`/`) is
+   still the shoe-care home page in both themes — make it the perfume landing only if the store is
+   pivoting fully.

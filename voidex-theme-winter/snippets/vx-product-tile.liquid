@@ -1,0 +1,17 @@
+<a class="vx-card vx-tile" href="{{ product.url }}">
+  <div class="vx-card__media">
+    {%- if product.featured_image -%}
+      {%- assign t_alt = product.featured_image.alt | default: product.title -%}
+      {{ product.featured_image | image_url: width: 700 | image_tag: loading: 'lazy', class: 'vx-card__img', sizes: '(min-width: 990px) 25vw, (min-width: 600px) 50vw, 100vw', alt: t_alt }}
+    {%- endif -%}
+  </div>
+  <div class="vx-card__body">
+    <p class="vx-card__brand">{{ product.vendor | escape }}</p>
+    <h2 class="vx-card__name">{{ product.title | split: ' — ' | first | escape }}</h2>
+    <p class="vx-card__price">
+      {%- if product.price_varies -%}<span class="vx-card__from">From</span>{%- endif -%}
+      <span class="vx-card__amount">{{ product.price_min | money }}</span>
+      {%- unless product.available -%}<span class="vx-card__from"> · Sold out</span>{%- endunless -%}
+    </p>
+  </div>
+</a>

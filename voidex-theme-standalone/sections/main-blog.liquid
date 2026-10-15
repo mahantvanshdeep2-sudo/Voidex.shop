@@ -1,0 +1,14 @@
+<section class="vx-section vx-narrow">
+  <h1 class="vx-title">{{ blog.title | escape }}</h1>
+  {%- paginate blog.articles by 12 -%}
+    {%- for article in blog.articles -%}
+      <article class="vx-post"><h2><a href="{{ article.url }}">{{ article.title | escape }}</a></h2><p class="vx-card__meta">{{ article.published_at | date: '%B %-d, %Y' }}</p><div class="vx-rte">{{ article.excerpt_or_content }}</div></article>
+    {%- else -%}
+      <p class="vx-empty">No posts yet.</p>
+    {%- endfor -%}
+    {%- if paginate.pages > 1 -%}<nav class="vx-pagination">{{ paginate | default_pagination }}</nav>{%- endif -%}
+  {%- endpaginate -%}
+</section>
+{% schema %}
+{ "name": "Blog", "tag": "div", "settings": [] }
+{% endschema %}

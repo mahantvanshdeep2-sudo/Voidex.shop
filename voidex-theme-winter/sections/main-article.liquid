@@ -1,0 +1,8 @@
+<article class="vx-section vx-narrow">
+  <h1 class="vx-title">{{ article.title | escape }}</h1>
+  <p class="vx-sub">{{ article.published_at | date: '%B %-d, %Y' }}</p>
+  <div class="vx-rte">{{ article.content }}</div>
+</article>
+{% schema %}
+{ "name": "Article", "tag": "div", "settings": [] }
+{% endschema %}

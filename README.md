@@ -10,11 +10,13 @@ Theme work for the VOIDEX.SHOP Shopify store.
 - **`theme/`** — only the files this repo changes, at their real theme paths. Not a full theme
   checkout; the other ~415 Savor files are untouched and live only on Shopify.
 - **`tests/`** — Playwright suite for the motion engine, run against a local harness.
+- **`voidex-theme/`** — the perfume landing added to the unpublished `VOIDEX Royal Black Gold — DRAFT`
+  theme (`186421772538`). `tests/perfume/` renders it with real product data and checks it in Chromium.
 
 ## State
 
-The live theme (Savor, `167336870138`) is **unmodified**. All work is on the unpublished dev
-theme `167583219962`.
+The live theme ("Updated copy of Savor", `186287948026`) is **unmodified**. Work is on the
+unpublished themes `186421772538` (perfume) and `167583219962` (motion layer).
 
 Preview: `https://voidexshop.com/?preview_theme_id=167583219962`
 

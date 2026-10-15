@@ -1,0 +1,21 @@
+{%- layout none -%}
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Your gift card — {{ shop.name }}</title>
+    {{ 'voidex-perfume.css' | asset_url | stylesheet_tag }}
+    {{ content_for_header }}
+  </head>
+  <body class="vx-body">
+    <main class="vx-section vx-center vx-narrow">
+      <p class="vx-logo vx-password-logo">VØIDEX</p>
+      <h1 class="vx-title">Your {{ gift_card.initial_value | money }} gift card</h1>
+      {%- if gift_card.expired or gift_card.enabled == false -%}<p class="vx-sub">This gift card is no longer valid.</p>{%- endif -%}
+      <p class="vx-sub">Balance: {{ gift_card.balance | money }}</p>
+      <p class="vx-gift-code">{{ gift_card.code | format_code }}</p>
+      <a class="vx-btn vx-btn--gold" href="{{ shop.url }}">Start shopping</a>
+    </main>
+  </body>
+</html>

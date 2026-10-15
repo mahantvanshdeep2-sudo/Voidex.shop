@@ -2,6 +2,221 @@
 
 Changes, fixes, findings, and decisions, most recent first.
 
+## 2026-10-03 (later) — Winter storefront: new jacket photos, sky blue + white, smoother motion
+
+Owner's TASK 2: "improve the quality and motions to ultra smooth fps also replace the pictures of the
+jacket … showing different angles … for the website theme use light sky blue and white theme and should
+fit well for phone as well as desktop users". All on the unpublished `VOIDEX Winter — DEV`
+(`186493436154`); live theme untouched.
+
+- **Photos:** 6 new jacket photos made with Kling (Nano Banana Pro, 20 credits each, 120 total),
+  using the live product's own photos as reference: front, back with the heating zones lit, close-up of
+  button + reflective lining + power-bank pocket, street walk, roadside blizzard, snowstorm hero. Saved to
+  Shopify Files (`MediaImage/46326035382522` … `46326035546362`, 2048², byte sizes checked against the
+  downloads). Checked visually against the real product photos: same quilted chevron puffer, hood,
+  chest button, zip pockets. They lead the homepage gallery through new section settings
+  (`photo_1`–`photo_6`, `hero_image`), which also hide the product's ten generic supplier photos there;
+  the 16 variant photos stay so each colour still shows its own picture. **The product's own media is
+  unchanged** (attaching them to the live product was blocked as a shared-store change; needs the
+  owner's word).
+- **Light theme:** palette tokens in `voidex-perfume.css` now hold white / sky blue / navy (button text
+  navy on a light sky gradient, contrast 6.7–10.6:1; body text 14.8:1; muted text 5.8:1), hard-coded
+  dark colours in both stylesheets mapped to light ones, solid white cards, white header, snow drawn as
+  white flakes with a sky-blue rim so it shows on white and on blue.
+- **Motion:** measured with `tests/perfume/fps-winter.js` (scrolls the homepage for 5 s × 3 under CPU
+  throttling, records every frame). Desktop 1440×900 at 2× throttle was **26 fps, 96% of frames over
+  25 ms**; the cause was the animated 30 px blur on the full-width aurora layer (removing only that gave
+  58 fps). Now **60 fps, 0% slow frames** on desktop and 60 fps on a 390×844 3× phone at 4× throttle.
+  Also: no `filter`/`backdrop-filter`/`background-position` animation anywhere in the winter layer,
+  snowfall moves by elapsed time (same speed at 60/90/120 Hz), stamps pre-rendered sprites, caps canvas
+  resolution at 1.5×, and thins itself if frames run long.
+- **Sharper images:** buy-box photos served up to 1600 px with a srcset, hero up to 1200 px.
+- **Global fixes from the readiness sweep:** hero now reads "Cold out there? You're ready." (no
+  Northern-winter assumption), footer country picker (each market in its own currency), variant prices
+  pre-formatted by Shopify instead of rebuilt in JS, FAQ shipping answer mentions import duties and no
+  longer promises a checkout timeframe, empty cart says "Continue shopping" (was "Shop the scents"),
+  search placeholder "Search products", heat-zone numbers render at their intended size.
+- **Duties wording checked against Markets:** US and Rest of World `INCLUDE_DUTIES_IN_PRICE`, EU and
+  Canada `ADD_DUTIES_AT_CHECKOUT`, so the FAQ and cart note say duties are included or shown at checkout
+  (an earlier draft said "charged on delivery", which was wrong for every market).
+- **Product page (single-option, e.g. the wash bag):** perfume leftovers removed (bottle placeholder,
+  "~N sprays" labels); buttons show the full variant name (White / Grey / Value Set).
+- Store-data and policy findings that need the owner are in `/mnt/project-files/winter-storefront/store-findings.md`.
+
+Verification: `node tests/perfume/build-winter.js && node tests/perfume/shoot-winter.js` → all 44
+checks pass (adds: storm hero, front photo leads, 6 new thumbs first and no old supplier photos, zone
+numbers 54 px, country picker posts `country_code`, no "Winter is coming"/"scents" copy, wash-bag page
+posts the picked variant). All 13 changed files uploaded by staged URL; every `checksumMd5` on the theme equals the local `md5sum`.
+
+## 2026-10-03 — Winter storefront (new DEV theme, not published)
+
+Owner asked for "a smooth motion theme that represents winters and cold weather conditions". Built
+`voidex-theme-winter/` (a copy of `voidex-theme-standalone/` plus the polish) and uploaded it to a new
+unpublished theme, `VOIDEX Winter — DEV` (`186493436154`), duplicated from the polish draft.
+Preview: https://voidexshop.com/?preview_theme_id=186493436154 . Live theme untouched.
+
+- **Default chosen where the ask forked:** the store's perfume line doesn't fit a winter look, so the
+  homepage is built around the ACTIVE Winter Heated Jacket (`gid://shopify/Product/15402327769338`,
+  96 variants, Color × Size). Perfume stays reachable from the menu and footer
+  (`/pages/voidex-perfume-samples` still uses its own template).
+- **Look and motion:** ice-blue palette replacing gold (`voidex-perfume.css` tokens), slow aurora
+  background, canvas snowfall in three depth layers that drifts with the pointer and pauses when the
+  tab is hidden, frosted heading sheen, a breathing "heat" glow and spinning frost rings around the
+  hero product, thaw-in entrance, pointer/scroll parallax, scroll reveals. All motion is off under
+  "reduce motion" and the page is fully visible without JavaScript.
+- **Homepage (`sections/voidex-winter-landing.liquid`):** hero, jacket buy box, how it heats, heat
+  zones (2/4/8/9), size guide (supplier cm table, "size up" note), trust badges, FAQ, closing CTA.
+- **Buy box (`snippets/vx-buybox.liquid`, also used on the product page for multi-option products):**
+  colour and size chips, price and photo follow the chosen variant, sizes listed S→6XL (the store
+  sends them as S, M, 2XL…6XL, L, XL), colours grouped Black/Blue/Red, sizes that don't exist for a
+  colour are greyed, and switching colour moves to the nearest size that exists.
+- Shopify rejected the section on the first upload because a text setting had `"default": ""`
+  (no error returned; the file just didn't appear). Removing the empty default fixed it.
+
+Verification: `tests/perfume/build-winter.js` + `shoot-winter.js` render the theme with LiquidJS using
+all 96 real variants (`tests/perfume/fixtures/heated-jacket-variants.json`), then 26 Chromium checks at
+1366px and 375px all pass: snow animates, no sideways scroll, every reveal fires, each of the 96
+variants is selectable and posts its own id, thumbnails swap the photo, Add to Cart posts the chosen
+variant, reduced-motion and no-JS fallbacks. CodeQL flagged the first version of the photo swap
+(a URL read from the page written into `img.src`); photos now swap by cloning an inert `<template>`
+per image, matched by image id, so no page text reaches an `src`. All 41 files on theme `186493436154` match `voidex-theme-winter/` by md5. Not
+verified: the real storefront render (egress-blocked); fonts and product photos were stand-ins locally.
+
+Product data found while building (not changed, owner decision): jacket prices range $59.99–$330.38
+for the same garment (Black Zone2 S $59.99, M $330.38, L $96.77); product type is
+"Laundry Accessories"; title is the supplier's long title; run time and zone claims come from the
+supplier; power bank not included.
+
+## 2026-10-03 — Black & gold theme polish (draft copy, not published)
+
+Owner picked "keep and polish" the live black & gold theme. Found first (Admin API): MAIN is
+`voidex-royal-black-gold-theme` (`186431111418`, published 2026-10-01 16:53 UTC), and all 35 of its
+files match `voidex-theme-standalone/` byte for byte (md5). Fixes went onto a duplicate,
+`VOIDEX Black Gold — polish DRAFT` (`186486456570`, UNPUBLISHED); live theme untouched.
+
+- **Shipping copy**: announcement bar, hero trust line, "Fast Shipping" step and FAQ said "free on
+  orders over $49". Checkout rates and `policies/02` both say free on every order, no minimum, so
+  the theme now says that.
+- **Contact page had no form**: page `contact` uses template suffix `contact`, which the standalone
+  theme never had, so it fell back to plain page text. Added `templates/page.contact.json` +
+  `sections/main-contact.liquid` (name, email, order number, message → Shopify contact form).
+- **Share previews**: `layout/theme.liquid` now emits `og:image` (from `page_image`) and, on product
+  pages, `og:type=product` + price/currency, so links shared on Instagram/Meta show a picture.
+- **Footer "All Products"** pointed at `/collections/all`, which lists the still-active Sneaker Wash
+  Bag and Winter Heated Jacket. Now "All Scents" → `/collections/voidex-perfume-samples`.
+
+Verification: `tests/perfume` standalone harness (now renders the contact page too) — 18/18 Chromium
+checks at 1366px and 375px. Upload via staged URL; Shopify `size` and `checksumMd5` match the local
+file for all 9 changed files. Not verified: rendering on the real storefront (egress-blocked).
+
+Left for the owner (store data, not theme): the Sneaker Wash Bag and Winter Heated Jacket are still
+ACTIVE; the published "Shoe Care FAQ" page; the contact page text still links the Shoe Care FAQ and
+mentions "machine safety"; free shipping on a $5.94 sample vs. the margin target.
+
+## 2026-10-01 (evening) — Supplier outreach and risk clean-up
+
+- Quote-request emails sent from the owner's Gmail (ids 1a0f86c0252ebd10, 1a0f86c07dcbae7c,
+  1a0f86c09b8a2f2a) to DailyFulfill, Brandsamor and Jubilee. All ask for original scents only (no
+  "inspired by"/dupes), UN1266 ground/DDP shipping to Canada, SDS + allergen list, samples first.
+- "Oud Wood" → "Midnight Oud" (title, description, handle with `redirectNewHandle`); new product
+  image re-rendered with the new label name.
+- `policies/01-refund-policy.html`: new "Fragrance samples and travel sprays" section — needs a
+  manual paste (connector has no `write_legal_policies`).
+
+## 2026-10-01 (later) — Perfume prices doubled
+
+Owner chose "double every price". All 12 variants updated via `productVariantsBulkUpdate`, zero errors:
+Amber Noir 9.94/15.94/25.94, Citrus Royale 7.94/11.94/19.94, Rose Velvet 5.94/9.94/17.94,
+Oud Wood 11.94/17.94/29.94 (2mL/5mL/10mL, CAD). Both themes read prices from Shopify, so the
+storefront updates with no theme change. Video ad 2's baked-in "From $4.97" text is now out of date.
+
+## 2026-10-01 — Perfume samples launch: Royal Black Gold theme, images, video ads, go-live
+
+Owner's request: build a black-and-gold perfume landing theme (draft), generate product images and
+4 Kling 3.0 ads, then activate the 4 perfume samples with discount codes and navigation.
+
+### Found first (Admin API)
+
+- **Live theme changed:** MAIN is now "Updated copy of Savor" (`186287948026`, published
+  2026-09-28), not Savor `167336870138`.
+- At 12:01 UTC another tool (the installed **Shopify Perplexity MCP App**) had uploaded a perfume
+  section + template to the DEV theme. Not usable as-is: wrong palette (`#c9a96e`), size buttons
+  don't change the price, bundle builder is static, fake fallback cards with dead buttons, and it
+  renders inside Savor's own header/footer. Left in place on DEV; superseded below.
+- CJdropshipping app **is** installed (contradicts the 2026-09-30 note). Judge.me Reviews too.
+
+### Task 1 — theme `VOIDEX Royal Black Gold — DRAFT` (`186421772538`, unpublished)
+
+Not built as a standalone 7-file theme: published alone, product, cart, collection and policy
+pages would have no templates. Instead `themeDuplicate` of the live theme + a dedicated layout, so
+the landing page is fully black & gold and every other page keeps working.
+
+Files (`voidex-theme/`): `layout/voidex-perfume.liquid`, `templates/page.voidex-perfume.json`
+(`"layout": "voidex-perfume"`), `sections/voidex-perfume-{landing,header,footer,announcement}.liquid`,
+`assets/voidex-perfume.{css,js}`. `config/settings_schema.json` / `settings_data.json` and
+`layout/theme.liquid` are Savor's and were deliberately not replaced.
+
+Built: #050505 / #d4af37, gold-gradient text, Playfair Display / Inter / Cormorant Garamond,
+VØIDEX logo (nowrap), animated hero, canvas gold particles, scroll progress bar, How It Works with
+hover lift, live bundle builder (3 scents × size, 30% off, adds all 3 variants then applies
+`BUNDLE30` via `/discount/BUNDLE30?redirect=/cart`), product grid from the collection with CSS 3D
+bottles (float, 360° spin on hover, mouse-follow glow), size buttons that update price + variant id,
+AJAX add-to-cart with plain-form fallback, Women's/Men's/Unisex filters (from tags), trust badges,
+size guide, FAQ accordion (6), email capture on Shopify's customer form showing `VOIDEX10`, footer
+with real policy links, hamburger menu, scroll reveals and stat counters. All copy is editable in the
+theme editor (section settings + blocks).
+
+**Copy changed from the owner's mock-up, and why** (all editable back in the theme editor):
+- "500+ fragrances" → the real collection count (4); "$4.97 starting price" → computed ($2.97).
+- "4.9/5 from 2,800+ verified reviews", "Join 15,000+", the press logos and "same scent profiles as
+  designer fragrances" removed — none are true for this store.
+- Reviews section built (3 cards, stars, verified badge) but **off by default** and the verified
+  badge unticked: the store has no perfume orders, and invented "Verified Buyer" reviews breach the
+  Competition Act and the FTC fake-review rule. Judge.me is installed for real ones.
+- Shipping/refund wording matches `policies/01` and `02` (1 business day dispatch, 3–5 days CA,
+  30-day refund) instead of the mock-up's "5–10 days" / "no return needed".
+
+### Verification
+
+- **Chromium, 59/59 checks** (`tests/perfume/`, `npm test`): the real theme files rendered by
+  LiquidJS with the real product data (variant IDs, prices, tags) and mocked cart endpoints. Covers
+  every feature above, 320/375/414px with no horizontal scroll, reduced motion, JS-blocked failsafe,
+  empty collection, sign-up success state, no console errors. Bugs it caught and that were fixed
+  before upload: FAQ answers stuck closed if the JS fails to load; stat counter briefly showing
+  "-5" (rAF timestamp before start); CSS reset out-ranking components (titles off-centre, light text
+  on gold buttons — caught from the screenshots, now a test).
+- **Theme Check** (`@shopify/theme-check-node`): 0 errors; 3 warnings = Google Fonts not on
+  Shopify's CDN (expected).
+- **Upload:** staged upload + `themeFilesUpsert` type `URL`. Shopify's `size` **and `checksumMd5`
+  match the local file for all 8 files** (e.g. landing section 30,730 B `5e6f4033…`, CSS 42,286 B
+  `9520bd97…`, template 8,313 B `bce59fd3…`). Theme role still `UNPUBLISHED`; MAIN unchanged.
+- **Not verified:** rendering on the real storefront (egress-blocked). The preview link is that check.
+
+### Task 2 — product images
+
+Kling connector, model Nano Banana Pro (`gemini-3-pro-image`), 2K square, 20 credits each. Amber
+Noir generated first; the other three made from it (image-to-image) so the line matches. Attached
+with alt text via `productUpdate(media:)`; all four `READY`, 2048×2048 on cdn.shopify.com.
+**Not visually checked by Claude** — `*.klingai.com` and `cdn.shopify.com` are egress-blocked.
+
+### Task 3 — Kling 3.0 ads
+
+`kling-video-v3_0`, 9:16, 1080p, audio on, owner's prompts verbatim except "20 seconds" → 15 (Kling
+3.0's maximum single clip; inside the 15–30s spec). 180 credits each. Kling credits 3,000 → 2,280.
+Ad 4 saved to Shopify Files (15.0 MB, video/mp4). Ads 1–3 exceeded Shopify's generic-file size limit
+(native video import needs a staged upload, which needs bytes this container can't download); they
+remain in the owner's Kling library. Text overlays are rendered by Kling, so spelling is unverified.
+
+### Task 4 — go-live (live store)
+
+- 4 products `DRAFT → ACTIVE`, published to **Online Store only**; all 12 variants `CONTINUE`
+  (inventory untracked). `availableForSale: true` on all 12.
+- `VOIDEX10` and `BUNDLE30` created (see CLAUDE.md for rules).
+- Page `voidex-perfume-samples` already used template suffix `voidex-perfume` — confirmed.
+  Body gained a "Shop all four scents →" link, because on the live theme (no such template) the
+  page falls back to Savor's plain page template.
+- Main menu: "Perfume Samples" inserted after "Shop"; existing 4 items kept their IDs.
+
 ## 2026-09-30 — Supplier, ad-tool and Meta audit; theme options
 
 ### Found (raw API data)

@@ -1,0 +1,22 @@
+{%- if section.settings.show and section.settings.text != blank -%}
+  <div class="vx-announcement">
+    <p>
+      {{ section.settings.text | escape }}
+      {%- if section.settings.text_secondary != blank %}
+        <span>{{ section.settings.text_secondary | escape }}</span>
+      {%- endif %}
+    </p>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "VOIDEX announcement",
+  "tag": "div",
+  "settings": [
+    { "type": "checkbox", "id": "show", "label": "Show announcement bar", "default": true },
+    { "type": "text", "id": "text", "label": "Text", "default": "Free Shipping On Every Order" },
+    { "type": "text", "id": "text_secondary", "label": "Secondary text", "info": "Optional. VOIDEX10 no longer applies to the heated jacket, so it is not advertised here." }
+  ]
+}
+{% endschema %}

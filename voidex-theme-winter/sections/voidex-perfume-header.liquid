@@ -1,0 +1,59 @@
+{%- capture vx_nav_links -%}
+  <li><a href="{{ routes.root_url }}#jacket">Heated Jacket</a></li>
+  <li><a href="{{ routes.root_url }}#how">How It Heats</a></li>
+  <li><a href="{{ routes.root_url }}#zones">Heat Zones</a></li>
+  <li><a href="{{ routes.root_url }}#size-guide">Size Guide</a></li>
+  <li><a href="{{ routes.root_url }}#faq">FAQ</a></li>
+  {%- if section.settings.extra_url != blank %}
+  <li><a href="{{ section.settings.extra_url | escape }}">{{ section.settings.extra_label | escape }}</a></li>
+  {%- endif %}
+{%- endcapture -%}
+
+<header class="vx-header" data-vx-header>
+  <div class="vx-header__inner">
+    <a href="{{ routes.root_url }}" class="vx-logo" aria-label="{{ shop.name | escape }}">
+      {{- section.settings.logo_text | default: 'VØIDEX' | escape -}}
+    </a>
+
+    <nav class="vx-nav" aria-label="Primary">
+      <ul>{{ vx_nav_links }}</ul>
+    </nav>
+
+    <div class="vx-header__actions">
+      <a href="{{ routes.cart_url }}" class="vx-cart" aria-label="Cart">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+        <span class="vx-cart__count" data-vx-cart-count{% if cart.item_count == 0 %} hidden{% endif %}>{{ cart.item_count }}</span>
+      </a>
+      <button
+        type="button"
+        class="vx-burger"
+        aria-expanded="false"
+        aria-controls="vx-mobile-nav"
+        aria-label="Open menu"
+        data-vx-burger
+      >
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="vx-mobile-nav" id="vx-mobile-nav" aria-label="Mobile" data-vx-mobile-nav hidden>
+    <ul>
+      {{ vx_nav_links }}
+      <li><a href="{{ routes.cart_url }}">Cart</a></li>
+    </ul>
+  </nav>
+</header>
+
+{% schema %}
+{
+  "name": "VOIDEX header",
+  "tag": "div",
+  "class": "vx-header-section",
+  "settings": [
+    { "type": "text", "id": "logo_text", "label": "Logo text", "default": "VØIDEX" },
+    { "type": "text", "id": "extra_label", "label": "Extra menu link label", "default": "Shop All" },
+    { "type": "text", "id": "extra_url", "label": "Extra menu link path", "default": "/collections/all" }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,47 @@
+<section class="vx-section vx-narrow">
+  <h1 class="vx-title">{{ page.title | escape }}</h1>
+  {%- if page.content != blank -%}
+    <div class="vx-rte vx-contact__intro">{{ page.content }}</div>
+  {%- endif -%}
+  {%- form 'contact', id: 'vx-contact', class: 'vx-contact' -%}
+    {%- if form.posted_successfully? -%}
+      <p class="vx-email__success" role="status">{{ section.settings.success_text | escape }}</p>
+    {%- else -%}
+      {%- if form.errors -%}
+        <div class="vx-email__error" id="vx-contact-error" role="alert">{{ form.errors | default_errors }}</div>
+      {%- endif -%}
+      <div class="vx-contact__row">
+        <div class="vx-field">
+          <label for="vx-contact-name">Name</label>
+          <input id="vx-contact-name" type="text" name="contact[name]" autocomplete="name" value="{{ form.name | escape }}">
+        </div>
+        <div class="vx-field">
+          <label for="vx-contact-email">Email <span aria-hidden="true">*</span></label>
+          <input id="vx-contact-email" type="email" name="contact[email]" autocomplete="email" required value="{{ form.email | escape }}"{% if form.errors contains 'email' %} aria-invalid="true" aria-describedby="vx-contact-error"{% endif %}>
+        </div>
+      </div>
+      <div class="vx-field">
+        <label for="vx-contact-order">Order number (optional)</label>
+        <input id="vx-contact-order" type="text" name="contact[order_number]" value="{{ form.order_number | escape }}">
+      </div>
+      <div class="vx-field">
+        <label for="vx-contact-body">Message <span aria-hidden="true">*</span></label>
+        <textarea id="vx-contact-body" name="contact[body]" rows="6" required>{{ form.body | escape }}</textarea>
+      </div>
+      <button type="submit" class="vx-btn vx-btn--gold">Send message</button>
+      {%- if section.settings.note != blank -%}
+        <p class="vx-email__disclaimer">{{ section.settings.note | escape }}</p>
+      {%- endif -%}
+    {%- endif -%}
+  {%- endform -%}
+</section>
+{% schema %}
+{
+  "name": "Contact form",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "success_text", "label": "Message after sending", "default": "Thanks, your message is in. We reply within 2 business days, usually the same day." },
+    { "type": "text", "id": "note", "label": "Note under the button", "default": "We reply within 2 business days, usually the same day." }
+  ]
+}
+{% endschema %}

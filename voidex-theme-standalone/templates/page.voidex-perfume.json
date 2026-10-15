@@ -1,0 +1,225 @@
+{
+  "sections": {
+    "voidex_perfume_landing": {
+      "type": "voidex-perfume-landing",
+      "blocks": {
+        "stat_scents": {
+          "type": "stat",
+          "settings": {
+            "source": "product_count",
+            "value": 4,
+            "prefix": "",
+            "suffix": "",
+            "label": "Signature Scents"
+          }
+        },
+        "stat_price": {
+          "type": "stat",
+          "settings": {
+            "source": "min_price",
+            "value": 0,
+            "prefix": "",
+            "suffix": "",
+            "label": "Starting Price"
+          }
+        },
+        "stat_dispatch": {
+          "type": "stat",
+          "settings": {
+            "source": "custom",
+            "value": 24,
+            "prefix": "",
+            "suffix": "hr",
+            "label": "Dispatch"
+          }
+        },
+        "stat_authentic": {
+          "type": "stat",
+          "settings": {
+            "source": "custom",
+            "value": 100,
+            "prefix": "",
+            "suffix": "%",
+            "label": "Authentic"
+          }
+        },
+        "step_pick": {
+          "type": "step",
+          "settings": {
+            "title": "Pick Your Scent",
+            "text": "Browse the VOIDEX collection — warm, fresh, floral and woody. Filter by Women's, Men's or Unisex."
+          }
+        },
+        "step_size": {
+          "type": "step",
+          "settings": {
+            "title": "Choose Your Size",
+            "text": "Test with a 2mL sample vial, or go straight to a 5mL or 10mL travel spray for everyday wear."
+          }
+        },
+        "step_ship": {
+          "type": "step",
+          "settings": {
+            "title": "Fast Shipping",
+            "text": "Dispatched within 1 business day. Free shipping on every order, and a 30-day money-back promise."
+          }
+        },
+        "trust_authentic": {
+          "type": "trust",
+          "settings": {
+            "icon": "authentic",
+            "title": "100% Authentic",
+            "text": "Every scent is genuine VOIDEX Eau de Parfum."
+          }
+        },
+        "trust_shipping": {
+          "type": "trust",
+          "settings": {
+            "icon": "shipping",
+            "title": "Fast Shipping",
+            "text": "Dispatched within 1 business day. Free on every order."
+          }
+        },
+        "trust_support": {
+          "type": "trust",
+          "settings": {
+            "icon": "support",
+            "title": "Expert Support",
+            "text": "Real answers within 2 business days — usually the same day."
+          }
+        },
+        "trust_guarantee": {
+          "type": "trust",
+          "settings": {
+            "icon": "guarantee",
+            "title": "Money-Back Guarantee",
+            "text": "Not right for you? Ask for a refund within 30 days of delivery."
+          }
+        },
+        "review_1": {
+          "type": "review",
+          "settings": {
+            "rating": 5,
+            "text": "The bundle builder is incredible. I picked 3 scents I'd never tried and found my new signature. The size options let me test cheap before committing.",
+            "name": "Sarah M.",
+            "verified": false
+          }
+        },
+        "review_2": {
+          "type": "review",
+          "settings": {
+            "rating": 5,
+            "text": "Being able to choose between 2mL and 10mL is genius. I got the 2mL samples first, then came back for the 10mL of the one I loved.",
+            "name": "James T.",
+            "verified": false
+          }
+        },
+        "review_3": {
+          "type": "review",
+          "settings": {
+            "rating": 5,
+            "text": "Finally a way to try luxury fragrances without dropping $200 on a full bottle. The 3-scent bundle saved me so much.",
+            "name": "Aisha K.",
+            "verified": false
+          }
+        },
+        "faq_authentic": {
+          "type": "faq",
+          "settings": {
+            "question": "Are VOIDEX fragrances authentic?",
+            "answer": "<p>Yes. Every scent we sell is genuine VOIDEX Eau de Parfum (EDP), supplied in a 2mL sample vial or a 5mL or 10mL travel spray.</p>"
+          }
+        },
+        "faq_size": {
+          "type": "faq",
+          "settings": {
+            "question": "How do I choose the right size?",
+            "answer": "<p>Start with a 2mL sample vial (~20 sprays, 1–2 weeks) to test a new scent. If you love it, the 5mL travel spray (~50 sprays) covers about a month of daily wear, and the 10mL (~100 sprays) about two months.</p>"
+          }
+        },
+        "faq_bundle": {
+          "type": "faq",
+          "settings": {
+            "question": "How does the bundle builder work?",
+            "answer": "<p>Pick any 3 scents, choose a size for each, and press Add Bundle. The 30% saving is applied at checkout with code BUNDLE30 — it's added for you automatically.</p>"
+          }
+        },
+        "faq_shipping": {
+          "type": "faq",
+          "settings": {
+            "question": "How long does shipping take?",
+            "answer": "<p>Orders are dispatched within 1 business day. Delivery takes 3–5 business days in Canada, 3–7 in the United States and 7–14 elsewhere. Shipping is free on every order.</p>"
+          }
+        },
+        "faq_refund": {
+          "type": "faq",
+          "settings": {
+            "question": "What if I don't like the scent?",
+            "answer": "<p>Email us within 30 days of delivery and we'll make it right. See our <a href=\"/policies/refund-policy\" title=\"Refund Policy\">Refund Policy</a> for the details.</p>"
+          }
+        },
+        "faq_gift": {
+          "type": "faq",
+          "settings": {
+            "question": "Do you offer gift sets?",
+            "answer": "<p>Our 3-Scent Discovery Bundle makes an easy gift — pick three scents and sizes and save 30%. For larger gift orders, <a href=\"/pages/contact\" title=\"Contact\">contact us</a>.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "stat_scents",
+        "stat_price",
+        "stat_dispatch",
+        "stat_authentic",
+        "step_pick",
+        "step_size",
+        "step_ship",
+        "trust_authentic",
+        "trust_shipping",
+        "trust_support",
+        "trust_guarantee",
+        "review_1",
+        "review_2",
+        "review_3",
+        "faq_authentic",
+        "faq_size",
+        "faq_bundle",
+        "faq_shipping",
+        "faq_refund",
+        "faq_gift"
+      ],
+      "settings": {
+        "heading": "Try Luxury Scents Before You Commit",
+        "heading_highlight": "Luxury",
+        "subheading": "Discover our signature Eau de Parfums in 2mL, 5mL and 10mL sizes. Pick your scent, choose your size, build your bundle — and find your signature without the full-bottle price.",
+        "badge": "✦ The VOIDEX Signature Collection",
+        "primary_cta": "Shop Best Sellers",
+        "secondary_cta": "Build Your Bundle",
+        "collection": "voidex-perfume-samples",
+        "steps_heading": "How It Works",
+        "steps_subheading": "Three simple steps to your next signature scent",
+        "bundle_heading": "Build Your Discovery Bundle",
+        "bundle_subheading": "Pick 3 scents, choose your sizes, save 30%",
+        "bundle_discount": 30,
+        "bundle_code": "BUNDLE30",
+        "shop_heading": "Best Sellers",
+        "shop_subheading": "Our most-loved fragrances — pick your size and add to cart",
+        "card_media": "bottle",
+        "show_reviews": false,
+        "reviews_heading": "What Our Customers Are Saying",
+        "reviews_subheading": "",
+        "size_heading": "Size Guide",
+        "size_subheading": "Not sure which size to get? Here's what to expect",
+        "faq_heading": "Frequently Asked Questions",
+        "faq_subheading": "Everything you need to know before you buy",
+        "email_heading": "Get 10% Off Your First Order",
+        "email_text": "Join the VOIDEX list for new scent drops, restocks and members-only offers — plus 10% off your first order.",
+        "email_code": "VOIDEX10",
+        "email_disclaimer": "By subscribing you agree to receive marketing emails from VOIDEX. Unsubscribe anytime."
+      }
+    }
+  },
+  "order": [
+    "voidex_perfume_landing"
+  ]
+}

@@ -1,0 +1,275 @@
+/* VOIDEX — Winter layer: snowfall, sky glow, frost and the heated-jacket landing.
+   Loaded after voidex-perfume.css (which carries the deep winter-sky palette variables).
+   Like the base sheet, every hidden-for-motion state is gated on html.vx-motion.
+   Motion rule (owner's request, 2026-10-03): things move only in reaction to scrolling. Nothing loops
+   on its own, and hover/click give colour feedback, not movement. voidex-winter.js drives the snow, sky
+   glow, rings and hero from the scroll position.
+   Smoothness rules for this file: animate only transform and opacity, never filter, blur or
+   background-position, and no backdrop-filter over the snow (it would re-blur every frame). */
+
+.vx-particles { opacity: 1; }
+
+/* ---------- Aurora + frost edges (fixed, behind content) ---------- */
+/* Soft sky glow. The radial gradients are already soft, so no blur filter: an animated 30px blur on a
+   full-width layer is what dropped desktop scrolling to ~26 fps. It drifts only as the page scrolls
+   (voidex-winter.js sets its transform); there is no idle loop. */
+.vx-aurora {
+  position: fixed; inset: -20% -10% auto; height: 75vh; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(42% 62% at 18% 38%, rgba(124, 200, 247, 0.2), transparent 72%),
+    radial-gradient(36% 56% at 72% 28%, rgba(160, 222, 255, 0.16), transparent 72%),
+    radial-gradient(32% 52% at 50% 62%, rgba(96, 165, 250, 0.16), transparent 72%);
+  will-change: transform;
+}
+.vx-main { position: relative; z-index: 2; }
+
+/* ---------- Winter hero ---------- */
+.vx-whero {
+  position: relative; display: grid; grid-template-columns: 1.05fr 0.95fr; align-items: center; gap: 48px;
+  max-width: 1300px; margin: 0 auto; padding: 72px 24px 110px; min-height: min(88vh, 860px);
+  /* The spinning rings' rotated boxes reach past the viewport edge; clip them so the page never scrolls sideways. */
+  overflow: hidden; overflow: clip;
+}
+.vx-whero__eyebrow {
+  display: inline-flex; align-items: center; gap: 10px; margin-bottom: 26px; padding: 9px 18px; border-radius: 100px;
+  background: rgba(14, 44, 70, 0.55); border: 1px solid var(--border-gold);
+  font-size: 12px; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase; color: var(--gold-light);
+}
+.vx-whero__eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: var(--heat); box-shadow: 0 0 12px var(--heat); }
+.vx-whero__title {
+  font-family: var(--font-display); font-weight: 700; line-height: 1.02; letter-spacing: -1px;
+  font-size: clamp(42px, 6.6vw, 86px); margin: 0 0 24px; text-wrap: balance;
+}
+.vx-whero__title span { display: block; }
+.vx-frost-word {
+  background: var(--gold-text); -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: var(--gold);
+}
+.vx-heat-word {
+  background: linear-gradient(135deg, #fb923c 0%, #fdba74 55%, #fed7aa 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: var(--heat);
+}
+.vx-whero__sub { max-width: 540px; margin: 0 0 36px; font-size: clamp(17px, 2vw, 20px); font-weight: 300; line-height: 1.6; color: var(--text-muted); }
+.vx-whero__cta { display: flex; gap: 14px; flex-wrap: wrap; }
+.vx-whero__chips { display: flex; flex-wrap: wrap; gap: 10px; margin: 40px 0 0; padding: 0; list-style: none; }
+.vx-whero__chips li {
+  padding: 10px 16px; border-radius: 12px; font-size: 13px; color: var(--text);
+  background: rgba(14, 44, 70, 0.6); border: 1px solid var(--border-gold); box-shadow: 0 4px 16px rgba(4, 18, 32, 0.25);
+}
+.vx-whero__chips strong { color: var(--gold-light); font-weight: 600; }
+
+/* No load-in animation: the hero is simply there. As the page scrolls, the text lags slightly behind the page
+   for depth and only fades once most of it has scrolled away (--vx-hero-p runs 0 -> 1 over the hero's height,
+   set by voidex-winter.js). */
+.vx-motion .vx-whero__text {
+  transform: translate3d(0, calc(var(--vx-hero-p, 0) * 70px), 0);
+  opacity: calc(1 - max(0, var(--vx-hero-p, 0) - 0.55) * 1.8);
+  will-change: transform, opacity;
+}
+
+/* Hero visual: product in a frosted orb with a breathing heat core */
+.vx-whero__visual { position: relative; aspect-ratio: 1; max-width: 560px; width: 100%; justify-self: center; }
+.vx-orb {
+  position: absolute; inset: 6%; border-radius: 50%; overflow: hidden;
+  background: radial-gradient(circle at 50% 45%, rgba(255, 173, 77, 0.22), rgba(36, 90, 134, 0.92) 55%, rgba(124, 200, 247, 0.25) 100%);
+  border: 4px solid rgba(196, 233, 255, 0.85);
+  box-shadow: 0 0 0 1px var(--border-gold), 0 30px 70px rgba(4, 18, 32, 0.45);
+}
+.vx-orb img { position: absolute; inset: 9%; width: 82%; height: 82%; object-fit: contain; border-radius: 50%; }
+/* A full scene photo (hero image setting) fills the whole orb instead of floating inside it. */
+.vx-orb--photo img { inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 0; }
+.vx-orb--photo .vx-orb__heat { display: none; }
+.vx-orb__heat {
+  position: absolute; left: 50%; top: 48%; width: 46%; height: 46%; margin: -23% 0 0 -23%; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 140, 50, 0.45), rgba(255, 140, 50, 0.12) 45%, transparent 70%); pointer-events: none;
+}
+.vx-ring {
+  position: absolute; inset: 0; border-radius: 50%; border: 1.5px dashed rgba(159, 216, 251, 0.4); pointer-events: none;
+}
+.vx-ring--2 { inset: -5%; border-style: solid; border-color: rgba(159, 216, 251, 0.16); }
+/* The rings turn with the scroll position (--vx-spin, set by voidex-winter.js), not on a timer. */
+.vx-motion .vx-ring { transform: rotate(calc(var(--vx-spin, 0) * 1deg)); will-change: transform; }
+.vx-motion .vx-ring--2 { transform: rotate(calc(var(--vx-spin, 0) * -0.6deg)); }
+.vx-temp {
+  position: absolute; right: 2%; bottom: 10%; padding: 12px 16px; border-radius: 14px;
+  background: rgba(16, 48, 76, 0.94); border: 1px solid var(--border-gold); box-shadow: 0 10px 30px rgba(4, 18, 32, 0.4);
+  font-size: 12px; color: var(--text-muted);
+}
+.vx-temp b { display: block; font-family: var(--font-display); font-size: 22px; color: var(--heat-deep); }
+.vx-temp--cold { left: 0; right: auto; top: 10%; bottom: auto; }
+.vx-temp--cold b { color: var(--gold-light); }
+/* Below desktop the badges sit in the visual's corners, clear of the photo in the round frame. */
+@media (max-width: 1100px) {
+  .vx-temp { right: 0; bottom: 0; }
+  .vx-temp--cold { top: 0; left: 0; right: auto; bottom: auto; }
+}
+
+/* ---------- Buy box ---------- */
+.vx-buy { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; align-items: start; }
+.vx-gallery { position: sticky; top: calc(var(--header-h) + 20px); display: grid; gap: 14px; min-width: 0; }
+.vx-gallery__main {
+  position: relative; aspect-ratio: 1; overflow: hidden; border-radius: var(--radius);
+  background: #fff; border: 1px solid var(--border-gold);
+}
+.vx-gallery__main img { width: 100%; height: 100%; object-fit: contain; transition: opacity 0.45s var(--ease); }
+.vx-gallery__main img.is-swapping { opacity: 0; }
+.vx-gallery__main::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  box-shadow: inset 0 -60px 80px -60px rgba(28, 124, 196, 0.12);
+}
+/* Padding gives the 5px focus ring room inside the scroll strip; the negative margin keeps the layout where it was. */
+.vx-thumbs { display: flex; gap: 10px; overflow-x: auto; padding: 6px 6px 8px; margin: -6px -6px -4px; scrollbar-width: thin; }
+.vx-thumb {
+  flex: 0 0 72px; height: 72px; padding: 0; border-radius: 10px; overflow: hidden; cursor: pointer;
+  background: #fff; border: 2px solid var(--border); transition: border-color 0.3s;
+}
+.vx-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.vx-thumb:hover { border-color: var(--gold-deep); }
+.vx-thumb.is-active { border-color: var(--gold); }
+
+.vx-buy__info { min-width: 0; }
+.vx-buy__kicker { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold-light); margin: 0 0 10px; }
+.vx-buy__title { font-family: var(--font-display); font-size: clamp(30px, 4vw, 44px); font-weight: 700; line-height: 1.1; margin: 0 0 14px; }
+/* Backstop for long supplier titles on product pages: at most three lines. */
+.vx-pdp--multi .vx-buy__title { font-size: clamp(26px, 3vw, 34px); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.vx-buy__price { display: flex; align-items: baseline; gap: 12px; margin: 0 0 26px; }
+.vx-buy__price [data-vx-price] { font-family: var(--font-display); font-size: 32px; font-weight: 600; color: var(--text); }
+.vx-buy__price s { color: var(--text-muted); }
+.vx-opt { border: 0; margin: 0 0 22px; padding: 0; min-width: 0; }
+.vx-opt legend { margin-bottom: 10px; font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--text-muted); }
+.vx-opt legend b { color: var(--text); font-weight: 600; letter-spacing: 0.5px; text-transform: none; margin-left: 6px; }
+.vx-opt__list { display: flex; flex-wrap: wrap; gap: 8px; }
+.vx-chip {
+  position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 9px 15px;
+  border-radius: 12px; cursor: pointer; font: 500 14px var(--font-body); color: var(--text);
+  background: var(--bg-card); border: 1px solid var(--border-gold);
+  transition: border-color 0.25s, background-color 0.25s, box-shadow 0.25s;
+}
+.vx-chip:hover:not(:disabled) { border-color: var(--gold-deep); }
+.vx-chip.is-active { border-color: var(--gold); background: rgba(143, 211, 255, 0.18); box-shadow: 0 0 0 1px var(--gold), 0 8px 22px rgba(4, 18, 32, 0.3); }
+.vx-chip:disabled, .vx-chip.is-unavailable { opacity: 0.38; cursor: not-allowed; text-decoration: line-through; }
+.vx-chip__dot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.55); background: var(--dot, #333); }
+.vx-chip small { font-size: 11px; color: var(--text-muted); }
+.vx-buy__note { margin: 14px 0 0; font-size: 13px; color: var(--text-muted); }
+.vx-buy__note strong { color: var(--heat-deep); font-weight: 600; }
+.vx-buy__cta { width: 100%; margin-top: 6px; padding-top: 18px; padding-bottom: 18px; font-size: 14px; }
+.vx-buy__cta.is-loading { opacity: 0.7; }
+.vx-buy__list { list-style: none; margin: 26px 0 0; padding: 22px 0 0; border-top: 1px solid var(--border); display: grid; gap: 12px; }
+.vx-buy__list li { display: flex; gap: 12px; font-size: 14px; color: var(--text-muted); }
+.vx-buy__list li::before { content: '❄'; color: var(--gold); flex-shrink: 0; }
+
+/* ---------- Heat zones ---------- */
+.vx-zones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.vx-zone {
+  position: relative; overflow: hidden; padding: 30px 24px; border-radius: var(--radius);
+  background: linear-gradient(180deg, var(--bg-card), var(--bg)); border: 1px solid var(--border);
+}
+.vx-zone.is-settled { transition: border-color 0.4s, box-shadow 0.4s; }
+.vx-zone:hover { border-color: rgba(251, 146, 60, 0.6); box-shadow: var(--shadow-gold); }
+.vx-zone .vx-zone__n { font-family: var(--font-display); font-size: 54px; font-weight: 700; line-height: 1; color: var(--gold-deep); }
+.vx-zone .vx-zone__n span { font-size: 16px; font-weight: 500; color: var(--text-muted); margin-left: 6px; }
+.vx-zone h3 { font-family: var(--font-display); font-size: 19px; margin: 14px 0 8px; }
+.vx-zone p { color: var(--text-muted); font-size: 14px; line-height: 1.7; margin: 0; }
+.vx-zone__bar { height: 4px; border-radius: 4px; margin-top: 20px; background: var(--border); overflow: hidden; }
+.vx-zone__bar i { display: block; height: 100%; width: var(--w, 30%); border-radius: inherit; background: linear-gradient(90deg, var(--gold), var(--heat), var(--heat-deep)); transform-origin: left; transition: transform 0.9s var(--ease) 0.15s; }
+.vx-motion .vx-zone:not(.is-visible) .vx-zone__bar i { transform: scaleX(0); }
+
+/* ---------- Size table ---------- */
+.vx-sizes-wrap { max-width: 900px; margin: 0 auto; overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border-gold); }
+.vx-sizes-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 520px; }
+.vx-sizes-table th, .vx-sizes-table td { padding: 14px 16px; text-align: center; border-bottom: 1px solid var(--border); }
+.vx-sizes-table thead th { background: var(--bg-elevated); color: var(--gold-light); font-weight: 600; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+.vx-sizes-table tbody th { color: var(--text); font-weight: 600; }
+.vx-sizes-table td { color: var(--text-muted); }
+.vx-sizes-table tbody tr:hover { background: rgba(143, 211, 255, 0.08); }
+.vx-sizes-table tbody tr:hover td { color: var(--text); }
+.vx-sizes-table tbody { background: var(--bg-card); }
+.vx-sizes-note { max-width: 900px; margin: 18px auto 0; text-align: center; font-size: 14px; color: var(--text-muted); }
+
+/* ---------- Closing CTA ---------- */
+.vx-wfinal { text-align: center; overflow: hidden; background: radial-gradient(60% 100% at 50% 100%, rgba(143, 211, 255, 0.2), transparent 70%), linear-gradient(180deg, var(--bg), #163d5e); }
+.vx-wfinal h2 { font-family: var(--font-display); font-size: clamp(32px, 5vw, 56px); margin: 0 0 16px; }
+.vx-wfinal p { color: var(--text-muted); margin: 0 auto 32px; max-width: 520px; font-size: 18px; }
+
+/* ---------- Cards site-wide: solid panels on the dark sky (no backdrop blur over the moving snow) ---------- */
+.vx-step, .vx-zone, .vx-card, .vx-review { background: var(--bg-card); box-shadow: 0 6px 24px rgba(4, 18, 32, 0.25); }
+
+/* Size guide units */
+.vx-units { display: flex; justify-content: center; gap: 6px; margin: -18px auto 22px; }
+.vx-units[hidden] { display: none; }
+.vx-units__btn {
+  padding: 8px 18px; border-radius: 100px; font: inherit; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; cursor: pointer;
+  color: var(--text-muted); background: var(--bg-card); border: 1px solid var(--border-gold); transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+.vx-units__btn:hover { color: var(--text); }
+.vx-units__btn.is-active { color: var(--on-accent); background: var(--gold); border-color: var(--gold); }
+.vx-sizes-table .vx-u-in { display: none; }
+.vx-sizes-table.is-in .vx-u-in { display: inline; }
+.vx-sizes-table.is-in .vx-u-cm { display: none; }
+
+/* A section title with no subheading still needs room before the FAQ list. */
+.vx-title + .vx-faq { margin-top: 48px; }
+
+/* Country / currency picker in the footer */
+.vx-locale { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
+.vx-locale select {
+  padding: 8px 32px 8px 12px; border-radius: 100px; border: 1px solid var(--field-border); background: var(--bg-card); color: var(--text);
+  font: 500 13px var(--font-body); cursor: pointer; max-width: 240px;
+}
+.vx-locale button { padding: 8px 14px; }
+.vx-js .vx-locale button { display: none; }
+
+/* Other products in the store */
+.vx-more .vx-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 280px)); justify-content: center; }
+.vx-more__all { margin: 36px 0 0; text-align: center; }
+
+@media (max-width: 990px) {
+  .vx-whero { grid-template-columns: 1fr; text-align: center; padding-top: 40px; gap: 28px; min-height: 0; }
+  .vx-whero__sub { margin-left: auto; margin-right: auto; }
+  .vx-whero__cta, .vx-whero__chips { justify-content: center; }
+  .vx-whero__visual { max-width: 420px; order: -1; }
+  .vx-buy { grid-template-columns: 1fr; gap: 32px; }
+  .vx-gallery { position: static; }
+  .vx-zones { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .vx-whero { padding: 24px 16px 80px; }
+  .vx-whero__eyebrow { letter-spacing: 0.8px; font-size: 11px; padding: 8px 14px; }
+  .vx-whero__visual { max-width: 300px; }
+  .vx-temp { font-size: 11px; padding: 8px 12px; }
+  .vx-temp b { font-size: 18px; }
+  .vx-zones { grid-template-columns: 1fr; }
+  .vx-whero__cta .vx-btn { flex: 1 1 100%; }
+}
+/* ---------- Motion only on scroll: stop every self-running loop and hover/click movement from the base sheet ---------- */
+.vx-hero__badge, .vx-hero__title, .vx-hero__sub, .vx-hero__cta, .vx-hero__stats { animation: none; }
+.vx-hero__scroll::after, .vx-bottle-float, .vx-bottle__glow, .vx-cart__count.is-bumped,
+.vx-trust__item.is-visible .vx-trust__icon, .vx-slot.is-filled .vx-slot__pick, .vx-bundle__new.is-ticking,
+.vx-card__amount.is-ticking, .vx-card.is-filtered-in { animation: none; }
+.vx-mobile-nav.is-open, .vx-picker:not([hidden]), .vx-toast.is-in { animation-name: vx-fade; }
+@keyframes vx-fade { from { opacity: 0; } to { opacity: 1; } }
+.vx-btn--gold:hover:not(:disabled), .vx-tile:hover, .vx-card:hover, .vx-step:hover, .vx-filter:hover { transform: none; }
+.vx-btn--gold::after { display: none; }
+.vx-card:hover .vx-card__img, .vx-card:hover .vx-bottle { transform: none; }
+.vx-step:hover .vx-step__num::after { transform: none; }
+.vx-card__media::after { display: none; }
+/* Hover and click change colour or state in place: the nav underline fades in, the FAQ and menu switch instantly. */
+.vx-nav a::after { transform: none; opacity: 0; transition: opacity 0.3s; }
+.vx-nav a:hover::after { transform: none; opacity: 1; }
+.vx-faq__icon, .vx-faq__a, .vx-burger span { transition: none; }
+/* Sections already on screen when the page opens appear as they are (voidex-perfume.js adds vx-instant-self to
+   each one for two frames; the layout's failsafe uses vx-instant on the whole page). */
+.vx-instant *, .vx-instant *::before, .vx-instant *::after,
+.vx-instant-self, .vx-instant-self::before, .vx-instant-self::after,
+.vx-instant-self *, .vx-instant-self *::before, .vx-instant-self *::after { transition: none !important; }
+/* The page never scrolls by itself: fresh loads, #links, text links and Back/Forward land instantly.
+   voidex-winter.js turns smooth scrolling on only for a visitor's click on a same-page link. */
+html { scroll-behavior: auto; }
+/* The hero layers move with the scroll position, so they must never be the browser's scroll anchor
+   (that is what made a reload near the top glide back by itself). */
+.vx-whero, .vx-whero__text, .vx-whero__visual { overflow-anchor: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vx-motion .vx-whero__text { transform: none; opacity: 1; }
+  .vx-motion .vx-ring { transform: none; }
+}
